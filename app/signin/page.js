@@ -122,7 +122,7 @@ export default function Login() {
             type="email"
             value={email}
             autoComplete="email"
-            placeholder="tom@cruise.com"
+            placeholder="tom@brady.com"
             className="input input-bordered w-full placeholder:opacity-60"
             onChange={(e) => setEmail(e.target.value)}
           />
