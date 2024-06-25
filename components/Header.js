@@ -5,10 +5,12 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ButtonSignin from "./ButtonSignin";
+import ButtonAccount from "./ButtonAccount";
 import logo from "@/app/icon.png";
 import config from "@/config";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-const links = [
+const guestLinks = [
   {
     href: "/#pricing",
     label: "Pricing",
@@ -23,18 +25,47 @@ const links = [
   },
 ];
 
-const cta = <ButtonSignin extraStyle="btn-primary" />;
+const userLinks = [
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+  },
+  {
+    href: "/my-leagues",
+    label: "My Leagues",
+  },
+  {
+    href: "/",
+    label: "Home",
+  },
+];
 
-// A header with a logo on the left, links in the center (like Pricing, etc...), and a CTA (like Get Started or Login) on the right.
-// The header is responsive, and on mobile, the links are hidden behind a burger button.
 const Header = () => {
   const searchParams = useSearchParams();
+  const supabase = createClientComponentClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Fetch user on mount
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+    getUser();
+  }, [supabase]);
 
   // setIsOpen(false) when the route changes (i.e: when the user clicks on a link on mobile)
   useEffect(() => {
     setIsOpen(false);
   }, [searchParams]);
+
+  const links = user ? userLinks : guestLinks;
+  const cta = user ? (
+    <ButtonAccount />
+  ) : (
+    <ButtonSignin extraStyle="btn-primary" />
+  );
 
   return (
     <header className="bg-base-200">
@@ -45,9 +76,9 @@ const Header = () => {
         {/* Your logo/name on large screens */}
         <div className="flex lg:flex-1">
           <Link
-            className="flex items-center gap-2 shrink-0 "
+            className="flex items-center gap-2 shrink-0"
             href="/"
-            title={`${config.appName} hompage`}
+            title={`${config.appName} homepage`}
           >
             <Image
               src={logo}
@@ -92,7 +123,7 @@ const Header = () => {
             <Link
               href={link.href}
               key={link.href}
-              className="link link-hover"
+              className="link link-hover hover:text-primary"
               title={link.label}
             >
               {link.label}
@@ -112,8 +143,8 @@ const Header = () => {
           {/* Your logo/name on small screens */}
           <div className="flex items-center justify-between">
             <Link
-              className="flex items-center gap-2 shrink-0 "
-              title={`${config.appName} hompage`}
+              className="flex items-center gap-2 shrink-0"
+              title={`${config.appName} homepage`}
               href="/"
             >
               <Image

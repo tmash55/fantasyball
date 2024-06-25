@@ -1,36 +1,38 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useSession, signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import config from "@/config";
 
 // A simple button to sign in with our providers (Google & Magic Links).
 // It automatically redirects user to callbackUrl (config.auth.callbackUrl) after login, which is normally a private page for users to manage their accounts.
 // If the user is already logged in, it will show their profile picture & redirect them to callbackUrl immediately.
 const ButtonSignin = ({ text = "Get started", extraStyle }) => {
-  const router = useRouter();
-  const { data: session, status } = useSession();
+  const supabase = createClientComponentClient();
+  const [user, setUser] = useState(null);
 
-  const handleClick = () => {
-    if (status === "authenticated") {
-      router.push(config.auth.callbackUrl);
-    } else {
-      signIn(undefined, { callbackUrl: config.auth.callbackUrl });
-    }
-  };
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
 
-  if (status === "authenticated") {
+      setUser(data.user);
+    };
+
+    getUser();
+  }, [supabase]);
+
+  if (user) {
     return (
       <Link
         href={config.auth.callbackUrl}
         className={`btn ${extraStyle ? extraStyle : ""}`}
       >
-        {session.user?.image ? (
+        {user?.user_metadata?.avatar_url ? (
           <img
-            src={session.user?.image}
-            alt={session.user?.name || "Account"}
+            src={user?.user_metadata?.avatar_url}
+            alt={user?.user_metadata?.name || "Account"}
             className="w-6 h-6 rounded-full shrink-0"
             referrerPolicy="no-referrer"
             width={24}
@@ -38,21 +40,21 @@ const ButtonSignin = ({ text = "Get started", extraStyle }) => {
           />
         ) : (
           <span className="w-6 h-6 bg-base-300 flex justify-center items-center rounded-full shrink-0">
-            {session.user?.name?.charAt(0) || session.user?.email?.charAt(0)}
+            {user?.user_metadata?.name?.charAt(0) || user?.email?.charAt(0)}
           </span>
         )}
-        {session.user?.name || session.user?.email || "Account"}
+        {user?.user_metadata?.name || user?.email || "Account"}
       </Link>
     );
   }
 
   return (
-    <button
+    <Link
       className={`btn ${extraStyle ? extraStyle : ""}`}
-      onClick={handleClick}
+      href={config.auth.loginUrl}
     >
       {text}
-    </button>
+    </Link>
   );
 };
 
