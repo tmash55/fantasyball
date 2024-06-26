@@ -43,10 +43,6 @@ export async function POST(req) {
       case "checkout.session.completed": {
         // First payment is successful and a subscription is created (if mode was set to "subscription" in ButtonCheckout)
         // ✅ Grant access to the product
-<<<<<<< HEAD
-
-=======
->>>>>>> supabase
         const session = await findCheckoutSession(data.object.id);
 
         const customerId = session?.customer;
@@ -56,36 +52,6 @@ export async function POST(req) {
 
         if (!plan) break;
 
-<<<<<<< HEAD
-        const customer = await stripe.customers.retrieve(customerId);
-
-        let user;
-
-        // Get or create the user. userId is normally pass in the checkout session (clientReferenceID) to identify the user when we get the webhook event
-        if (userId) {
-          user = await User.findById(userId);
-        } else if (customer.email) {
-          user = await User.findOne({ email: customer.email });
-
-          if (!user) {
-            user = await User.create({
-              email: customer.email,
-              name: customer.name,
-            });
-
-            await user.save();
-          }
-        } else {
-          console.error("No user found");
-          throw new Error("No user found");
-        }
-
-        // Update user data + Grant user access to your product. It's a boolean in the database, but could be a number of credits, etc...
-        user.priceId = priceId;
-        user.customerId = customerId;
-        user.hasAccess = true;
-        await user.save();
-=======
         // Update the profile where id equals the userId (in table called 'profiles') and update the customer_id, price_id, and has_access (provisioning)
         await supabase
           .from("profiles")
@@ -95,7 +61,6 @@ export async function POST(req) {
             has_access: true,
           })
           .eq("id", userId);
->>>>>>> supabase
 
         // Extra: send email with user link, product page, etc...
         // try {
@@ -123,17 +88,6 @@ export async function POST(req) {
       case "customer.subscription.deleted": {
         // The customer subscription stopped
         // ❌ Revoke access to the product
-<<<<<<< HEAD
-        // The customer might have changed the plan (higher or lower plan, cancel soon etc...)
-        const subscription = await stripe.subscriptions.retrieve(
-          data.object.id
-        );
-        const user = await User.findOne({ customerId: subscription.customer });
-
-        // Revoke access to your product
-        user.hasAccess = false;
-        await user.save();
-=======
         const subscription = await stripe.subscriptions.retrieve(
           data.object.id
         );
@@ -142,7 +96,6 @@ export async function POST(req) {
           .from("profiles")
           .update({ has_access: false })
           .eq("customer_id", subscription.customer);
->>>>>>> supabase
 
         break;
       }
@@ -153,16 +106,6 @@ export async function POST(req) {
         const priceId = data.object.lines.data[0].price.id;
         const customerId = data.object.customer;
 
-<<<<<<< HEAD
-        const user = await User.findOne({ customerId });
-
-        // Make sure the invoice is for the same plan (priceId) the user subscribed to
-        if (user.priceId !== priceId) break;
-
-        // Grant user access to your product. It's a boolean in the database, but could be a number of credits, etc...
-        user.hasAccess = true;
-        await user.save();
-=======
         // Find profile where customer_id equals the customerId (in table called 'profiles')
         const { data: profile } = await supabase
           .from("profiles")
@@ -178,7 +121,6 @@ export async function POST(req) {
           .from("profiles")
           .update({ has_access: true })
           .eq("customer_id", customerId);
->>>>>>> supabase
 
         break;
       }
@@ -196,11 +138,7 @@ export async function POST(req) {
       // Unhandled event type
     }
   } catch (e) {
-<<<<<<< HEAD
-    console.error("stripe error: " + e.message + " | EVENT TYPE: " + eventType);
-=======
     console.error("stripe error: " + e.message + "EVENT TYPE: " + eventType);
->>>>>>> supabase
   }
 
   return NextResponse.json({});
