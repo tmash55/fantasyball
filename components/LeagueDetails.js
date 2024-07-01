@@ -105,13 +105,13 @@ const LeagueDetails = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className=" relative py-10 lg:py-16 xl:py-20  ">
+    <div className=" relative py-4 lg:py-10 xl:py-16  ">
       <div className="md:max-w-md lg:max-w-2xl max-w-[50rem] mx-auto mb-12 lg:mb-20 md:text-center">
         <LeagueSettings leagueName={leagueName} settings={settings} />
         <MyTeam />
       </div>
       <div className="max-w-[77.5rem] mx-auto px-5 md:px-10 lg:px-15 xl:max-w-[87.5rem]  p-4 rounded-lg shadow-lg mb-4 relative py-10 lg:py-16 xl:py-20">
-        <div className="flex flex-wrap gap-10 ">
+        <div className="flex flex-wrap gap-4">
           {rosters.map((roster) => (
             <Team
               key={roster.roster_id}

@@ -161,9 +161,9 @@ const MyTeam = () => {
 
               return (
                 <tr key={player.id} className={getRowClass(rankNumber)}>
-                  <td className="py-2 px-4 border-b">{player.name}</td>
-                  <td className="py-2 px-4 border-b">{positionRank}</td>
-                  <td className="py-2 px-4 border-b">
+                  <td className="py-2 px-4 border-b text-sm">{player.name}</td>
+                  <td className="py-2 px-4 border-b text-sm">{positionRank}</td>
+                  <td className="py-2 px-4 border-b text-sm">
                     {playerAdps[player.id]?.adp || "-"}
                   </td>
                 </tr>

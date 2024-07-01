@@ -21,7 +21,7 @@ const SleeperInput = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Sleeper Username"
-            className="input input-bordered w-full placeholder:opacity-60 rounded"
+            className="input input-bordered w-full placeholder:opacity-60 rounded text-primary "
           />
           <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6">
             <button

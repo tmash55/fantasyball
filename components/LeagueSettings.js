@@ -16,7 +16,7 @@ const LeagueSettings = ({ leagueName, settings }) => {
         {settingsToDisplay.map(
           (setting, idx) =>
             setting.value !== null && (
-              <li key={idx} className="py-2">
+              <li key={idx} className="py-1 text-xs">
                 <strong>{setting.label}:</strong> {setting.value}
               </li>
             )
