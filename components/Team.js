@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const Team = ({ roster, players, rosterPositions }) => {
+const Team = ({ roster, players, rosterPositions, isOpen }) => {
   const [playerAdps, setPlayerAdps] = useState({});
 
   useEffect(() => {
@@ -90,73 +90,75 @@ const Team = ({ roster, players, rosterPositions }) => {
   const totalAdp = calculateTotalAdp();
 
   return (
-    <div className="flex relative p-0.5 bg-no-repeat bg-[length:100%_100%] md:max-w-[24rem] rounded-2xl border px-6 w-[500px]">
-      <div className="flex flex-wrap gap-2 mb-6">
-        <h2 className="text-2xl font-bold mb-2 m-6 flex justify-center text-[#f8edeb] uppercase ">
-          {roster.owner}
-        </h2>
-        <div className="grid grid-cols-5 gap-2 mt-4 text-[#f8edeb]/2">
-          <div className="font-bold pb-2 col-span-2">
-            <h2>Starters</h2>
-          </div>
-          <div className="font-bold flex justify-center">
-            <h2>UD ADP</h2>
-          </div>
-
-          <div className="font-bold flex justify-center">
-            <h2>Redraft Rank</h2>
-          </div>
-          <div className="font-bold flex justify-center">
-            <h2>Dynasty Rank</h2>
-          </div>
-        </div>
-        {roster.starters.map((starterId, idx) => {
-          const player = players[starterId];
-          const position = rosterPositions[idx];
-          const { adp, adpPositionRank, value, valuePositionRank } = playerAdps[
-            starterId
-          ] || {
-            adp: "Unknown ADP",
-            adpPositionRank: "Unknown Rank",
-            value: "Unknown Value",
-            valuePositionRank: "Unknown Rank",
-          };
-
-          return (
-            <div
-              key={idx}
-              className="grid grid-cols-5 gap-2 border-t py-2 text-sm"
-            >
-              <div className="text-[#118ab2] font-bold col-span-2 ">
-                {player
-                  ? `${position} - ${player.full_name} (${player.position})`
-                  : `Unknown Player (${starterId}) - ${position}`}
-              </div>
-              <div className="items-center justify-center flex">
-                <p className="text-[#2b9348]">{adp}</p>
-              </div>
-              <div className="text-[#55a630] items-center justify-center flex">
-                {adpPositionRank}
-              </div>
-
-              <div className="items-center justify-center flex">
-                <p className="text-[#ff9f1c]">
-                  {player.position}
-                  {valuePositionRank}
-                </p>
-              </div>
+    <div className="flex relative bg-no-repeat bg-[length:100%_100%] md:max-w-[24rem] rounded-2xl border w-[500px] ">
+      <div className="card">
+        <div className="card-body">
+          <h2 className="text-2xl font-bold mb-2 m-6 flex justify-center text-[#f8edeb] uppercase ">
+            {roster.owner}
+          </h2>
+          <div className="grid grid-cols-5 gap-2 mt-4 text-[#f8edeb]/2">
+            <div className="font-bold pb-2 col-span-2">
+              <h2>Starters</h2>
             </div>
-          );
-        })}
-        <div className="grid grid-cols-5 gap-2 border-t py-2 font-bold text-sm">
-          <div>
-            <h2>Total ADP</h2>
+            <div className="font-bold flex justify-center">
+              <h2>UD ADP</h2>
+            </div>
+            <div className="font-bold flex justify-center">
+              <h2>Redraft Rank</h2>
+            </div>
+            <div className="font-bold flex justify-center">
+              <h2>Dynasty Rank</h2>
+            </div>
           </div>
-          <div></div>
+          {isOpen && (
+            <div>
+              {roster.starters.map((starterId, idx) => {
+                const player = players[starterId];
+                const position = rosterPositions[idx];
+                const { adp, adpPositionRank, value, valuePositionRank } =
+                  playerAdps[starterId] || {
+                    adp: "Unknown ADP",
+                    adpPositionRank: "Unknown Rank",
+                    value: "Unknown Value",
+                    valuePositionRank: "Unknown Rank",
+                  };
 
-          <div className="text-[#ffff3f] flex justify-center items-center font-bold">
-            {totalAdp.toFixed(2)}
+                return (
+                  <div
+                    key={idx}
+                    className="grid grid-cols-5 gap-2 border-t py-2 text-sm"
+                  >
+                    <div className="text-[#118ab2] font-bold col-span-2 ">
+                      {player
+                        ? `${position} - ${player.full_name} `
+                        : `Unknown Player (${starterId}) - ${position}`}
+                    </div>
+                    <div className="items-center justify-center flex">
+                      <p className="text-[#2b9348]">{adp}</p>
+                    </div>
+                    <div className="text-[#55a630] items-center justify-center flex">
+                      {adpPositionRank}
+                    </div>
+                    <div className="items-center justify-center flex">
+                      <p className="text-[#ff9f1c]">
+                        {player.position}
+                        {valuePositionRank}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div className="grid grid-cols-5 gap-2 border-t py-2 font-bold text-sm">
+            <div className="flex items-center space-x-1">
+              <h2>Total ADP:</h2>
+            </div>
 
+            <div></div>
+            <div className="text-[#ffff3f] flex justify-start items-center font-bold">
+              {totalAdp.toFixed(2)}
+            </div>
             <div></div>
             <div></div>
           </div>

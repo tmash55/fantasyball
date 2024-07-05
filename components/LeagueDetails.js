@@ -9,8 +9,6 @@ import LeagueSettings from "@/components/LeagueSettings";
 import { transformPosition, fetchUsername } from "@/utils/helpers";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 import MyTeam from "./MyTeam";
-import TeamRanking from "./TeamRanking";
-import FeaturesAccordion from "./FeaturesAccordion";
 
 const LeagueDetails = () => {
   const { league_id } = useParams();
@@ -30,6 +28,11 @@ const LeagueDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
+  const [allOpen, setAllOpen] = useState(false);
+
+  const toggleAll = () => {
+    setAllOpen(!allOpen);
+  };
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -105,19 +108,28 @@ const LeagueDetails = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className=" relative py-4 lg:py-10 xl:py-16  ">
+    <div className=" flex flex-col  relative py-4 lg:py-10 xl:py-16  ">
       <div className="md:max-w-md lg:max-w-2xl max-w-[50rem] mx-auto mb-12 lg:mb-20 md:text-center">
         <LeagueSettings leagueName={leagueName} settings={settings} />
         <MyTeam />
       </div>
-      <div className="max-w-[77.5rem] mx-auto px-5 md:px-10 lg:px-15 xl:max-w-[87.5rem]  p-4 rounded-lg shadow-lg mb-4 relative py-10 lg:py-16 xl:py-20">
-        <div className="flex flex-wrap gap-4">
+      <div className="max-w-[77.5rem] mx-auto px-5 md:px-10 lg:px-15 xl:max-w-[87.5rem]  p-4 rounded-lg shadow-lg mb-4 relative  lg:py-16 xl:py-20 ">
+        <div className="flex justify-center mb-4">
+          <button
+            className="text-white btn btn-outline px-4 py-2"
+            onClick={toggleAll}
+          >
+            {allOpen ? "Minimize Rosters" : "View All Rosters"}
+          </button>
+        </div>
+        <div className="flex justify-center gap-4 flex-wrap">
           {rosters.map((roster) => (
             <Team
               key={roster.roster_id}
               roster={roster}
               players={players}
               rosterPositions={rosterPositions}
+              isOpen={allOpen}
             />
           ))}
         </div>

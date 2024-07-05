@@ -125,9 +125,9 @@ const MyTeam = () => {
       });
 
     return (
-      <div className="mb-4">
+      <div className="mb-4 overflow-auto">
         <h2 className="text-xl font-bold mb-2">{position}</h2>
-        <table className="min-w-full text-slate-50 border rounded-lg overflow-hidden shadow-lg">
+        <table className="min-w-full text-slate-50 border rounded-lg overflow-hidden shadow-lg table-lg">
           <thead>
             <tr>
               <th className="py-2 px-4 border-b">Player</th>
@@ -184,7 +184,7 @@ const MyTeam = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="">
       <h1 className="text-2xl font-bold mb-4">
         {searchParams.get("username")}`s Roster
       </h1>

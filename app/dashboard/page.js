@@ -13,9 +13,6 @@ export default async function Dashboard() {
       <section className="max-w-xl mx-auto space-y-8">
         <div className="m-8 flex "> </div>
 
-        <h1 className="text-3xl md:text-4xl font-extrabold items-center">
-          Lets Explore!
-        </h1>
         <SleeperInput />
       </section>
     </main>

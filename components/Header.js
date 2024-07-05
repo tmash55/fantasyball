@@ -27,16 +27,16 @@ const guestLinks = [
 
 const userLinks = [
   {
+    href: "/",
+    label: "Home",
+  },
+  {
     href: "/dashboard",
     label: "Dashboard",
   },
   {
-    href: "/my-leagues",
-    label: "My Leagues",
-  },
-  {
-    href: "/",
-    label: "Home",
+    href: "/adp",
+    label: "ADP",
   },
 ];
 
