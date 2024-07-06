@@ -108,12 +108,17 @@ const LeagueDetails = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className=" flex flex-col  relative py-4 lg:py-10 xl:py-16  ">
-      <div className="md:max-w-md lg:max-w-2xl max-w-[50rem] mx-auto mb-12 lg:mb-20 md:text-center">
+    <section
+      id="league"
+      className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-8 md:gap-12"
+    >
+      <div className="flex justify-center items-center">
         <LeagueSettings leagueName={leagueName} settings={settings} />
-        <MyTeam />
       </div>
-      <div className="max-w-[77.5rem] mx-auto px-5 md:px-10 lg:px-15 xl:max-w-[87.5rem]  p-4 rounded-lg shadow-lg mb-4 relative  lg:py-16 xl:py-20 ">
+
+      <MyTeam />
+
+      <div className="">
         <div className="flex justify-center mb-4">
           <button
             className="text-white btn btn-outline px-4 py-2"
@@ -134,7 +139,7 @@ const LeagueDetails = () => {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

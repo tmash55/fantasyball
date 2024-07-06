@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 import { createClient } from "@supabase/supabase-js";
+import Table from "./TeamTable"; // Import the Table component
+import TeamTable from "./TeamTable";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -115,66 +117,6 @@ const MyTeam = () => {
     setPlayerAdps(adpMap);
   };
 
-  const renderTable = (players, position) => {
-    const filteredPlayers = players
-      .filter((player) => player.position === position)
-      .sort((a, b) => {
-        const rankA = parseFloat(playerAdps[a.id]?.adp) || Infinity;
-        const rankB = parseFloat(playerAdps[b.id]?.adp) || Infinity;
-        return rankA - rankB;
-      });
-
-    return (
-      <div className="mb-4 overflow-auto">
-        <h2 className="text-xl font-bold mb-2">{position}</h2>
-        <table className="min-w-full text-slate-50 border rounded-lg overflow-hidden shadow-lg table-lg">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">Player</th>
-              <th className="py-2 px-4 border-b">Position Rank</th>
-              <th className="py-2 px-4 border-b">UD ADP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPlayers.map((player) => {
-              const positionRank = playerAdps[player.id]?.positionRank || "-";
-              const rankNumber =
-                parseFloat(positionRank.replace(/^[A-Z]+/, "")) || Infinity;
-
-              const getRowClass = (rankNumber) => {
-                if (rankNumber >= 1 && rankNumber <= 12) {
-                  return "bg-[#007f5f]";
-                } else if (rankNumber >= 13 && rankNumber <= 24) {
-                  return "bg-[#2b9348]";
-                } else if (rankNumber >= 25 && rankNumber <= 36) {
-                  return "bg-[#55a630]";
-                } else if (rankNumber >= 37 && rankNumber <= 48) {
-                  return "bg-[#80b918]";
-                } else if (rankNumber >= 49 && rankNumber <= 60) {
-                  return "bg-[#dad7cd]";
-                } else if (rankNumber >= 61 && rankNumber <= 72) {
-                  return "bg-[#FFCA28]";
-                } else {
-                  return "bg-[#333533]";
-                }
-              };
-
-              return (
-                <tr key={player.id} className={getRowClass(rankNumber)}>
-                  <td className="py-2 px-4 border-b text-sm">{player.name}</td>
-                  <td className="py-2 px-4 border-b text-sm">{positionRank}</td>
-                  <td className="py-2 px-4 border-b text-sm">
-                    {playerAdps[player.id]?.adp || "-"}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -184,14 +126,24 @@ const MyTeam = () => {
   }
 
   return (
-    <div className="">
-      <h1 className="text-2xl font-bold mb-4">
-        {searchParams.get("username")}`s Roster
-      </h1>
-      {renderTable(players, "QB")}
-      {renderTable(players, "RB")}
-      {renderTable(players, "WR")}
-      {renderTable(players, "TE")}
+    <div className="flex flex-wrap gap-4 justify-center">
+      <div className="w-full">
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          {searchParams.get("username")}`s Roster
+        </h1>
+      </div>
+      <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
+        <TeamTable players={players} position="QB" playerAdps={playerAdps} />
+      </div>
+      <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
+        <TeamTable players={players} position="RB" playerAdps={playerAdps} />
+      </div>
+      <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
+        <TeamTable players={players} position="WR" playerAdps={playerAdps} />
+      </div>
+      <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
+        <TeamTable players={players} position="TE" playerAdps={playerAdps} />
+      </div>
     </div>
   );
 };
