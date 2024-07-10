@@ -141,8 +141,11 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
                     </div>
                     <div className="items-center justify-center flex">
                       <p className="text-[#ff9f1c]">
-                        {player.position}
-                        {valuePositionRank}
+                        {player
+                          ? valuePositionRank !== "Unknown Rank"
+                            ? `${player.position}${valuePositionRank}`
+                            : "Missing"
+                          : "Missing"}
                       </p>
                     </div>
                   </div>
@@ -154,11 +157,12 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
             <div className="flex items-center space-x-1">
               <h2>Total ADP:</h2>
             </div>
-
-            <div></div>
             <div className="text-[#ffff3f] flex justify-start items-center font-bold">
               {totalAdp.toFixed(2)}
             </div>
+
+            <div></div>
+
             <div></div>
             <div></div>
           </div>

@@ -1,14 +1,17 @@
-// components/LeagueDetails.js
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
 import Team from "@/components/Team";
 import LeagueSettings from "@/components/LeagueSettings";
-
+import { createClient } from "@supabase/supabase-js";
 import { transformPosition, fetchUsername } from "@/utils/helpers";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 import MyTeam from "./MyTeam";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const LeagueDetails = () => {
   const { league_id } = useParams();
@@ -17,12 +20,14 @@ const LeagueDetails = () => {
   const [rosters, setRosters] = useState([]);
   const [players, setPlayers] = useState({});
   const [leagueName, setLeagueName] = useState("");
+
   const [settings, setSettings] = useState({
     rec: 0,
     bonus_rec_wr: 0,
     bonus_rec_rb: 0,
     bonus_rec_te: 0,
     best_ball: 0,
+    pass_td: 0,
   });
   const [rosterPositions, setRosterPositions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,19 +64,22 @@ const LeagueDetails = () => {
         );
         const leagueData = leagueResponse.data;
         console.log("Fetched league data:", leagueData);
+
         setLeagueName(leagueData.name);
         setSettings({
           rec: leagueData.scoring_settings.rec ?? 0,
           bonus_rec_wr: leagueData.scoring_settings.bonus_rec_wr ?? 0,
           bonus_rec_rb: leagueData.scoring_settings.bonus_rec_rb ?? 0,
           bonus_rec_te: leagueData.scoring_settings.bonus_rec_te ?? 0,
+          pass_td: leagueData.scoring_settings.pass_td ?? 0,
           best_ball: leagueData.settings.best_ball ?? 0,
         });
-        setRosterPositions(
-          leagueData.roster_positions
-            .filter((pos) => pos !== "BN")
-            .map(transformPosition)
+
+        const filteredPositions = leagueData.roster_positions.filter(
+          (pos) => pos !== "BN"
         );
+
+        setRosterPositions(filteredPositions.map(transformPosition));
 
         const playerData = await refreshPlayerDataIfNeeded();
         setPlayers(playerData || {});
@@ -107,13 +115,20 @@ const LeagueDetails = () => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
+  const activeRosterCount = rosterPositions.length;
+
   return (
     <section
       id="league"
       className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-8 md:gap-12"
     >
       <div className="flex justify-center items-center">
-        <LeagueSettings leagueName={leagueName} settings={settings} />
+        <LeagueSettings
+          leagueName={leagueName}
+          settings={settings}
+          activeRosterCount={activeRosterCount}
+          rosterPositions={rosterPositions} // Pass roster positions to LeagueSettings
+        />
       </div>
 
       <MyTeam />

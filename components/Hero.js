@@ -2,6 +2,8 @@ import Image from "next/image";
 import TestimonialsAvatars from "./TestimonialsAvatars";
 import config from "@/config";
 import { data1 } from "@/assets";
+import ButtonSignin from "./ButtonSignin";
+import Link from "next/link";
 
 const Hero = () => {
   return (
@@ -13,11 +15,10 @@ const Hero = () => {
         <p className="text-lg opacity-80 leading-relaxed">
           Gain Deeper Insights and Make Smarter Moves in Your Fantasy Football
           Leagues. Enhance Your Strategy with In-Depth League Analysis.
-        </p>
-        <button className="btn btn-primary btn-wide">
-          Get {config.appName}
-        </button>
-
+        </p>{" "}
+        <Link href={"/dashboard"}>
+          <button className="btn btn-primary btn-wide"> Get Started</button>
+        </Link>
         <TestimonialsAvatars priority={true} />
       </div>
       <div className="lg:w-full">

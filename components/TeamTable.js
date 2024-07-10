@@ -69,7 +69,7 @@ const TeamTable = ({ players, position, playerAdps }) => {
       {filteredPlayers.length > 6 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-2 text-sm text-default"
+          className="mt-2 text-sm text-default btn btn-ghost"
         >
           {expanded ? "Show Less" : "Show More"}
         </button>

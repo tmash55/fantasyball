@@ -132,14 +132,15 @@ const MyTeam = () => {
           {searchParams.get("username")}`s Roster
         </h1>
       </div>
-      <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
-        <TeamTable players={players} position="QB" playerAdps={playerAdps} />
-      </div>
+
       <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
         <TeamTable players={players} position="RB" playerAdps={playerAdps} />
       </div>
       <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
         <TeamTable players={players} position="WR" playerAdps={playerAdps} />
+      </div>
+      <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
+        <TeamTable players={players} position="QB" playerAdps={playerAdps} />
       </div>
       <div className="w-full lg:w-1/2 xl:w-1/3 mb-4">
         <TeamTable players={players} position="TE" playerAdps={playerAdps} />
