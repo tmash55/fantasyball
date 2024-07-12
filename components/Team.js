@@ -21,14 +21,14 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
             console.log("Fetching ADP and Value for:", firstName, lastName);
 
             const { data: adpData, error: adpError } = await supabase
-              .from("adp_rankings_2024_June")
+              .from("UD_ADP_JULY12")
               .select("adp, positionRank")
               .eq("firstName", firstName)
               .ilike("lastName", `%${lastName}%`)
               .single();
 
             const { data: valueData, error: valueError } = await supabase
-              .from("fantasyCalc_2024_June")
+              .from("fantasyCalc_2024_July")
               .select("value, positionRank")
               .eq("first_name", firstName)
               .ilike("last_name", `%${lastName}%`)
