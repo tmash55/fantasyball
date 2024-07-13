@@ -8,6 +8,7 @@ import { createClient } from "@supabase/supabase-js";
 import { transformPosition, fetchUsername } from "@/utils/helpers";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 import MyTeam from "./MyTeam";
+import MyTeamTabs from "./MyTeamTabs";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -130,8 +131,7 @@ const LeagueDetails = () => {
           rosterPositions={rosterPositions} // Pass roster positions to LeagueSettings
         />
       </div>
-
-      <MyTeam />
+      <MyTeamTabs />
 
       <div className="">
         <div className="flex justify-center mb-4">
