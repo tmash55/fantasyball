@@ -25,7 +25,7 @@ const Hero = () => {
         <Image
           src={football2}
           alt="Product Demo"
-          className="w-full h-full rounded hidden md:block object-cover"
+          className="w-full h-full rounded-xl hidden md:block object-cover shadow-2xl"
           priority={true}
           layout="responsive"
           width={400}

@@ -12,8 +12,8 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const guestLinks = [
   {
-    href: "/#pricing",
-    label: "Pricing",
+    href: "/#features",
+    label: "Features",
   },
   {
     href: "/#testimonials",
@@ -44,7 +44,7 @@ const Header = () => {
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined); // Initialize as undefined
 
   // Fetch user on mount
   useEffect(() => {
@@ -59,6 +59,38 @@ const Header = () => {
   useEffect(() => {
     setIsOpen(false);
   }, [searchParams]);
+
+  // Show a loading state or a placeholder until user state is determined
+  if (user === undefined) {
+    return (
+      <header className="bg-base-200">
+        <nav
+          className="container flex items-center justify-between px-8 py-4 mx-auto "
+          aria-label="Global"
+        >
+          {/* Your logo/name on large screens */}
+          <div className="flex lg:flex-1">
+            <Link
+              className="flex items-center gap-2 shrink-0"
+              href="/"
+              title={`${config.appName} homepage`}
+            >
+              <Image
+                src={logo}
+                alt={`${config.appName} logo`}
+                className="w-8"
+                placeholder="blur"
+                priority={true}
+                width={32}
+                height={32}
+              />
+              <span className="font-extrabold text-lg">{config.appName}</span>
+            </Link>
+          </div>
+        </nav>
+      </header>
+    );
+  }
 
   const links = user ? userLinks : guestLinks;
   const cta = user ? (

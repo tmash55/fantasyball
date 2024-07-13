@@ -21,7 +21,6 @@ export default function Home() {
         <Problem />
         <FeaturesAccordion />
 
-        <FAQ />
         <CTA />
       </main>
       <Footer />
