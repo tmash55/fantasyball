@@ -128,7 +128,7 @@ const MyTeam = () => {
   return (
     <div className="flex flex-wrap gap-4 justify-center">
       <div className="w-full">
-        <h1 className="text-2xl font-bold mb-4 text-center">
+        <h1 className="text-2xl font-bold mb-4 text-center p-8">
           {searchParams.get("username")}`s Roster
         </h1>
       </div>

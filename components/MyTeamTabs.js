@@ -4,16 +4,19 @@ import DraftsAndPicks from "./DraftsAndPicks";
 
 const MyTeamTabs = () => {
   return (
-    <div role="tablist" className="tabs tabs-boxed tabs-lg">
+    <div
+      role="tablist"
+      className="tabs tabs-boxed tabs-lg rounded-none border-t border-base-100"
+    >
       <input
         type="radio"
         name="my_tabs_2"
         role="tab"
         className="tab "
-        aria-label="Roster"
+        aria-label="Trades"
       />
       <div role="tabpanel" className="tab-content bg-base-100  rounded-box p-6">
-        <MyTeam />
+        Trades
       </div>
 
       <input
@@ -21,11 +24,11 @@ const MyTeamTabs = () => {
         name="my_tabs_2"
         role="tab"
         className="tab"
-        aria-label="Trades"
+        aria-label="Roster"
         defaultChecked
       />
-      <div role="tabpanel" className="tab-content bg-base-100rounded-box p-6">
-        Trades
+      <div role="tabpanel" className="tab-content bg-base-100 rounded-box p-6">
+        <MyTeam />
       </div>
 
       <input

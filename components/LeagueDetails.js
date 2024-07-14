@@ -123,15 +123,15 @@ const LeagueDetails = () => {
       id="league"
       className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-8 md:gap-12"
     >
-      <div className="flex justify-center items-center">
+      <div className="join join-vertical rounded-none">
         <LeagueSettings
           leagueName={leagueName}
           settings={settings}
           activeRosterCount={activeRosterCount}
           rosterPositions={rosterPositions} // Pass roster positions to LeagueSettings
         />
+        <MyTeamTabs />
       </div>
-      <MyTeamTabs />
 
       <div className="">
         <div className="flex justify-center mb-4">
