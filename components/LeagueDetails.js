@@ -123,7 +123,7 @@ const LeagueDetails = () => {
       id="league"
       className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-8 md:gap-12"
     >
-      <div className="join join-vertical rounded-none">
+      <div className="join join-vertical mt-6">
         <LeagueSettings
           leagueName={leagueName}
           settings={settings}

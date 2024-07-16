@@ -143,7 +143,7 @@ const DraftsAndPicks = () => {
         }
         .grid-header-item {
           font-weight: bold;
-          background-color: #f0f0f0;
+          background-color: base-300;
           padding: 10px;
           border: 1px solid #ccc;
           text-align: center;
@@ -156,7 +156,7 @@ const DraftsAndPicks = () => {
           display: contents;
         }
         .grid-item {
-          background-color: #fff;
+          background-color: base-300;
           padding: 10px;
           border: 1px solid #ccc;
           text-align: center;

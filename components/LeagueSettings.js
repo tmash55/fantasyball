@@ -41,9 +41,9 @@ const LeagueSettings = ({
 
   return (
     <div className="flex flex-col ">
-      <h1 className="text-5xl text-primary">{leagueName}</h1>
+      <h1 className="text-5xl text-primary mb-16">{leagueName}</h1>
 
-      <div className="stats Shadow mt-16 text-center items-center bg-base-200 rounded-none border border-base-100">
+      <div className="stats Shadow  text-center items-center bg-base-200 rounded-none  hidden lg-[1122px]:flex">
         {settingsToDisplay.map(
           (setting, idx) =>
             setting.value !== null && (
