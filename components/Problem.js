@@ -47,7 +47,7 @@ const Problem = () => {
           Fantasy Leagues: Sleep Optional
         </h2>
         <p className="max-w-xl mx-auto text-lg opacity-90 leading-relaxed mb-12 md:mb-20">
-          Drafts, Trades, Lineups... There&apos;s So Much Going On.
+          Drafts, Trades, Lineups... There&apos;s So Much To Keep Track Of.
         </p>
 
         <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6">
