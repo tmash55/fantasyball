@@ -52,7 +52,7 @@ export default function Login() {
   return (
     <main className="p-8 md:p-24" data-theme={config.colors.theme}>
       <div className="text-center mb-4">
-        <Link href="/" className="btn btn-ghost btn-sm">
+        <Link href="/" className="btn btn-ghost btn-sm btn-disable">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
@@ -74,11 +74,12 @@ export default function Login() {
 
       <div className="space-y-8 max-w-xl mx-auto">
         <button
-          className="btn btn-block"
+          className="btn btn-block btn-disable"
           onClick={(e) =>
             handleSignup(e, { type: "oauth", provider: "google" })
           }
-          disabled={isLoading}
+          //make this disabled={isLoading} for it to work
+          disabled="disabled"
         >
           {isLoading ? (
             <span className="loading loading-spinner loading-xs"></span>
@@ -106,7 +107,7 @@ export default function Login() {
               />
             </svg>
           )}
-          Sign-up with Google
+          Sign-up with Google (COMING SOON)
         </button>
 
         <div className="divider text-xs text-base-content/50 font-medium">

@@ -35,7 +35,7 @@ const userLinks = [
     label: "Dashboard",
   },
   {
-    href: "/my-leagues",
+    href: "/ADP",
     label: "ADP",
   },
 ];

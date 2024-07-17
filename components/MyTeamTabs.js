@@ -1,6 +1,7 @@
 import React from "react";
 import MyTeam from "./MyTeam";
 import DraftsAndPicks from "./DraftsAndPicks";
+import LeagueSettings from "./LeagueSettings";
 
 const MyTeamTabs = () => {
   return (
@@ -16,7 +17,7 @@ const MyTeamTabs = () => {
         aria-label="Trades"
       />
       <div role="tabpanel" className="tab-content bg-base-100  rounded-box p-6">
-        Trades
+        Trades Coming soon!
       </div>
 
       <input
@@ -39,8 +40,19 @@ const MyTeamTabs = () => {
         aria-label="Drafts"
       />
       <div role="tabpanel" className="tab-content bg-base-100  rounded-box p-6">
-        <DraftsAndPicks />
+        Draft History with values coming soon!
       </div>
+      <input
+        type="radio"
+        name="my_tabs_2"
+        role="tab"
+        className="tab "
+        aria-label="Settings"
+      />
+      <div
+        role="tabpanel"
+        className="tab-content bg-base-100  rounded-box p-6"
+      ></div>
     </div>
   );
 };
