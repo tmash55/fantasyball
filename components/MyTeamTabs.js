@@ -42,17 +42,6 @@ const MyTeamTabs = () => {
       <div role="tabpanel" className="tab-content bg-base-100  rounded-box p-6">
         Draft History with values coming soon!
       </div>
-      <input
-        type="radio"
-        name="my_tabs_2"
-        role="tab"
-        className="tab "
-        aria-label="Settings"
-      />
-      <div
-        role="tabpanel"
-        className="tab-content bg-base-100  rounded-box p-6"
-      ></div>
     </div>
   );
 };
