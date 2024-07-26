@@ -7,8 +7,12 @@ import LeagueSettings from "@/components/LeagueSettings";
 import { createClient } from "@supabase/supabase-js";
 import { transformPosition, fetchUsername } from "@/utils/helpers";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
-import MyTeam from "./MyTeam";
 import MyTeamTabs from "./MyTeamTabs";
+import useLeagueHistory from "./LeagueHistory";
+import Link from "next/link";
+import Drafts from "./Drafts";
+import MyTeam from "./MyTeam";
+import Trades from "./Trades"; // Import the Trades component
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -21,7 +25,6 @@ const LeagueDetails = () => {
   const [rosters, setRosters] = useState([]);
   const [players, setPlayers] = useState({});
   const [leagueName, setLeagueName] = useState("");
-
   const [settings, setSettings] = useState({
     rec: 0,
     bonus_rec_wr: 0,
@@ -35,6 +38,9 @@ const LeagueDetails = () => {
   const [error, setError] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
   const [allOpen, setAllOpen] = useState(false);
+  const [userRosterId, setUserRosterId] = useState(null); // State for user roster ID
+  const leagueHistory = useLeagueHistory(league_id);
+  const backUrl = `/dashboard/leagues?username=${username}`;
 
   const toggleAll = () => {
     setAllOpen(!allOpen);
@@ -97,11 +103,20 @@ const LeagueDetails = () => {
               roster_id: roster.roster_id,
               owner: ownerUsername,
               starters: roster.starters,
+              owner_id: roster.owner_id, // Add owner_id for comparison
             };
           })
         );
 
         setRosters(rostersWithOwners);
+
+        // Find the user's roster ID
+        const userRoster = rostersWithOwners.find(
+          (roster) => roster.owner_id === userDetails.user_id
+        );
+        if (userRoster) {
+          setUserRosterId(userRoster.roster_id);
+        }
       } catch (err) {
         console.error("Error fetching league details:", err);
         setError("Failed to fetch league details");
@@ -110,8 +125,10 @@ const LeagueDetails = () => {
       }
     };
 
-    fetchLeagueDetails();
-  }, [league_id, username]);
+    if (userDetails) {
+      fetchLeagueDetails();
+    }
+  }, [league_id, userDetails]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -123,14 +140,74 @@ const LeagueDetails = () => {
       id="league"
       className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-8 md:gap-12"
     >
-      <div className="join join-vertical mt-6">
+      <div>
+        <Link href={backUrl} className="link">
+          Go Back
+        </Link>
+      </div>
+      <div className="join join-vertical">
         <LeagueSettings
           leagueName={leagueName}
           settings={settings}
           activeRosterCount={activeRosterCount}
           rosterPositions={rosterPositions} // Pass roster positions to LeagueSettings
         />
-        <MyTeamTabs />
+        <div
+          role="tablist"
+          className="tabs tabs-boxed tabs-lg rounded-none border-t border-base-100"
+        >
+          <input
+            type="radio"
+            name="my_tabs_2"
+            role="tab"
+            className="tab"
+            aria-label="Trades"
+          />
+          <div
+            role="tabpanel"
+            className="tab-content bg-base-100 rounded-box p-6"
+          >
+            {/* Add the Trades component and pass league_id, userRosterId, players, and rosters to it */}
+            {userRosterId && (
+              <Trades
+                league_id={league_id}
+                roster_id={userRosterId}
+                players={players}
+                rosters={rosters}
+              />
+            )}
+          </div>
+
+          <input
+            type="radio"
+            name="my_tabs_2"
+            role="tab"
+            className="tab"
+            aria-label="Roster"
+            defaultChecked
+          />
+          <div
+            role="tabpanel"
+            className="tab-content bg-base-100 rounded-box p-6"
+          >
+            <MyTeam />
+          </div>
+
+          <input
+            type="radio"
+            name="my_tabs_2"
+            role="tab"
+            className="tab"
+            aria-label="Drafts"
+          />
+          <div
+            role="tabpanel"
+            className="tab-content bg-base-100 rounded-box p-6 overflow-x-auto"
+          >
+            {/* Add the Drafts component here and pass the leagueHistory to it */}
+            <Drafts leagueHistory={leagueHistory} />
+          </div>
+        </div>
       </div>
 
       <div className="">

@@ -2,6 +2,8 @@ import React from "react";
 import MyTeam from "./MyTeam";
 import DraftsAndPicks from "./DraftsAndPicks";
 import LeagueSettings from "./LeagueSettings";
+import useLeagueHistory from "./LeagueHistory";
+import Drafts from "./Drafts";
 
 const MyTeamTabs = () => {
   return (
@@ -39,9 +41,10 @@ const MyTeamTabs = () => {
         className="tab"
         aria-label="Drafts"
       />
-      <div role="tabpanel" className="tab-content bg-base-100  rounded-box p-6">
-        Draft History with values coming soon!
-      </div>
+      <div
+        role="tabpanel"
+        className="tab-content bg-base-100  rounded-box p-6"
+      ></div>
     </div>
   );
 };

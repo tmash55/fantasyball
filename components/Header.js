@@ -36,7 +36,7 @@ const userLinks = [
   },
   {
     href: "/ADP",
-    label: "ADP",
+    label: "Tools",
   },
 ];
 

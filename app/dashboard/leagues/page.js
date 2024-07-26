@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const Leagues = () => {
   const searchParams = useSearchParams();
@@ -42,28 +43,37 @@ const Leagues = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <Header />
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4 uppercase">
-          {username}
-          <span className="lowercase">`s League(s)</span>
-        </h1>
-        <ul className="space-y-2">
-          {leagues.map((league) => (
-            <li key={league.league_id}>
-              <Link
-                href={`/dashboard/leagues/${league.league_id}?username=${username}`}
-              >
-                <span className="hover:text-primary block p-4 shadow hover:bg-neutral transition-colors rounded-lg">
-                  {league.name}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <>
+      <main>
+        <div>
+          <Header />
+          <section
+            id="league"
+            className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-2 md:gap-6"
+          >
+            <h1 className="text-2xl font-bold mb-4 uppercase">
+              {username}
+              <span className="lowercase">`s League(s)</span>
+            </h1>
+            <p className="">Number of active leagues: {leagues.length}</p>
+            <ul className="space-y-2">
+              {leagues.map((league) => (
+                <li key={league.league_id}>
+                  <Link
+                    href={`/dashboard/leagues/${league.league_id}?username=${username}`}
+                  >
+                    <span className="hover:text-primary block p-4 shadow hover:bg-neutral transition-colors rounded-lg">
+                      {league.name}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </main>
+      <Footer />
+    </>
   );
 };
 
