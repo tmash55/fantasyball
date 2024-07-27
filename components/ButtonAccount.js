@@ -103,7 +103,8 @@ const ButtonAccount = () => {
               <div className="overflow-hidden rounded-xl shadow-xl ring-1 ring-base-content ring-opacity-5 bg-base-100 p-1">
                 <div className="space-y-0.5 text-sm">
                   <button
-                    className="flex items-center gap-2 hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium"
+                    //Add flex to className and remove hidden to make this visable
+                    className=" items-center gap-2 hover:bg-base-300 duration-200 py-1.5 px-4 w-full rounded-lg font-medium hidden"
                     onClick={handleBilling}
                   >
                     <svg

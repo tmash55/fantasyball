@@ -128,21 +128,21 @@ const MyTeam = () => {
   return (
     <div className="flex flex-wrap gap-16 justify-center">
       <div className="w-full">
-        <h1 className="text-2xl font-bold mb-4 text-center p-8">
+        <h1 className="text-2xl font-bold text-center pt-8">
           {searchParams.get("username")}`s Roster
         </h1>
       </div>
 
-      <div className="w-full lg:w-1/3 mb-4">
+      <div className="w-full lg:w-1/3 ">
         <TeamTable players={players} position="RB" playerAdps={playerAdps} />
       </div>
-      <div className="w-full lg:w-1/3 mb-4">
+      <div className="w-full lg:w-1/3 ">
         <TeamTable players={players} position="WR" playerAdps={playerAdps} />
       </div>
-      <div className="w-full lg:w-1/3 mb-4">
+      <div className="w-full lg:w-1/3 ">
         <TeamTable players={players} position="QB" playerAdps={playerAdps} />
       </div>
-      <div className="w-full lg:w-1/3 mb-4">
+      <div className="w-full lg:w-1/3 ">
         <TeamTable players={players} position="TE" playerAdps={playerAdps} />
       </div>
     </div>

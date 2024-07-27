@@ -37,7 +37,7 @@ const LeagueDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userDetails, setUserDetails] = useState(null);
-  const [allOpen, setAllOpen] = useState(false);
+  const [allOpen, setAllOpen] = useState(true);
   const [userRosterId, setUserRosterId] = useState(null); // State for user roster ID
   const leagueHistory = useLeagueHistory(league_id);
   const backUrl = `/dashboard/leagues?username=${username}`;

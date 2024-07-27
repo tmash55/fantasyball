@@ -92,7 +92,7 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
   return (
     <div className="flex relative bg-no-repeat bg-[length:100%_100%] md:max-w-[24rem] rounded-2xl border w-[500px] ">
       <div className="card">
-        <div className="card-body">
+        <div className="card-body p-2">
           <h2 className="text-2xl font-bold mb-2 m-6 flex justify-center text-[#f8edeb] uppercase ">
             {roster.owner}
           </h2>
@@ -126,9 +126,9 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
                 return (
                   <div
                     key={idx}
-                    className="grid grid-cols-5 gap-2 border-t py-2 text-sm"
+                    className="grid grid-cols-5 gap-2 border-t py-1 text-sm h-16"
                   >
-                    <div className="text-[#118ab2] font-bold col-span-2 ">
+                    <div className="text-[#118ab2] font-bold items-center justify-start flex col-span-2">
                       {player
                         ? `${position} - ${player.full_name} `
                         : `Unknown Player (${starterId}) - ${position}`}
