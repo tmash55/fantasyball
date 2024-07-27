@@ -93,13 +93,13 @@ const DraftPicks = ({ draftId, leagueId }) => {
   const getPositionColorClass = (position) => {
     switch (position) {
       case "RB":
-        return "bg-[#55a630]";
+        return "bg-[#2b9348]";
       case "WR":
         return "bg-[#118ab2]";
       case "TE":
         return "bg-[#B16E10]";
       case "QB":
-        return "bg-[#B1101E]";
+        return "bg-[#A50F1C]";
       default:
         return "";
     }
