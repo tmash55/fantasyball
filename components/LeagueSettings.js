@@ -42,7 +42,7 @@ const LeagueSettings = ({
   return (
     <div className="flex flex-col ">
       <h1 className="text-5xl text-primary mb-16">{leagueName}</h1>
-      <p className="text-sm mb-4">* Values as of July 13th</p>
+      <p className="text-sm mb-4">* Values as of July 27th</p>
 
       <div className="stats Shadow  text-center items-center bg-base-200 rounded-none  hidden lg-[1122px]:flex">
         {settingsToDisplay.map(

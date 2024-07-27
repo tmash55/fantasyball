@@ -83,7 +83,7 @@ const MyTeam = () => {
         console.log("Fetching ADP for:", firstName, lastName);
 
         const { data: adpData, error } = await supabase
-          .from("UD_ADP_JULY12")
+          .from("Underdog_Redraft_ADP_08")
           .select("adp, positionRank")
           .eq("firstName", firstName)
           .ilike("lastName", `%${lastName}%`)

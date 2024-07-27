@@ -21,7 +21,7 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
             console.log("Fetching ADP and Value for:", firstName, lastName);
 
             const { data: adpData, error: adpError } = await supabase
-              .from("UD_ADP_JULY12")
+              .from("Underdog_Redraft_ADP_08")
               .select("adp, positionRank")
               .eq("firstName", firstName)
               .ilike("lastName", `%${lastName}%`)
