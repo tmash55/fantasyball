@@ -13,6 +13,7 @@ import Link from "next/link";
 import Drafts from "./Drafts";
 import MyTeam from "./MyTeam";
 import Trades from "./Trades"; // Import the Trades component
+import TestFetchHistoricalData from "./TestFetchHistoricalData";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -167,6 +168,8 @@ const LeagueDetails = () => {
             role="tabpanel"
             className="tab-content bg-base-100 rounded-box p-6"
           >
+            <h1 className="text-xl font-bold mb-4">Recent trades</h1>
+
             {/* Add the Trades component and pass league_id, userRosterId, players, and rosters to it */}
             {userRosterId && (
               <Trades

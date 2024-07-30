@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDate } from "../utils/dateUtils"; // Import the utility function
 
 const IndividualTrade = ({ trade, players, rosters }) => {
   const getPlayerName = (playerId) => {
@@ -61,10 +62,14 @@ const IndividualTrade = ({ trade, players, rosters }) => {
     );
   };
 
+  const formattedDate = formatDate(trade.status_updated);
+
   return (
     <div className="card bg-base-200 w-full md:w-96 overflow-x-auto mb-4">
       <div className="card-body">
-        <h1 className="card-title mb-4">Trade {trade.transaction_id}</h1>
+        <h1 className="card-title">Trade </h1>
+        <p className="text-sm">{formattedDate}</p>{" "}
+        {/* Display the formatted date */}
         <div className="flex flex-col md:flex-row items-center gap-4">
           {renderTeamDetails(trade.roster_ids[0])}
           {trade.roster_ids.length === 2 && (
@@ -78,7 +83,7 @@ const IndividualTrade = ({ trade, players, rosters }) => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-switch-horizontal"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-switch-horizontal"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M16 3l4 4l-4 4" />
