@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import clsx from "clsx"; // To easily manage conditional class names
 import { createClient } from "@supabase/supabase-js";
+import { formatDate } from "@/utils/dateUtils";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -159,7 +160,7 @@ const DraftPicks = ({ draftId, leagueId }) => {
     return historicalInfo;
   };
 
-  const formatDate = (timestamp) => {
+  const formatedDate = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -256,7 +257,7 @@ const DraftPicks = ({ draftId, leagueId }) => {
           <thead className="w-48 text-center">
             <tr>
               {draftOrder.map(([userId, slot]) => (
-                <th key={userId} className="w-36">
+                <th key={userId} className="w-[7rem]">
                   {users[userId]}
                 </th>
               ))}
@@ -314,16 +315,18 @@ const DraftPicks = ({ draftId, leagueId }) => {
                             <div className="text-sm opacity-50">
                               {pick.metadata.position} - {pick.metadata.team}
                             </div>
-                            <div className="flex items-center">
-                              <div className="flex flex-col">
+                            <div className="flex flex-col">
+                              <div className="flex items-center">
                                 {draftDayValue && (
-                                  <div className="text-xs mt-2 flex items-center">
+                                  <div className="text-xs mt-2">
                                     Draft Day Value: {draftDayValue.value}
-                                    <div className="ml-2">
-                                      {getArrowIcon(currentValue, draftDayVal)}
-                                    </div>
                                   </div>
                                 )}
+                                <div className="ml-2">
+                                  {getArrowIcon(currentValue, draftDayVal)}
+                                </div>
+                              </div>
+                              <div className="flex items-center">
                                 {historicalInfo && (
                                   <div className="text-xs mt-2">
                                     Current Value: {historicalInfo.value}

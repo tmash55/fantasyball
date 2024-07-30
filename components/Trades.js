@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import IndividualTrade from "./IndividualTrade"; // Import the IndividualTrade component
+import TradeSummary from "./TradeSummary"; // Import the TradeSummary component
+import IndividualTrade from "./IndividualTrade";
 
 const Trades = ({ league_id, roster_id, players, rosters }) => {
   const [trades, setTrades] = useState([]);
@@ -35,19 +36,33 @@ const Trades = ({ league_id, roster_id, players, rosters }) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="flex justify-center gap-4 flex-wrap">
-      {trades.length === 0 ? (
-        <p>No trades found for this user.</p>
-      ) : (
-        trades.map((trade) => (
-          <IndividualTrade
-            key={trade.transaction_id}
-            trade={trade}
+    <div>
+      <div className="flex flex-col items-center gap-4">
+        {trades.length === 0 ? (
+          <p>No trades found for this user.</p>
+        ) : (
+          <TradeSummary
+            trades={trades}
             players={players}
             rosters={rosters}
+            roster_id={roster_id}
           />
-        ))
-      )}
+        )}
+        <div className="flex justify-center gap-4 flex-wrap">
+          {trades.length === 0 ? (
+            <p>No trades found for this user.</p>
+          ) : (
+            trades.map((trade) => (
+              <IndividualTrade
+                key={trade.transaction_id}
+                trade={trade}
+                players={players}
+                rosters={rosters}
+              />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 };
