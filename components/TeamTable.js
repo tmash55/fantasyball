@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import PlayerCard from "./PlayerCard"; // Import the PlayerCard component
 
 const TeamTable = ({ players, position, playerAdps }) => {
   const [expanded, setExpanded] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   const filteredPlayers = players
     .filter((player) => player.position === position)
@@ -33,6 +35,22 @@ const TeamTable = ({ players, position, playerAdps }) => {
     }
   };
 
+  const handlePlayerClick = (player) => {
+    const [firstName, ...rest] = player.name.split(" ");
+    const lastName = rest.join(" ");
+    setSelectedPlayer({
+      ...player,
+      first_name: firstName,
+      last_name: lastName,
+    });
+  };
+
+  useEffect(() => {
+    if (selectedPlayer) {
+      document.getElementById("player_modal").showModal();
+    }
+  }, [selectedPlayer]);
+
   return (
     <div className="mb-4 overflow-auto h-full">
       <h2 className="text-xl font-bold mb-2 text-center">{position}</h2>
@@ -52,8 +70,12 @@ const TeamTable = ({ players, position, playerAdps }) => {
               parseFloat(positionRank.replace(/^[A-Z]+/, "")) || Infinity;
 
             return (
-              <tr key={player.id} className={getRowClass(rankNumber)}>
-                <td className="py-2 px-4 border-b text-sm text-center">
+              <tr
+                key={player.id}
+                className={getRowClass(rankNumber)}
+                onClick={() => handlePlayerClick(player)}
+              >
+                <td className="py-2 px-4 border-b text-sm text-center cursor-pointer underline">
                   {player.name}
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-center">
@@ -77,6 +99,25 @@ const TeamTable = ({ players, position, playerAdps }) => {
         >
           {expanded ? "Show Less" : "Show More"}
         </button>
+      )}
+
+      {selectedPlayer && (
+        <dialog id="player_modal" className="modal">
+          <div className="modal-box">
+            <PlayerCard player={selectedPlayer} />
+            <div className="modal-action">
+              <button
+                className="btn"
+                onClick={() => {
+                  document.getElementById("player_modal").close();
+                  setSelectedPlayer(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
       )}
     </div>
   );

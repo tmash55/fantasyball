@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import PlayerCard from "./PlayerCard"; // Import the PlayerCard component
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const Team = ({ roster, players, rosterPositions, isOpen }) => {
+const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
   const [playerAdps, setPlayerAdps] = useState({});
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   useEffect(() => {
     const fetchPlayerAdps = async () => {
@@ -89,6 +91,18 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
 
   const totalAdp = calculateTotalAdp();
 
+  const handlePlayerClick = (player, dialogId) => {
+    if (player) {
+      setSelectedPlayer({
+        first_name: player.first_name,
+        last_name: player.last_name,
+        position: player.position,
+        team: player.team,
+      });
+      document.getElementById(dialogId).showModal();
+    }
+  };
+
   return (
     <div className="flex relative bg-no-repeat bg-[length:100%_100%] md:max-w-[24rem] rounded-2xl border w-[500px] ">
       <div className="card">
@@ -115,6 +129,7 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
               {roster.starters.map((starterId, idx) => {
                 const player = players[starterId];
                 const position = rosterPositions[idx];
+                const dialogId = `player_modal_${teamId}_${starterId}`; // Unique ID for each player modal
                 const { adp, adpPositionRank, value, valuePositionRank } =
                   playerAdps[starterId] || {
                     adp: "Unknown ADP",
@@ -126,9 +141,10 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
                 return (
                   <div
                     key={idx}
-                    className="grid grid-cols-5 gap-2 border-t py-1 text-sm h-16"
+                    className="grid grid-cols-5 gap-2 border-t py-1 text-sm h-16 hover:bg-base-300 cursor-pointer"
+                    onClick={() => handlePlayerClick(player, dialogId)}
                   >
-                    <div className="text-[#118ab2] font-bold items-center justify-start flex col-span-2">
+                    <div className="text-[#118ab2] font-bold items-center justify-start flex col-span-2 ">
                       {player
                         ? `${position} - ${player.full_name} `
                         : `Unknown Player (${starterId}) - ${position}`}
@@ -148,6 +164,20 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
                           : "Missing"}
                       </p>
                     </div>
+
+                    <dialog id={dialogId} className="modal">
+                      <div className="modal-box">
+                        <h3 className="font-bold text-lg">Player Details</h3>
+                        {selectedPlayer && (
+                          <PlayerCard player={selectedPlayer} />
+                        )}
+                        <div className="modal-action">
+                          <form method="dialog">
+                            <button className="btn">Close</button>
+                          </form>
+                        </div>
+                      </div>
+                    </dialog>
                   </div>
                 );
               })}

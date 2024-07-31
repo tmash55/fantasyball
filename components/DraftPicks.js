@@ -3,6 +3,7 @@ import axios from "axios";
 import clsx from "clsx"; // To easily manage conditional class names
 import { createClient } from "@supabase/supabase-js";
 import { formatDate } from "@/utils/dateUtils";
+import PlayerCard from "./PlayerCard"; // Import PlayerCard component
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -19,6 +20,7 @@ const DraftPicks = ({ draftId, leagueId }) => {
   const [historicalData, setHistoricalData] = useState({});
   const [draftDayData, setDraftDayData] = useState({});
   const [startTime, setStartTime] = useState(null);
+  const [selectedPlayer, setSelectedPlayer] = useState(null); // State to hold selected player
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -169,6 +171,16 @@ const DraftPicks = ({ draftId, leagueId }) => {
     });
   };
 
+  const handlePlayerClick = (player) => {
+    setSelectedPlayer(player);
+  };
+
+  useEffect(() => {
+    if (selectedPlayer) {
+      document.getElementById("player_modal").showModal();
+    }
+  }, [selectedPlayer]);
+
   if (loading) return <p>Loading draft picks...</p>;
   if (error) return <p>{error}</p>;
 
@@ -296,9 +308,17 @@ const DraftPicks = ({ draftId, leagueId }) => {
                     <td
                       key={slot}
                       className={clsx(
-                        "relative p-2 rounded-lg border border-1 border-base-100 w-40",
+                        "relative p-2 rounded-lg border border-1 border-base-100 w-40 cursor-pointer",
                         pick && getPositionColorClass(pick.metadata.position)
                       )}
+                      onClick={() =>
+                        handlePlayerClick({
+                          first_name: pick.metadata.first_name,
+                          last_name: pick.metadata.last_name,
+                          position: pick.metadata.position,
+                          team: pick.metadata.team,
+                        })
+                      }
                     >
                       {pick ? (
                         <div className="flex flex-col h-full justify-start">
@@ -380,6 +400,25 @@ const DraftPicks = ({ draftId, leagueId }) => {
           </tbody>
         </table>
       </div>
+
+      {selectedPlayer && (
+        <dialog id="player_modal" className="modal">
+          <div className="modal-box">
+            <PlayerCard player={selectedPlayer} />
+            <div className="modal-action">
+              <button
+                className="btn"
+                onClick={() => {
+                  document.getElementById("player_modal").close();
+                  setSelectedPlayer(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
     </div>
   );
 };
