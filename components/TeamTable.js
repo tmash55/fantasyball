@@ -38,10 +38,11 @@ const TeamTable = ({ players, position, playerAdps }) => {
       <h2 className="text-xl font-bold mb-2 text-center">{position}</h2>
       <table className="min-w-full text-slate-50 border rounded-lg overflow-hidden shadow-lg table-lg">
         <thead>
-          <tr c>
+          <tr>
             <th className="py-2 px-4 border-b">Player</th>
             <th className="py-2 px-4 border-b text-center">Position Rank</th>
-            <th className="py-2 px-4 border-b text-center ">UD ADP</th>
+            <th className="py-2 px-4 border-b text-center">UD ADP</th>
+            <th className="py-2 px-4 border-b text-center">Dynasty Value</th>
           </tr>
         </thead>
         <tbody>
@@ -60,6 +61,9 @@ const TeamTable = ({ players, position, playerAdps }) => {
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-center">
                   {playerAdps[player.id]?.adp || "-"}
+                </td>
+                <td className="py-2 px-4 border-b text-sm text-center">
+                  {playerAdps[player.id]?.dynastyValue || "-"}
                 </td>
               </tr>
             );

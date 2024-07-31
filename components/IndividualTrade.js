@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { formatDate } from "../utils/dateUtils"; // Import the utility function
+import classNames from "classnames"; // Import classnames for conditional styling
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -12,12 +13,14 @@ const IndividualTrade = ({ trade, players, rosters }) => {
   const [tradeDayData, setTradeDayData] = useState({});
   const [draftPickValues, setDraftPickValues] = useState({});
   const [tradeDayPickValues, setTradeDayPickValues] = useState({});
+  const [totals, setTotals] = useState({
+    totalAddedCurrent: 0,
+    totalTradedCurrent: 0,
+    totalAddedTradeDay: 0,
+    totalTradedTradeDay: 0,
+  });
 
   useEffect(() => {
-    const formattedTradeDate = new Date(trade.status_updated)
-      .toISOString()
-      .split("T")[0];
-
     const fetchHistoricalData = async () => {
       // Query to get the most recent historical data for each player
       const { data: recentData, error: recentError } = await supabase
@@ -40,6 +43,34 @@ const IndividualTrade = ({ trade, players, rosters }) => {
         setHistoricalData(recentHistoricalData);
       }
 
+      // Query to get the most recent pick values
+      const { data: draftPicks, error: draftPicksError } = await supabase
+        .from("Dynasty-historical-data")
+        .select("full_name, value")
+        .order("date", { ascending: false });
+
+      if (draftPicksError) {
+        console.error("Error fetching draft pick values:", draftPicksError);
+      } else {
+        const draftPickValuesMap = draftPicks.reduce((acc, pick) => {
+          if (!acc[pick.full_name]) {
+            acc[pick.full_name] = pick.value;
+          }
+          return acc;
+        }, {});
+        setDraftPickValues(draftPickValuesMap);
+      }
+    };
+
+    fetchHistoricalData();
+  }, []);
+
+  useEffect(() => {
+    const formattedTradeDate = new Date(trade.status_updated)
+      .toISOString()
+      .split("T")[0];
+
+    const fetchTradeDayData = async () => {
       // Query to get the historical data for the trade day date
       const { data: tradeDayData, error: tradeDayError } = await supabase
         .from("Dynasty-historical-data")
@@ -58,32 +89,10 @@ const IndividualTrade = ({ trade, players, rosters }) => {
         }, {});
         setTradeDayData(tradeDayHistoricalData);
       }
-    };
-
-    const fetchDraftPickValues = async () => {
-      // Query to get the most recent pick values
-      const { data: draftPicks, error: draftPicksError } = await supabase
-        .from("Dynasty-historical-data") // Replace with your actual table name
-        .select("full_name, value")
-        .order("date", { ascending: false });
-
-      if (draftPicksError) {
-        console.error("Error fetching draft pick values:", draftPicksError);
-      } else {
-        console.log("Fetched draft pick values:", draftPicks); // Debug: log the fetched draft pick values
-        const draftPickValuesMap = draftPicks.reduce((acc, pick) => {
-          if (!acc[pick.full_name]) {
-            acc[pick.full_name] = pick.value;
-          }
-          return acc;
-        }, {});
-        setDraftPickValues(draftPickValuesMap);
-        console.log("Draft pick values map:", draftPickValuesMap); // Debug: log the draft pick values map
-      }
 
       // Query to get the pick values on the trade day date
       const { data: tradeDayPicks, error: tradeDayPicksError } = await supabase
-        .from("Dynasty-historical-data") // Replace with your actual table name
+        .from("Dynasty-historical-data")
         .select("full_name, value")
         .eq("date", formattedTradeDate);
 
@@ -98,17 +107,15 @@ const IndividualTrade = ({ trade, players, rosters }) => {
           return acc;
         }, {});
         setTradeDayPickValues(tradeDayPickValuesMap);
-        console.log("Trade day pick values map:", tradeDayPickValuesMap); // Debug: log the trade day pick values map
       }
     };
 
-    fetchHistoricalData();
-    fetchDraftPickValues();
-  }, [trade.status_updated]);
+    fetchTradeDayData();
+  }, [trade]);
 
   const findHistoricalData = (firstName, lastName, data) => {
     const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
-    return data[key];
+    return data[key] ? data[key].value : 0; // Assign value 0 if not found
   };
 
   const getPlayerName = (playerId) => {
@@ -132,26 +139,80 @@ const IndividualTrade = ({ trade, players, rosters }) => {
     const pickName = `${pick.season} Mid ${pick.round}${getRoundSuffix(
       pick.round
     )}`;
-    console.log("Formatted pick name:", pickName); // Debug: log the formatted pick name
-    const value = data[pickName] || "N/A";
-    console.log(`Value for ${pickName}:`, value); // Debug: log the value for the formatted pick name
+    const value = data[pickName] || 0; // Assign value 0 if not found
     return value;
   };
 
-  const renderTeamDetails = (teamId) => {
+  const calculateTotals = (teamId, data) => {
+    let totalValueAdded = 0;
+    let totalValueTraded = 0;
+
     const draftPicksReceived = trade.draft_picks.filter(
       (pick) => pick.owner_id === teamId
     );
-    const draftPicksDropped = trade.draft_picks.filter(
+    const draftPicksTraded = trade.draft_picks.filter(
       (pick) => pick.previous_owner_id === teamId
     );
     const playersAdded = trade.adds
       ? Object.entries(trade.adds).filter(([, rosterId]) => rosterId === teamId)
       : [];
-    const playersDropped = trade.drops
+    const playersTraded = trade.drops
       ? Object.entries(trade.drops).filter(
           ([, rosterId]) => rosterId === teamId
         )
+      : [];
+
+    playersAdded.forEach(([playerId]) => {
+      const playerName = getPlayerName(playerId);
+      const [firstName, lastName] = playerName.split(" ");
+      const value = findHistoricalData(firstName, lastName, data);
+      totalValueAdded += value;
+    });
+
+    draftPicksReceived.forEach((pick) => {
+      const value = getDraftPickValue(pick, data);
+      totalValueAdded += value;
+    });
+
+    playersTraded.forEach(([playerId]) => {
+      const playerName = getPlayerName(playerId);
+      const [firstName, lastName] = playerName.split(" ");
+      const value = findHistoricalData(firstName, lastName, data);
+      totalValueTraded += value;
+    });
+
+    draftPicksTraded.forEach((pick) => {
+      const value = getDraftPickValue(pick, data);
+      totalValueTraded += value;
+    });
+
+    return { totalValueAdded, totalValueTraded };
+  };
+
+  useEffect(() => {
+    const {
+      totalValueAdded: totalAddedCurrent,
+      totalValueTraded: totalTradedCurrent,
+    } = calculateTotals(trade.roster_ids[0], historicalData);
+    const {
+      totalValueAdded: totalAddedTradeDay,
+      totalValueTraded: totalTradedTradeDay,
+    } = calculateTotals(trade.roster_ids[0], tradeDayData);
+
+    setTotals({
+      totalAddedCurrent,
+      totalTradedCurrent,
+      totalAddedTradeDay,
+      totalTradedTradeDay,
+    });
+  }, [historicalData, tradeDayData, trade]);
+
+  const renderTeamDetails = (teamId) => {
+    const draftPicksReceived = trade.draft_picks.filter(
+      (pick) => pick.owner_id === teamId
+    );
+    const playersAdded = trade.adds
+      ? Object.entries(trade.adds).filter(([, rosterId]) => rosterId === teamId)
       : [];
 
     return (
@@ -164,12 +225,12 @@ const IndividualTrade = ({ trade, players, rosters }) => {
             {playersAdded.map(([playerId]) => {
               const playerName = getPlayerName(playerId);
               const [firstName, lastName] = playerName.split(" ");
-              const currentPlayerData = findHistoricalData(
+              const currentPlayerValue = findHistoricalData(
                 firstName,
                 lastName,
                 historicalData
               );
-              const tradeDayPlayerData = findHistoricalData(
+              const tradeDayPlayerValue = findHistoricalData(
                 firstName,
                 lastName,
                 tradeDayData
@@ -180,16 +241,12 @@ const IndividualTrade = ({ trade, players, rosters }) => {
                   className="text-sm mt-2 items-center flex flex-col"
                 >
                   <p>{playerName}</p>
-                  {currentPlayerData && (
-                    <div className="text-xs mt-1">
-                      Current Value: {currentPlayerData.value}
-                    </div>
-                  )}
-                  {tradeDayPlayerData && (
-                    <div className="text-xs mt-1">
-                      Trade Day Value: {tradeDayPlayerData.value}
-                    </div>
-                  )}
+                  <div className="text-xs mt-1">
+                    Current Value: {currentPlayerValue}
+                  </div>
+                  <div className="text-xs mt-1">
+                    Trade Day Value: {tradeDayPlayerValue}
+                  </div>
                 </div>
               );
             })}

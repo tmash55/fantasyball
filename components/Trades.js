@@ -50,7 +50,7 @@ const Trades = ({ league_id, roster_id, players, rosters }) => {
         )}
         <div className="flex justify-center gap-4 flex-wrap">
           {trades.length === 0 ? (
-            <p>No trades found for this user.</p>
+            <p></p>
           ) : (
             trades.map((trade) => (
               <IndividualTrade

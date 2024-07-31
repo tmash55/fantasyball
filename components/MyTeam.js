@@ -82,34 +82,62 @@ const MyTeam = () => {
         const [firstName, lastName] = player.name.split(" ");
         console.log("Fetching ADP for:", firstName, lastName);
 
-        const { data: adpData, error } = await supabase
+        const { data: adpData, error: adpError } = await supabase
           .from("Underdog_Redraft_ADP_08")
           .select("adp, positionRank")
           .eq("firstName", firstName)
           .ilike("lastName", `%${lastName}%`)
           .single();
 
-        if (error) {
+        if (adpError) {
           console.error(
             `Error fetching ADP for ${firstName} ${lastName}:`,
-            error
+            adpError
           );
           adpMap[player.id] = {
             adp: "Unknown ADP",
             positionRank: "Unknown Rank",
+            dynastyValue: "Unknown",
           };
         } else {
           console.log(`Fetched ADP for ${firstName} ${lastName}:`, adpData);
-          adpMap[player.id] = {
-            adp: adpData.adp,
-            positionRank: adpData.positionRank,
-          };
+
+          const { data: dynastyData, error: dynastyError } = await supabase
+            .from("Dynasty-historical-data")
+            .select("value")
+            .eq("first_name", firstName)
+            .ilike("last_name", `%${lastName}%`)
+            .limit(1)
+            .single();
+
+          if (dynastyError) {
+            console.error(
+              `Error fetching Dynasty value for ${firstName} ${lastName}:`,
+              dynastyError
+            );
+            adpMap[player.id] = {
+              adp: adpData.adp,
+              positionRank: adpData.positionRank,
+              dynastyValue: "Unknown",
+            };
+          } else {
+            console.log(
+              `Fetched Dynasty value for ${firstName} ${lastName}:`,
+              dynastyData
+            );
+            adpMap[player.id] = {
+              adp: adpData.adp,
+              positionRank: adpData.positionRank,
+              dynastyValue: dynastyData.value,
+            };
+          }
         }
       } else {
         console.log(`Player with ID ${player.id} not found`);
         adpMap[player.id] = {
           adp: "-",
           positionRank: "-",
+          dynastyValue: "-",
         };
       }
     }

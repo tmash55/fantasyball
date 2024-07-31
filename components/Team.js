@@ -133,14 +133,14 @@ const Team = ({ roster, players, rosterPositions, isOpen }) => {
                         ? `${position} - ${player.full_name} `
                         : `Unknown Player (${starterId}) - ${position}`}
                     </div>
-                    <div className="items-center justify-center flex">
-                      <p className="text-[#2b9348]">{adp}</p>
+                    <div className="flex items-center justify-center">
+                      <p className="text-[#2b9348] text-center">{adp}</p>
                     </div>
                     <div className="text-[#55a630] items-center justify-center flex">
                       {adpPositionRank}
                     </div>
                     <div className="items-center justify-center flex">
-                      <p className="text-[#ff9f1c]">
+                      <p className="text-[#ff9f1c] text-center">
                         {player
                           ? valuePositionRank !== "Unknown Rank"
                             ? `${player.position}${valuePositionRank}`
