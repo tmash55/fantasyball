@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { settings_snapshot } from "@/assets";
+import { settings_snapshot, draftBoard, playerCard2 } from "@/assets";
 
 // The features array is a list of features that will be displayed in the accordion.
 // - title: The title of the feature
@@ -57,6 +57,9 @@ const features = [
     title: "Player Values",
     description:
       "Access detailed dynasty and redraft values for every player in your leagues.",
+    type: "image",
+    path: playerCard2,
+    alt: "Player Values",
     svg: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
