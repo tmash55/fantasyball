@@ -17,6 +17,7 @@ export const viewport = {
 // This adds default SEO tags to all pages in our app.
 // You can override them in each page passing params to getSOTags() function.
 export const metadata = getSEOTags();
+// Create a client
 
 export default function RootLayout({ children }) {
   return (
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
       )}
       <body>
         {/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
+
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

@@ -21,9 +21,9 @@ const TeamTable = ({ players, position, playerAdps }) => {
     if (rankNumber >= 1 && rankNumber <= 12) {
       return "bg-[#007f5f]";
     } else if (rankNumber >= 13 && rankNumber <= 24) {
-      return "bg-[#2b9348]";
+      return " bg-[#2b9348]";
     } else if (rankNumber >= 25 && rankNumber <= 36) {
-      return "bg-[#55a630]";
+      return " bg-[#55a630]";
     } else if (rankNumber >= 37 && rankNumber <= 48) {
       return "bg-[#80b918]";
     } else if (rankNumber >= 49 && rankNumber <= 60) {
@@ -72,10 +72,12 @@ const TeamTable = ({ players, position, playerAdps }) => {
             return (
               <tr
                 key={player.id}
-                className={getRowClass(rankNumber)}
+                className={`${getRowClass(
+                  rankNumber
+                )} hover:bg-opacity-80 cursor-pointer`}
                 onClick={() => handlePlayerClick(player)}
               >
-                <td className="py-2 px-4 border-b text-sm text-center cursor-pointer underline">
+                <td className="py-2 px-4 border-b text-sm text-center">
                   {player.name}
                 </td>
                 <td className="py-2 px-4 border-b text-sm text-center">

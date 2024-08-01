@@ -86,7 +86,7 @@ const MyTeam = () => {
           .from("Underdog_Redraft_ADP_08")
           .select("adp, positionRank")
           .eq("firstName", firstName)
-          .ilike("lastName", `%${lastName}%`)
+          .eq("lastName", lastName)
           .single();
 
         if (adpError) {
@@ -106,7 +106,7 @@ const MyTeam = () => {
             .from("Dynasty-historical-data")
             .select("value")
             .eq("first_name", firstName)
-            .ilike("last_name", `%${lastName}%`)
+            .eq("last_name", lastName)
             .limit(1)
             .single();
 

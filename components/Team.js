@@ -110,14 +110,14 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
           <h2 className="text-2xl font-bold mb-2 m-6 flex justify-center text-[#f8edeb] uppercase ">
             {roster.owner}
           </h2>
-          <div className="grid grid-cols-5 gap-2 mt-4 text-[#f8edeb]/2">
+          <div className="grid grid-cols-5 gap-2 mt-4 text-[#f8edeb]/2 ">
             <div className="font-bold pb-2 col-span-2">
               <h2>Starters</h2>
             </div>
-            <div className="font-bold flex justify-center">
+            <div className="font-bold flex justify-center ">
               <h2>UD ADP</h2>
             </div>
-            <div className="font-bold flex justify-center">
+            <div className="font-bold flex justify-center ">
               <h2>Redraft Rank</h2>
             </div>
             <div className="font-bold flex justify-center">
