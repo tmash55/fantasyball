@@ -308,7 +308,7 @@ const DraftPicks = ({ draftId, leagueId }) => {
                     <td
                       key={slot}
                       className={clsx(
-                        "relative p-2 rounded-lg border border-1 border-base-100 w-40 cursor-pointer",
+                        "relative p-2 rounded-lg border border-1 border-base-100 w-40 cursor-pointer hover:bg-opacity-80",
                         pick && getPositionColorClass(pick.metadata.position)
                       )}
                       onClick={() =>
