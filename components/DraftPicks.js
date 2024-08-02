@@ -100,8 +100,8 @@ const DraftPicks = ({ draftId, leagueId }) => {
 
       // Query to get the most recent historical data for each player
       const { data: recentData, error: recentError } = await supabase
-        .from("Dynasty-historical-data")
-        .select("first_name, last_name, value, date")
+        .from("ktc_test")
+        .select("first_name, last_name, sf_value, date")
         .order("date", { ascending: false });
 
       if (recentError) {
@@ -298,7 +298,7 @@ const DraftPicks = ({ draftId, leagueId }) => {
                     : null;
 
                   const currentValue = historicalInfo
-                    ? historicalInfo.value
+                    ? historicalInfo.sf_value
                     : null;
                   const draftDayVal = draftDayValue
                     ? draftDayValue.value
@@ -349,7 +349,7 @@ const DraftPicks = ({ draftId, leagueId }) => {
                               <div className="flex items-center">
                                 {historicalInfo && (
                                   <div className="text-xs mt-2">
-                                    Current Value: {historicalInfo.value}
+                                    Current Value: {historicalInfo.sf_value}
                                   </div>
                                 )}
                               </div>

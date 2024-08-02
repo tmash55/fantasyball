@@ -141,11 +141,29 @@ const LeagueDetails = () => {
       id="league"
       className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-8 md:gap-12"
     >
-      <div>
-        <Link href={backUrl} className="link">
-          Go Back
+      <div className="flex flex-row items-center">
+        <Link href={backUrl} className="flex items-center gap-2 link">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="icon icon-tabler icon-tabler-arrow-left"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M5 12l14 0" />
+            <path d="M5 12l6 6" />
+            <path d="M5 12l6 -6" />
+          </svg>
+          League List
         </Link>
       </div>
+
       <div className="join join-vertical">
         <LeagueSettings
           leagueName={leagueName}

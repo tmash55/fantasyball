@@ -8,9 +8,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const stripSuffix = (name) => {
+  return name.replace(/( Jr\.| Sr\.)$/, "");
+};
+
 const PlayerCard = ({ player }) => {
   const [playerData, setPlayerData] = useState([]);
+  const [additionalData, setAdditionalData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(true);
   const [maxValue, setMaxValue] = useState(null);
   const [maxValueDate, setMaxValueDate] = useState(null);
 
@@ -46,12 +52,38 @@ const PlayerCard = ({ player }) => {
     }
   };
 
+  const fetchAdditionalData = async () => {
+    try {
+      const { first_name, last_name } = player;
+      const strippedLastName = stripSuffix(last_name);
+      const { data, error } = await supabase
+        .from("ktc_test")
+        .select(
+          "first_name, last_name, sf_value, age, sf_position_rank, date, position, team"
+        )
+        .eq("first_name", first_name)
+        .ilike("last_name", `%${strippedLastName}%`)
+        .order("date", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching additional data:", error);
+      } else {
+        setAdditionalData(data[0]); // Assuming you only need the most recent entry
+      }
+    } catch (error) {
+      console.error("Error fetching additional data:", error);
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setChartLoading(true);
       const data = await fetchPlayerData();
       setPlayerData(data);
+      await fetchAdditionalData();
       setLoading(false);
+      setChartLoading(false);
     };
 
     loadData();
@@ -74,30 +106,6 @@ const PlayerCard = ({ player }) => {
     [playerData]
   );
 
-  const chartData = useMemo(
-    () => ({
-      labels: validData.map((entry) => new Date(entry.date)),
-      datasets: [
-        {
-          label: "Value (All Time)",
-          data: validData.map((entry) => entry.value),
-          fill: false,
-          backgroundColor: "rgba(75,192,192,0.4)",
-          borderColor: "rgba(75,192,192,1)",
-          borderWidth: 2,
-          lineTension: 0.1,
-          pointBackgroundColor: validData.map((entry) =>
-            entry.date === maxValueDate ? "red" : "rgba(75,192,192,1)"
-          ),
-          pointRadius: validData.map((entry) =>
-            entry.date === maxValueDate ? 8 : 3
-          ), // Increase the radius of the max value point
-        },
-      ],
-    }),
-    [validData, maxValueDate]
-  );
-
   const sixMonthsAgo = useMemo(() => {
     const date = new Date();
     date.setMonth(date.getMonth() - 6);
@@ -107,24 +115,6 @@ const PlayerCard = ({ player }) => {
   const recentData = useMemo(
     () => validData.filter((entry) => new Date(entry.date) >= sixMonthsAgo),
     [validData, sixMonthsAgo]
-  );
-
-  const recentChartData = useMemo(
-    () => ({
-      labels: recentData.map((entry) => new Date(entry.date)),
-      datasets: [
-        {
-          label: "Value (Last 6 Months)",
-          data: recentData.map((entry) => entry.value),
-          fill: false,
-          backgroundColor: "rgba(255,99,132,0.4)",
-          borderColor: "rgba(255,99,132,1)",
-          borderWidth: 2,
-          lineTension: 0.1,
-        },
-      ],
-    }),
-    [recentData]
   );
 
   const optionsAllTime = useMemo(
@@ -226,10 +216,10 @@ const PlayerCard = ({ player }) => {
     <div>
       <div className="text-center mb-4">
         <h2 className="text-xl font-bold">
-          {player.first_name} {player.last_name}
+          {additionalData.first_name} {additionalData.last_name}
         </h2>
         <p className="text-gray-500">
-          {player.position} - {player.team}
+          {additionalData.position} - {additionalData.team}
         </p>
       </div>
       <div className="text-left">
@@ -241,19 +231,84 @@ const PlayerCard = ({ player }) => {
               on {new Date(maxValueDate).toLocaleDateString()}
             </li>
           )}
+          {additionalData && (
+            <>
+              <li>
+                SF Value:{" "}
+                <span className="font-bold">{additionalData.sf_value}</span>
+              </li>
+              <li>
+                Age: <span className="font-bold">{additionalData.age}</span>
+              </li>
+              <li>
+                SF Position Rank:{" "}
+                <span className="font-bold">
+                  {additionalData.sf_position_rank}
+                </span>
+              </li>
+            </>
+          )}
         </ul>
         <div className="mt-4">
           <h3 className="text-lg font-semibold text-center">
             All Time Dynasty Value
           </h3>
           <div className="relative h-64">
-            <Line data={chartData} options={optionsAllTime} />
+            {chartLoading ? (
+              <div className="skeleton h-full w-full" />
+            ) : (
+              <Line
+                data={{
+                  labels: validData.map((entry) => new Date(entry.date)),
+                  datasets: [
+                    {
+                      label: "Value (All Time)",
+                      data: validData.map((entry) => entry.value),
+                      fill: false,
+                      backgroundColor: "rgba(75,192,192,0.4)",
+                      borderColor: "rgba(75,192,192,1)",
+                      borderWidth: 2,
+                      lineTension: 0.1,
+                      pointBackgroundColor: validData.map((entry) =>
+                        entry.date === maxValueDate
+                          ? "red"
+                          : "rgba(75,192,192,1)"
+                      ),
+                      pointRadius: validData.map((entry) =>
+                        entry.date === maxValueDate ? 8 : 3
+                      ),
+                    },
+                  ],
+                }}
+                options={optionsAllTime}
+              />
+            )}
           </div>
           <h3 className="text-lg font-semibold mt-6 text-center">
             Dynasty Value Last 6 Months
           </h3>
           <div className="relative h-64">
-            <Line data={recentChartData} options={optionsSixMonth} />
+            {chartLoading ? (
+              <div className="skeleton h-full w-full" />
+            ) : (
+              <Line
+                data={{
+                  labels: recentData.map((entry) => new Date(entry.date)),
+                  datasets: [
+                    {
+                      label: "Value (Last 6 Months)",
+                      data: recentData.map((entry) => entry.value),
+                      fill: false,
+                      backgroundColor: "rgba(255,99,132,0.4)",
+                      borderColor: "rgba(255,99,132,1)",
+                      borderWidth: 2,
+                      lineTension: 0.1,
+                    },
+                  ],
+                }}
+                options={optionsSixMonth}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -261,4 +316,4 @@ const PlayerCard = ({ player }) => {
   );
 };
 
-export default React.memo(PlayerCard);
+export default PlayerCard;

@@ -56,19 +56,63 @@ const Leagues = () => {
               <span className="lowercase">`s League(s)</span>
             </h1>
             <p className="">Number of active leagues: {leagues.length}</p>
-            <ul className="space-y-2">
-              {leagues.map((league) => (
-                <li key={league.league_id}>
-                  <Link
-                    href={`/dashboard/leagues/${league.league_id}?username=${username}`}
-                  >
-                    <span className="hover:text-primary block p-4 shadow hover:bg-neutral transition-colors rounded-lg">
-                      {league.name}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <p>
+              <Link href={`/dashboard/exposure/?username=${username}`}>
+                Exposure
+              </Link>
+            </p>
+            <div className="overflow-x-auto">
+              <table className="min-w-full table">
+                <thead>
+                  <tr>
+                    <th className="">League Name</th>
+                    <th className="">Rosters</th>
+                    <th className="">Redraft Rank</th>
+                    <th className="">Dynasty Rank</th>
+                    <th className="">Buy In</th>
+                    <th className="">Total Pot</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leagues.map((league) => (
+                    <tr key={league.league_id} className="hover ">
+                      <td className="hover:text-primary">
+                        <Link
+                          href={`/dashboard/leagues/${league.league_id}?username=${username}`}
+                        >
+                          <span className="">{league.name}</span>
+                        </Link>
+                      </td>
+                      <td>{league.settings.num_teams}</td>
+                      <td className=""></td>
+                      <td className=""></td>
+                      <td className="w-20">
+                        <label className="input input-bordered flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            className="h-4 w-4 opacity-70"
+                          >
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                            <path d="M12 3v3m0 12v3" />
+                          </svg>
+                          <input type="text" className="grow" placeholder="0" />
+                        </label>
+                      </td>
+                      <td className=""></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         </div>
       </main>

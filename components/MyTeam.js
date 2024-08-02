@@ -9,6 +9,9 @@ import TeamTable from "./TeamTable";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+const stripSuffix = (name) => {
+  return name.replace(/( Jr\.| Sr\.)$/, "");
+};
 
 const MyTeam = () => {
   const searchParams = useSearchParams();
@@ -86,7 +89,7 @@ const MyTeam = () => {
           .from("Underdog_Redraft_ADP_08")
           .select("adp, positionRank")
           .eq("firstName", firstName)
-          .eq("lastName", lastName)
+          .ilike("lastName", lastName)
           .single();
 
         if (adpError) {
@@ -101,14 +104,16 @@ const MyTeam = () => {
           };
         } else {
           console.log(`Fetched ADP for ${firstName} ${lastName}:`, adpData);
-
+          const strippedLastName = stripSuffix(lastName);
           const { data: dynastyData, error: dynastyError } = await supabase
-            .from("Dynasty-historical-data")
-            .select("value")
+
+            .from("ktc_test")
+            .select("sf_value, age, sf_position_rank")
             .eq("first_name", firstName)
-            .eq("last_name", lastName)
-            .limit(1)
-            .single();
+            .ilike("last_name", `%${strippedLastName}%`)
+            .order("date", { ascending: false })
+            .single()
+            .limit(1);
 
           if (dynastyError) {
             console.error(
@@ -128,7 +133,7 @@ const MyTeam = () => {
             adpMap[player.id] = {
               adp: adpData.adp,
               positionRank: adpData.positionRank,
-              dynastyValue: dynastyData.value,
+              dynastyValue: dynastyData.sf_value,
             };
           }
         }

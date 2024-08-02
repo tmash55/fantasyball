@@ -5,15 +5,21 @@ import PlayerCard from "./PlayerCard"; // Import the PlayerCard component
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+const stripSuffix = (name) => {
+  return name.replace(/( Jr\.| Sr\.)$/, "");
+};
 
 const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
   const [playerAdps, setPlayerAdps] = useState({});
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [averageAge, setAverageAge] = useState(null); // State for average age
 
   useEffect(() => {
     const fetchPlayerAdps = async () => {
       try {
         const adpMap = {};
+        let totalAge = 0;
+        let starterCount = 0;
 
         for (let starterId of roster.starters) {
           const player = players[starterId];
@@ -21,6 +27,7 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
           if (player) {
             const [firstName, lastName] = player.full_name.split(" ");
             console.log("Fetching ADP and Value for:", firstName, lastName);
+            const strippedLastName = stripSuffix(lastName);
 
             const { data: adpData, error: adpError } = await supabase
               .from("Underdog_Redraft_ADP_08")
@@ -30,11 +37,13 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
               .single();
 
             const { data: valueData, error: valueError } = await supabase
-              .from("fantasyCalc_2024_July")
-              .select("value, positionRank")
-              .eq("first_name", firstName)
-              .ilike("last_name", `%${lastName}%`)
-              .single();
+              .from("ktc_test")
+              .select("sf_value, age, sf_position_rank")
+              .ilike("first_name", firstName)
+              .ilike("last_name", `%${strippedLastName}%`)
+              .order("date", { ascending: false })
+              .single()
+              .limit(1);
 
             if (adpError || valueError) {
               console.error(
@@ -56,9 +65,13 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
               adpMap[starterId] = {
                 adp: adpData.adp,
                 adpPositionRank: adpData.positionRank,
-                value: valueData.value,
-                valuePositionRank: valueData.positionRank,
+                value: valueData.sf_value,
+                valuePositionRank: valueData.sf_position_rank,
               };
+              if (valueData.age) {
+                totalAge += valueData.age;
+                starterCount++;
+              }
             }
           } else {
             console.log(`Player with ID ${starterId} not found`);
@@ -72,6 +85,11 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
         }
 
         setPlayerAdps(adpMap);
+        if (starterCount > 0) {
+          setAverageAge((totalAge / starterCount).toFixed(2));
+        } else {
+          setAverageAge(null);
+        }
       } catch (error) {
         console.error("Error fetching player ADPs:", error);
       }
@@ -104,13 +122,18 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
   };
 
   return (
-    <div className="flex relative bg-no-repeat bg-[length:100%_100%] md:max-w-[24rem] rounded-2xl border w-[500px] ">
+    <div className="flex relative bg-no-repeat bg-[length:100%_100%] md:max-w-[28rem] rounded-2xl border w-[500px] ">
       <div className="card">
         <div className="card-body p-2">
           <h2 className="text-2xl font-bold mb-2 m-6 flex justify-center text-[#f8edeb] uppercase ">
             {roster.owner}
           </h2>
-          <div className="grid grid-cols-5 gap-2 mt-4 text-[#f8edeb]/2 ">
+          {averageAge !== null && (
+            <p className="text-left text-sm text-[#f8edeb]">
+              Average Age: {averageAge}
+            </p>
+          )}
+          <div className="grid grid-cols-6 gap-2 mt-4 text-[#f8edeb]/2 ">
             <div className="font-bold pb-2 col-span-2">
               <h2>Starters</h2>
             </div>
@@ -122,6 +145,9 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
             </div>
             <div className="font-bold flex justify-center">
               <h2>Dynasty Rank</h2>
+            </div>
+            <div className="font-bold flex justify-center">
+              <h2>Dynasty Value</h2>
             </div>
           </div>
           {isOpen && (
@@ -141,12 +167,12 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
                 return (
                   <div
                     key={idx}
-                    className="grid grid-cols-5 gap-2 border-t py-1 text-sm h-16 hover:bg-base-300 cursor-pointer"
+                    className="grid grid-cols-6 gap-2 border-t py-1 text-sm h-16 hover:bg-base-300 cursor-pointer"
                     onClick={() => handlePlayerClick(player, dialogId)}
                   >
                     <div className="text-[#118ab2] font-bold items-center justify-start flex col-span-2 ">
                       {player
-                        ? `${position} - ${player.full_name} `
+                        ? `${position} - ${player.full_name}`
                         : `Unknown Player (${starterId}) - ${position}`}
                     </div>
                     <div className="flex items-center justify-center">
@@ -159,7 +185,16 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
                       <p className="text-[#ff9f1c] text-center">
                         {player
                           ? valuePositionRank !== "Unknown Rank"
-                            ? `${player.position}${valuePositionRank}`
+                            ? `${valuePositionRank}`
+                            : "Missing"
+                          : "Missing"}
+                      </p>
+                    </div>
+                    <div className="items-center justify-center flex">
+                      <p className="text-[#ff9f1c] text-center">
+                        {player
+                          ? value !== "Unknown Rank"
+                            ? `${value}`
                             : "Missing"
                           : "Missing"}
                       </p>

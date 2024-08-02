@@ -1,5 +1,3 @@
-// utils/playerData.ts
-
 import axios from "axios";
 import {
   savePlayerData,
@@ -38,7 +36,9 @@ export const refreshPlayerDataIfNeeded = async () => {
 
   if (!lastUpdated || now - parseInt(lastUpdated, 10) > ONE_DAY_IN_MS) {
     const data = await fetchPlayerData();
-    localStorage.setItem("playerDataTimestamp", now.toString());
+    if (data) {
+      localStorage.setItem("playerDataTimestamp", now.toString());
+    }
     return data;
   }
 
