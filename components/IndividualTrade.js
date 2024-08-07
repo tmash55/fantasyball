@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { formatDate } from "../utils/dateUtils"; // Import the utility function
-import classNames from "classnames"; // Import classnames for conditional styling
+import { formatDate } from "../utils/dateUtils";
+import classNames from "classnames";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -22,7 +22,6 @@ const IndividualTrade = ({ trade, players, rosters }) => {
 
   useEffect(() => {
     const fetchHistoricalData = async () => {
-      // Query to get the most recent historical data for each player
       const { data: recentData, error: recentError } = await supabase
         .from("Dynasty-historical-data")
         .select("first_name, last_name, value, date")
@@ -43,7 +42,6 @@ const IndividualTrade = ({ trade, players, rosters }) => {
         setHistoricalData(recentHistoricalData);
       }
 
-      // Query to get the most recent pick values
       const { data: draftPicks, error: draftPicksError } = await supabase
         .from("Dynasty-historical-data")
         .select("full_name, value")
@@ -71,7 +69,6 @@ const IndividualTrade = ({ trade, players, rosters }) => {
       .split("T")[0];
 
     const fetchTradeDayData = async () => {
-      // Query to get the historical data for the trade day date
       const { data: tradeDayData, error: tradeDayError } = await supabase
         .from("Dynasty-historical-data")
         .select("first_name, last_name, value, date")
@@ -90,7 +87,6 @@ const IndividualTrade = ({ trade, players, rosters }) => {
         setTradeDayData(tradeDayHistoricalData);
       }
 
-      // Query to get the pick values on the trade day date
       const { data: tradeDayPicks, error: tradeDayPicksError } = await supabase
         .from("Dynasty-historical-data")
         .select("full_name, value")
@@ -115,7 +111,7 @@ const IndividualTrade = ({ trade, players, rosters }) => {
 
   const findHistoricalData = (firstName, lastName, data) => {
     const key = `${firstName.toLowerCase()} ${lastName.toLowerCase()}`;
-    return data[key] ? data[key].value : 0; // Assign value 0 if not found
+    return data[key] ? data[key].value : 0;
   };
 
   const getPlayerName = (playerId) => {
@@ -139,7 +135,7 @@ const IndividualTrade = ({ trade, players, rosters }) => {
     const pickName = `${pick.season} Mid ${pick.round}${getRoundSuffix(
       pick.round
     )}`;
-    const value = data[pickName] || 0; // Assign value 0 if not found
+    const value = data[pickName] || 0;
     return value;
   };
 
@@ -222,7 +218,7 @@ const IndividualTrade = ({ trade, players, rosters }) => {
         </h5>
         {playersAdded.length > 0 && (
           <div className="mt-2">
-            {playersAdded.map(([playerId]) => {
+            {playersAdded.map(([playerId], index) => {
               const playerName = getPlayerName(playerId);
               const [firstName, lastName] = playerName.split(" ");
               const currentPlayerValue = findHistoricalData(
@@ -237,7 +233,7 @@ const IndividualTrade = ({ trade, players, rosters }) => {
               );
               return (
                 <div
-                  key={playerId}
+                  key={`${playerId}-${index}`}
                   className="text-sm mt-2 items-center flex flex-col"
                 >
                   <p>{playerName}</p>
@@ -254,9 +250,9 @@ const IndividualTrade = ({ trade, players, rosters }) => {
         )}
         {draftPicksReceived.length > 0 && (
           <div className="mt-2 flex flex-col">
-            {draftPicksReceived.map((pick) => (
+            {draftPicksReceived.map((pick, index) => (
               <div
-                key={`${pick.season}-${pick.round}`}
+                key={`${pick.season}-${pick.round}-${index}`}
                 className="text-xs items-center flex flex-col"
               >
                 {pick.season} {pick.round}
@@ -280,8 +276,7 @@ const IndividualTrade = ({ trade, players, rosters }) => {
   return (
     <div className="card bg-base-200 w-full md:w-96 overflow-x-auto mb-4">
       <div className="card-body">
-        <p className="text-sm">{formattedDate}</p>{" "}
-        {/* Display the formatted date */}
+        <p className="text-sm">{formattedDate}</p>
         <div className="flex flex-col md:flex-row items-center gap-4">
           {renderTeamDetails(trade.roster_ids[0])}
           {trade.roster_ids.length === 2 && (
@@ -295,7 +290,7 @@ const IndividualTrade = ({ trade, players, rosters }) => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="icon icon-tabler icons-tabler-outline icon-tabler-switch-horizontal "
+              className="icon icon-tabler icons-tabler-outline icon-tabler-switch-horizontal"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M16 3l4 4l-4 4" />

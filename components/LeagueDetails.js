@@ -1,28 +1,25 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Team from "@/components/Team";
 import LeagueSettings from "@/components/LeagueSettings";
 import { createClient } from "@supabase/supabase-js";
 import { transformPosition, fetchUsername } from "@/utils/helpers";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
-import MyTeamTabs from "./MyTeamTabs";
 import useLeagueHistory from "./LeagueHistory";
 import Link from "next/link";
 import Drafts from "./Drafts";
 import MyTeam from "./MyTeam";
 import Trades from "./Trades"; // Import the Trades component
-import TestFetchHistoricalData from "./TestFetchHistoricalData";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { getMostRecentDate } from "@/utils/getMostRecentDate";
 
 const LeagueDetails = () => {
   const { league_id } = useParams();
   const searchParams = useSearchParams();
   const username = searchParams.get("username");
+  const router = useRouter(); // Using useRouter from next/navigation
+  const [mostRecentDate, setMostRecentDate] = useState(null);
   const [rosters, setRosters] = useState([]);
   const [players, setPlayers] = useState({});
   const [leagueName, setLeagueName] = useState("");
@@ -42,6 +39,24 @@ const LeagueDetails = () => {
   const [userRosterId, setUserRosterId] = useState(null); // State for user roster ID
   const leagueHistory = useLeagueHistory(league_id);
   const backUrl = `/dashboard/leagues?username=${username}`;
+
+  const [teamValues, setTeamValues] = useState([]);
+  useEffect(() => {
+    const fetchMostRecentDate = async () => {
+      const date = await getMostRecentDate();
+      setMostRecentDate(date);
+    };
+
+    fetchMostRecentDate();
+  }, []);
+
+  const handleValueCalculated = useCallback((teamName, totalValue) => {
+    setTeamValues((prevValues) => {
+      const updatedValues = prevValues.filter((v) => v.teamName !== teamName);
+      updatedValues.push({ teamName, totalValue });
+      return updatedValues;
+    });
+  }, []);
 
   const toggleAll = () => {
     setAllOpen(!allOpen);
@@ -71,8 +86,6 @@ const LeagueDetails = () => {
           `https://api.sleeper.app/v1/league/${league_id}`
         );
         const leagueData = leagueResponse.data;
-        console.log("Fetched league data:", leagueData);
-
         setLeagueName(leagueData.name);
         setSettings({
           rec: leagueData.scoring_settings.rec ?? 0,
@@ -136,32 +149,39 @@ const LeagueDetails = () => {
 
   const activeRosterCount = rosterPositions.length;
 
+  // Sort teamValues by totalValue in descending order
+  const sortedTeamValues = [...teamValues].sort(
+    (a, b) => b.totalValue - a.totalValue
+  );
+
+  const navigateToLeaguesPage = () => {
+    const userTeam = teamValues.find((team) => team.teamName === username);
+    const userRank =
+      sortedTeamValues.findIndex((team) => team.teamName === username) + 1;
+
+    router.push(`/dashboard/leagues?username=${username}&rank=${userRank}`);
+  };
+
   return (
     <section
       id="league"
       className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-8 md:gap-12"
     >
-      <div className="flex flex-row items-center">
-        <Link href={backUrl} className="flex items-center gap-2 link">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="icon icon-tabler icon-tabler-arrow-left"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M5 12l14 0" />
-            <path d="M5 12l6 6" />
-            <path d="M5 12l6 -6" />
-          </svg>
-          League List
+      <div>
+        <Link href={backUrl} className="link">
+          Go Back
         </Link>
+      </div>
+      <div>
+        <h1 className="text-5xl text-primary mb-16">{leagueName}</h1>
+        <div>
+          <h2 className="text-sm">
+            Values as of{" "}
+            {mostRecentDate
+              ? new Date(mostRecentDate).toLocaleDateString()
+              : "Loading..."}
+          </h2>
+        </div>
       </div>
 
       <div className="join join-vertical">
@@ -171,6 +191,7 @@ const LeagueDetails = () => {
           activeRosterCount={activeRosterCount}
           rosterPositions={rosterPositions} // Pass roster positions to LeagueSettings
         />
+
         <div
           role="tablist"
           className="tabs tabs-boxed tabs-lg rounded-none border-t border-base-100"
@@ -248,9 +269,22 @@ const LeagueDetails = () => {
               players={players}
               rosterPositions={rosterPositions}
               isOpen={allOpen}
+              onValueCalculated={handleValueCalculated} // Pass the callback to Team component
             />
           ))}
         </div>
+      </div>
+      <div className="mt-6">
+        <h2 className="text-xl font-bold mb-4">Starting Lineup Values</h2>
+        <ol className="list-decimal">
+          {sortedTeamValues.map(({ teamName, totalValue }, index) => (
+            <li key={index}>
+              <button onClick={() => navigateToLeaguesPage(teamName)}>
+                {teamName}: {totalValue}
+              </button>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

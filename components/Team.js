@@ -9,10 +9,18 @@ const stripSuffix = (name) => {
   return name.replace(/( Jr\.| Sr\.)$/, "");
 };
 
-const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
+const Team = ({
+  teamId,
+  roster,
+  players,
+  rosterPositions,
+  isOpen,
+  onValueCalculated,
+}) => {
   const [playerAdps, setPlayerAdps] = useState({});
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [averageAge, setAverageAge] = useState(null); // State for average age
+  const [totalValue, setTotalValue] = useState(0); // State for total value
 
   useEffect(() => {
     const fetchPlayerAdps = async () => {
@@ -20,13 +28,13 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
         const adpMap = {};
         let totalAge = 0;
         let starterCount = 0;
+        let totalValueSum = 0; // Initialize total value sum
 
         for (let starterId of roster.starters) {
           const player = players[starterId];
 
           if (player) {
             const [firstName, lastName] = player.full_name.split(" ");
-            console.log("Fetching ADP and Value for:", firstName, lastName);
             const strippedLastName = stripSuffix(lastName);
 
             const { data: adpData, error: adpError } = await supabase
@@ -46,10 +54,6 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
               .limit(1);
 
             if (adpError || valueError) {
-              console.error(
-                `Error fetching data for ${firstName} ${lastName}:`,
-                adpError || valueError
-              );
               adpMap[starterId] = {
                 adp: "Unknown ADP",
                 adpPositionRank: "Unknown Rank",
@@ -57,11 +61,6 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
                 valuePositionRank: "Unknown Rank",
               };
             } else {
-              console.log(
-                `Fetched data for ${firstName} ${lastName}:`,
-                adpData,
-                valueData
-              );
               adpMap[starterId] = {
                 adp: adpData.adp,
                 adpPositionRank: adpData.positionRank,
@@ -72,9 +71,11 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
                 totalAge += valueData.age;
                 starterCount++;
               }
+              if (valueData.sf_value) {
+                totalValueSum += valueData.sf_value;
+              }
             }
           } else {
-            console.log(`Player with ID ${starterId} not found`);
             adpMap[starterId] = {
               adp: "Unknown ADP",
               adpPositionRank: "Unknown Rank",
@@ -85,20 +86,25 @@ const Team = ({ teamId, roster, players, rosterPositions, isOpen }) => {
         }
 
         setPlayerAdps(adpMap);
+        setTotalValue(totalValueSum); // Set the total value state
+
         if (starterCount > 0) {
           setAverageAge((totalAge / starterCount).toFixed(2));
         } else {
           setAverageAge(null);
         }
+
+        // Call the onValueCalculated callback with the total value
+        onValueCalculated(roster.owner, totalValueSum);
       } catch (error) {
         console.error("Error fetching player ADPs:", error);
       }
     };
 
-    if (roster.starters.length > 0) {
+    if (roster.starters.length > 0 && players) {
       fetchPlayerAdps();
     }
-  }, [roster.starters, players]);
+  }, [roster.starters, players, onValueCalculated, roster.owner]);
 
   const calculateTotalAdp = () => {
     return Object.values(playerAdps).reduce((total, playerData) => {

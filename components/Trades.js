@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import TradeSummary from "./TradeSummary"; // Import the TradeSummary component
+import TradeSummary from "./TradeSummary";
 import IndividualTrade from "./IndividualTrade";
 
 const Trades = ({ league_id, roster_id, players, rosters }) => {
@@ -49,18 +49,14 @@ const Trades = ({ league_id, roster_id, players, rosters }) => {
           />
         )}
         <div className="flex justify-center gap-4 flex-wrap">
-          {trades.length === 0 ? (
-            <p></p>
-          ) : (
-            trades.map((trade) => (
-              <IndividualTrade
-                key={trade.transaction_id}
-                trade={trade}
-                players={players}
-                rosters={rosters}
-              />
-            ))
-          )}
+          {trades.map((trade, index) => (
+            <IndividualTrade
+              key={`${trade.transaction_id}-${index}`}
+              trade={trade}
+              players={players}
+              rosters={rosters}
+            />
+          ))}
         </div>
       </div>
     </div>
