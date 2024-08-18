@@ -3,14 +3,69 @@ import { useEffect, useState } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 import { createClient } from "@supabase/supabase-js";
-import Table from "./TeamTable"; // Import the Table component
 import TeamTable from "./TeamTable";
+import { useQuery, useQueries } from "@tanstack/react-query";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
 const stripSuffix = (name) => {
   return name.replace(/( Jr\.| Sr\.)$/, "");
+};
+
+const fetchUserData = async (username) => {
+  const response = await fetch(`https://api.sleeper.app/v1/user/${username}`);
+  if (!response.ok) {
+    throw new Error("Error fetching user data");
+  }
+  return response.json();
+};
+
+const fetchRosterData = async (userId, leagueId) => {
+  const response = await fetch(
+    `https://api.sleeper.app/v1/league/${leagueId}/rosters`
+  );
+  if (!response.ok) {
+    throw new Error("Error fetching roster data");
+  }
+  const data = await response.json();
+  const userRoster = data.find((roster) => roster.owner_id === userId);
+  return userRoster ? userRoster.players : [];
+};
+
+const fetchAdpData = async (firstName, lastName) => {
+  const { data, error } = await supabase
+    .from("Underdog_Redraft_ADP_2023")
+    .select("adp, positionRank")
+    .eq("firstName", firstName)
+    .ilike("lastName", lastName)
+    .single();
+
+  if (error) {
+    throw new Error(`Error fetching ADP: ${error.message}`);
+  }
+
+  return data;
+};
+
+const fetchDynastyData = async (firstName, lastName) => {
+  const strippedLastName = stripSuffix(lastName);
+
+  const { data, error } = await supabase
+    .from("ktc_test")
+    .select("sf_value, age, sf_position_rank")
+    .eq("first_name", firstName)
+    .ilike("last_name", `%${strippedLastName}%`)
+    .order("date", { ascending: false })
+    .single()
+    .limit(1);
+
+  if (error) {
+    throw new Error(`Error fetching Dynasty value: ${error.message}`);
+  }
+
+  return data;
 };
 
 const MyTeam = () => {
@@ -19,139 +74,101 @@ const MyTeam = () => {
   const [players, setPlayers] = useState([]);
   const [playerData, setPlayerData] = useState({});
   const [playerAdps, setPlayerAdps] = useState({});
-  const [loading, setLoading] = useState(true);
+  const username = searchParams.get("username");
+  const leagueId = pathname.split("/")[3];
 
   useEffect(() => {
     const fetchData = async () => {
-      const username = searchParams.get("username");
-      const leagueId = pathname.split("/")[3];
-
       if (username && leagueId) {
         const playerData = await refreshPlayerDataIfNeeded();
         setPlayerData(playerData);
-
-        fetchUserData(username, leagueId, playerData);
       }
     };
 
     fetchData();
   }, [searchParams, pathname]);
 
-  const fetchUserData = async (username, leagueId, playerData) => {
-    try {
-      const userResponse = await fetch(
-        `https://api.sleeper.app/v1/user/${username}`
-      );
-      const userData = await userResponse.json();
+  // Fetch user data using useQuery
+  const {
+    data: userData,
+    isLoading: isUserLoading,
+    isError: isUserError,
+  } = useQuery({
+    queryKey: ["userData", username],
+    queryFn: () => fetchUserData(username),
+    enabled: !!username, // only run if username is available
+  });
 
-      fetchRosterData(userData.user_id, leagueId, playerData);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      setLoading(false);
-    }
-  };
+  // Fetch roster data using useQuery
+  const {
+    data: rosterPlayerIds,
+    isLoading: isRosterLoading,
+    isError: isRosterError,
+  } = useQuery({
+    queryKey: ["rosterData", userData?.user_id, leagueId],
+    queryFn: () => fetchRosterData(userData.user_id, leagueId),
+    enabled: !!userData?.user_id && !!leagueId, // only run if user_id and leagueId are available
+  });
 
-  const fetchRosterData = async (userId, leagueId, playerData) => {
-    try {
-      const response = await fetch(
-        `https://api.sleeper.app/v1/league/${leagueId}/rosters`
-      );
-      const data = await response.json();
+  // Fetch ADP and Dynasty data for each player using useQueries
+  const playerQueries = useQueries({
+    queries: (rosterPlayerIds || []).map((playerId) => {
+      const playerName = playerData[playerId]?.full_name || "Unknown";
+      const [firstName, lastName] = playerName.split(" ") || ["Unknown", ""];
 
-      const userRoster = data.find((roster) => roster.owner_id === userId);
-      if (userRoster) {
-        const playerDetails = userRoster.players.map((playerId) => ({
-          id: playerId,
-          name: playerData[playerId]?.full_name || "Unknown",
-          position: playerData[playerId]?.position || "Unknown",
-        }));
-        setPlayers(playerDetails);
-        fetchPlayerAdps(playerDetails, playerData);
-      } else {
-        setPlayers([]);
-      }
-    } catch (error) {
-      console.error("Error fetching roster data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchPlayerAdps = async (playerDetails, playerData) => {
-    const adpMap = {};
-
-    for (let player of playerDetails) {
-      if (player.name !== "Unknown") {
-        const [firstName, lastName] = player.name.split(" ");
-        console.log("Fetching ADP for:", firstName, lastName);
-
-        const { data: adpData, error: adpError } = await supabase
-          .from("Underdog_Redraft_ADP_2023")
-          .select("adp, positionRank")
-          .eq("firstName", firstName)
-          .ilike("lastName", lastName)
-          .single();
-
-        if (adpError) {
-          console.error(
-            `Error fetching ADP for ${firstName} ${lastName}:`,
-            adpError
-          );
-          adpMap[player.id] = {
-            adp: "Unknown ADP",
-            positionRank: "Unknown Rank",
-            dynastyValue: "Unknown",
-          };
-        } else {
-          console.log(`Fetched ADP for ${firstName} ${lastName}:`, adpData);
-          const strippedLastName = stripSuffix(lastName);
-          const { data: dynastyData, error: dynastyError } = await supabase
-
-            .from("ktc_test")
-            .select("sf_value, age, sf_position_rank")
-            .eq("first_name", firstName)
-            .ilike("last_name", `%${strippedLastName}%`)
-            .order("date", { ascending: false })
-            .single()
-            .limit(1);
-
-          if (dynastyError) {
-            console.error(
-              `Error fetching Dynasty value for ${firstName} ${lastName}:`,
-              dynastyError
-            );
-            adpMap[player.id] = {
-              adp: adpData.adp,
-              positionRank: adpData.positionRank,
-              dynastyValue: "Unknown",
-            };
-          } else {
-            console.log(
-              `Fetched Dynasty value for ${firstName} ${lastName}:`,
-              dynastyData
-            );
-            adpMap[player.id] = {
-              adp: adpData.adp,
-              positionRank: adpData.positionRank,
-              dynastyValue: dynastyData.sf_value,
+      return {
+        queryKey: ["playerData", playerId],
+        queryFn: async () => {
+          if (playerName === "Unknown") {
+            return {
+              adp: "-",
+              positionRank: "-",
+              dynastyValue: "-",
             };
           }
-        }
-      } else {
-        console.log(`Player with ID ${player.id} not found`);
-        adpMap[player.id] = {
-          adp: "-",
-          positionRank: "-",
-          dynastyValue: "-",
-        };
-      }
-    }
+
+          const adpData = await fetchAdpData(firstName, lastName);
+          const dynastyData = await fetchDynastyData(firstName, lastName);
+
+          return {
+            adp: adpData.adp,
+            positionRank: adpData.positionRank,
+            dynastyValue: dynastyData.sf_value,
+          };
+        },
+        enabled: !!playerId && playerName !== "Unknown", // only run if playerId is valid
+      };
+    }),
+  });
+
+  useEffect(() => {
+    const playerDetails = rosterPlayerIds?.map((playerId) => ({
+      id: playerId,
+      name: playerData[playerId]?.full_name || "Unknown",
+      position: playerData[playerId]?.position || "Unknown",
+    }));
+
+    setPlayers(playerDetails || []);
+
+    const adpMap = {};
+    playerQueries.forEach((query, index) => {
+      const playerId = rosterPlayerIds[index];
+      adpMap[playerId] = query.data || {
+        adp: "Unknown ADP",
+        positionRank: "Unknown Rank",
+        dynastyValue: "Unknown",
+      };
+    });
 
     setPlayerAdps(adpMap);
-  };
+  }, [rosterPlayerIds, playerQueries, playerData]);
 
-  if (loading) {
+  if (isUserLoading || isRosterLoading) {
     return <p>Loading...</p>;
+  }
+
+  if (isUserError || isRosterError) {
+    return <p>Error loading data</p>;
   }
 
   if (!players || players.length === 0) {
@@ -162,7 +179,7 @@ const MyTeam = () => {
     <div className="flex flex-wrap gap-16 justify-center">
       <div className="w-full">
         <h1 className="text-2xl font-bold text-center pt-8">
-          {searchParams.get("username")}`s Roster
+          {username}`s Roster
         </h1>
       </div>
 

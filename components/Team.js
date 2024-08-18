@@ -5,6 +5,7 @@ import PlayerCard from "./PlayerCard"; // Import the PlayerCard component
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
 const stripSuffix = (name) => {
   return name.replace(/( Jr\.| Sr\.)$/, "");
 };
@@ -16,19 +17,22 @@ const Team = ({
   rosterPositions,
   isOpen,
   onValueCalculated,
+  onADPCalculated, // Callback for ADP
 }) => {
   const [playerAdps, setPlayerAdps] = useState({});
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [averageAge, setAverageAge] = useState(null); // State for average age
-  const [totalValue, setTotalValue] = useState(0); // State for total value
+  const [totalValue, setTotalValue] = useState(0); // State for total dynasty value
+  const [totalAdp, setTotalAdp] = useState(0); // State for total ADP
 
   useEffect(() => {
-    const fetchPlayerAdps = async () => {
+    const fetchPlayerData = async () => {
       try {
         const adpMap = {};
         let totalAge = 0;
         let starterCount = 0;
-        let totalValueSum = 0; // Initialize total value sum
+        let totalValueSum = 0; // Initialize total dynasty value sum
+        let totalAdpSum = 0; // Initialize total ADP sum
 
         for (let starterId of roster.starters) {
           const player = players[starterId];
@@ -53,27 +57,26 @@ const Team = ({
               .single()
               .limit(1);
 
-            if (adpError || valueError) {
-              adpMap[starterId] = {
-                adp: "Unknown ADP",
-                adpPositionRank: "Unknown Rank",
-                value: "Unknown Value",
-                valuePositionRank: "Unknown Rank",
-              };
-            } else {
-              adpMap[starterId] = {
-                adp: adpData.adp,
-                adpPositionRank: adpData.positionRank,
-                value: valueData.sf_value,
-                valuePositionRank: valueData.sf_position_rank,
-              };
-              if (valueData.age) {
-                totalAge += valueData.age;
-                starterCount++;
-              }
-              if (valueData.sf_value) {
-                totalValueSum += valueData.sf_value;
-              }
+            if (!adpError && adpData && !isNaN(adpData.adp)) {
+              totalAdpSum += parseFloat(adpData.adp);
+            }
+
+            if (!valueError && valueData && !isNaN(valueData.sf_value)) {
+              totalValueSum += valueData.sf_value;
+            }
+
+            adpMap[starterId] = {
+              adp: adpData ? adpData.adp : "Unknown ADP",
+              adpPositionRank: adpData ? adpData.positionRank : "Unknown Rank",
+              value: valueData ? valueData.sf_value : "Unknown Value",
+              valuePositionRank: valueData
+                ? valueData.sf_position_rank
+                : "Unknown Rank",
+            };
+
+            if (valueData && valueData.age) {
+              totalAge += valueData.age;
+              starterCount++;
             }
           } else {
             adpMap[starterId] = {
@@ -86,7 +89,11 @@ const Team = ({
         }
 
         setPlayerAdps(adpMap);
-        setTotalValue(totalValueSum); // Set the total value state
+        setTotalValue(totalValueSum); // Set the total dynasty value state
+
+        // Round totalAdpSum to 1 decimal place
+        const roundedAdpSum = parseFloat(totalAdpSum.toFixed(1));
+        setTotalAdp(roundedAdpSum); // Set the total ADP state
 
         if (starterCount > 0) {
           setAverageAge((totalAge / starterCount).toFixed(2));
@@ -94,26 +101,24 @@ const Team = ({
           setAverageAge(null);
         }
 
-        // Call the onValueCalculated callback with the total value
-        onValueCalculated(roster.owner, totalValueSum);
+        // Call the callbacks with the calculated totals
+        onValueCalculated(roster.owner, totalValueSum); // Dynasty value callback
+        onADPCalculated(roster.owner, roundedAdpSum); // ADP callback
       } catch (error) {
-        console.error("Error fetching player ADPs:", error);
+        console.error("Error fetching player data:", error);
       }
     };
 
     if (roster.starters.length > 0 && players) {
-      fetchPlayerAdps();
+      fetchPlayerData();
     }
-  }, [roster.starters, players, onValueCalculated, roster.owner]);
-
-  const calculateTotalAdp = () => {
-    return Object.values(playerAdps).reduce((total, playerData) => {
-      const adp = parseFloat(playerData.adp);
-      return total + (isNaN(adp) ? 0 : adp);
-    }, 0);
-  };
-
-  const totalAdp = calculateTotalAdp();
+  }, [
+    roster.starters,
+    players,
+    onValueCalculated,
+    onADPCalculated,
+    roster.owner,
+  ]);
 
   const handlePlayerClick = (player, dialogId) => {
     if (player) {
@@ -229,7 +234,7 @@ const Team = ({
               <h2>Total ADP:</h2>
             </div>
             <div className="text-[#ffff3f] flex justify-start items-center font-bold">
-              {totalAdp.toFixed(2)}
+              {totalAdp.toFixed(1)}
             </div>
 
             <div></div>

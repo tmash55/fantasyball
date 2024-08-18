@@ -41,6 +41,8 @@ const LeagueDetails = () => {
   const backUrl = `/dashboard/leagues?username=${username}`;
 
   const [teamValues, setTeamValues] = useState([]);
+  const [teamADPs, setTeamADPs] = useState([]); // New state for team ADPs
+
   useEffect(() => {
     const fetchMostRecentDate = async () => {
       const date = await getMostRecentDate();
@@ -55,6 +57,14 @@ const LeagueDetails = () => {
       const updatedValues = prevValues.filter((v) => v.teamName !== teamName);
       updatedValues.push({ teamName, totalValue });
       return updatedValues;
+    });
+  }, []);
+
+  const handleADPCalculated = useCallback((teamName, totalADP) => {
+    setTeamADPs((prevADPs) => {
+      const updatedADPs = prevADPs.filter((adp) => adp.teamName !== teamName);
+      updatedADPs.push({ teamName, totalADP });
+      return updatedADPs;
     });
   }, []);
 
@@ -153,6 +163,9 @@ const LeagueDetails = () => {
   const sortedTeamValues = [...teamValues].sort(
     (a, b) => b.totalValue - a.totalValue
   );
+
+  // Sort teamADPs by totalADP in ascending order (lower ADP is better)
+  const sortedTeamADPs = [...teamADPs].sort((a, b) => a.totalADP - b.totalADP);
 
   const navigateToLeaguesPage = () => {
     const userTeam = teamValues.find((team) => team.teamName === username);
@@ -270,17 +283,32 @@ const LeagueDetails = () => {
               rosterPositions={rosterPositions}
               isOpen={allOpen}
               onValueCalculated={handleValueCalculated} // Pass the callback to Team component
+              onADPCalculated={handleADPCalculated} // Pass the ADP callback to Team component
             />
           ))}
         </div>
       </div>
       <div className="mt-6">
-        <h2 className="text-xl font-bold mb-4">Starting Lineup Values</h2>
+        <h2 className="text-xl font-bold mb-4">
+          Starting Lineup Dynasty Values
+        </h2>
         <ol className="list-decimal">
           {sortedTeamValues.map(({ teamName, totalValue }, index) => (
             <li key={index}>
               <button onClick={() => navigateToLeaguesPage(teamName)}>
                 {teamName}: {totalValue}
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div className="mt-6">
+        <h2 className="text-xl font-bold mb-4">Starting Lineup ADP</h2>
+        <ol className="list-decimal">
+          {sortedTeamADPs.map(({ teamName, totalADP }, index) => (
+            <li key={index}>
+              <button onClick={() => navigateToLeaguesPage(teamName)}>
+                {teamName}: {totalADP}
               </button>
             </li>
           ))}
