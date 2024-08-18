@@ -4,7 +4,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Team from "@/components/Team";
 import LeagueSettings from "@/components/LeagueSettings";
-import { createClient } from "@supabase/supabase-js";
+
 import { transformPosition, fetchUsername } from "@/utils/helpers";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 import useLeagueHistory from "./LeagueHistory";

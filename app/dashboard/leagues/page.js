@@ -6,7 +6,7 @@ import axios from "axios";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import UserRank from "@/components/UserRank";
+import UserRank from "@/components/UserRank"; // Import UserRank component
 
 const Leagues = () => {
   const searchParams = useSearchParams();
@@ -87,9 +87,6 @@ const Leagues = () => {
                 Exposure
               </Link>
             </p>
-            <div>
-              <UserRank />
-            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full table">
                 <thead>
@@ -113,9 +110,20 @@ const Leagues = () => {
                         </Link>
                       </td>
                       <td>{league.settings.num_teams}</td>
-                      <td className=""></td>
-                      <td className="">
-                        <UserRank />
+                      {/* Use the UserRank component to display ranks */}
+                      <td>
+                        <UserRank
+                          leagueId={league.league_id}
+                          username={username}
+                          rankType="redraft"
+                        />
+                      </td>
+                      <td>
+                        <UserRank
+                          leagueId={league.league_id}
+                          username={username}
+                          rankType="dynasty"
+                        />
                       </td>
                       <td className="w-20">
                         <label className="input input-bordered flex items-center gap-2">
@@ -132,7 +140,7 @@ const Leagues = () => {
                             className="h-4 w-4 opacity-70"
                           >
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                            <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 1 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
                             <path d="M12 3v3m0 12v3" />
                           </svg>
                           <input
@@ -173,7 +181,7 @@ const Leagues = () => {
                         className="h-4 w-4 opacity-70"
                       >
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
+                        <path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 1 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
                         <path d="M12 3v3m0 12v3" />
                       </svg>
 

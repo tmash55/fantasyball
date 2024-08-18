@@ -1,10 +1,9 @@
-"use client";
 import { useEffect, useState } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
-import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 import { createClient } from "@supabase/supabase-js";
 import TeamTable from "./TeamTable";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
+import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -71,6 +70,8 @@ const fetchDynastyData = async (firstName, lastName) => {
 const MyTeam = () => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+
   const [players, setPlayers] = useState([]);
   const [playerData, setPlayerData] = useState({});
   const [playerAdps, setPlayerAdps] = useState({});
@@ -86,7 +87,12 @@ const MyTeam = () => {
     };
 
     fetchData();
-  }, [searchParams, pathname]);
+
+    // Invalidate queries when searchParams or pathname change
+    queryClient.invalidateQueries(["userData", username]);
+    queryClient.invalidateQueries(["rosterData", username, leagueId]);
+    queryClient.invalidateQueries(["playerData"]);
+  }, [searchParams, pathname, queryClient, username, leagueId]);
 
   // Fetch user data using useQuery
   const {
@@ -97,6 +103,7 @@ const MyTeam = () => {
     queryKey: ["userData", username],
     queryFn: () => fetchUserData(username),
     enabled: !!username, // only run if username is available
+    staleTime: 0, // data is fresh only at the time of request
   });
 
   // Fetch roster data using useQuery
@@ -108,6 +115,7 @@ const MyTeam = () => {
     queryKey: ["rosterData", userData?.user_id, leagueId],
     queryFn: () => fetchRosterData(userData.user_id, leagueId),
     enabled: !!userData?.user_id && !!leagueId, // only run if user_id and leagueId are available
+    staleTime: 0, // data is fresh only at the time of request
   });
 
   // Fetch ADP and Dynasty data for each player using useQueries
@@ -137,30 +145,40 @@ const MyTeam = () => {
           };
         },
         enabled: !!playerId && playerName !== "Unknown", // only run if playerId is valid
+        staleTime: 0, // data is fresh only at the time of request
       };
     }),
   });
 
   useEffect(() => {
-    const playerDetails = rosterPlayerIds?.map((playerId) => ({
-      id: playerId,
-      name: playerData[playerId]?.full_name || "Unknown",
-      position: playerData[playerId]?.position || "Unknown",
-    }));
+    // Check if rosterPlayerIds and playerData are available
+    if (rosterPlayerIds && playerData) {
+      const playerDetails = rosterPlayerIds.map((playerId) => ({
+        id: playerId,
+        name: playerData[playerId]?.full_name || "Unknown",
+        position: playerData[playerId]?.position || "Unknown",
+      }));
 
-    setPlayers(playerDetails || []);
+      // Update the players state if playerDetails is different from current state
+      if (JSON.stringify(playerDetails) !== JSON.stringify(players)) {
+        setPlayers(playerDetails);
+      }
 
-    const adpMap = {};
-    playerQueries.forEach((query, index) => {
-      const playerId = rosterPlayerIds[index];
-      adpMap[playerId] = query.data || {
-        adp: "Unknown ADP",
-        positionRank: "Unknown Rank",
-        dynastyValue: "Unknown",
-      };
-    });
+      const adpMap = {};
+      playerQueries.forEach((query, index) => {
+        const playerId = rosterPlayerIds[index];
+        adpMap[playerId] = query.data || {
+          adp: "Unknown ADP",
+          positionRank: "Unknown Rank",
+          dynastyValue: "Unknown",
+        };
+      });
 
-    setPlayerAdps(adpMap);
+      // Update the playerAdps state if adpMap is different from current state
+      if (JSON.stringify(adpMap) !== JSON.stringify(playerAdps)) {
+        setPlayerAdps(adpMap);
+      }
+    }
   }, [rosterPlayerIds, playerQueries, playerData]);
 
   if (isUserLoading || isRosterLoading) {

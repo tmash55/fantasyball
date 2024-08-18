@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const LeagueHistory = (currentLeagueId) => {
+const useLeagueHistory = (currentLeagueId) => {
   const [leagueHistory, setLeagueHistory] = useState([]);
 
   useEffect(() => {
@@ -41,4 +41,4 @@ const LeagueHistory = (currentLeagueId) => {
   return leagueHistory;
 };
 
-export default LeagueHistory;
+export default useLeagueHistory;
