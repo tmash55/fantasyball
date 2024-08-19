@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
@@ -16,6 +16,20 @@ const Leagues = () => {
   const [buyIns, setBuyIns] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [ranks, setRanks] = useState({});
+
+  const handleRankCalculated = useCallback(
+    (rankData) => {
+      setRanks((prevRanks) => ({
+        ...prevRanks,
+        [rankData.leagueId]: {
+          dynastyRank: rankData.dynastyRank,
+          adpRank: rankData.adpRank,
+        },
+      }));
+    },
+    [] // Ensure this callback is memoized and does not change on every render
+  );
 
   useEffect(() => {
     if (username) {
@@ -82,7 +96,7 @@ const Leagues = () => {
               <span className="lowercase">`s League(s)</span>
             </h1>
             <p className="">Number of active leagues: {leagues.length}</p>
-            <p>
+            <p className="underline">
               <Link href={`/dashboard/exposure/?username=${username}`}>
                 Exposure
               </Link>
@@ -116,14 +130,25 @@ const Leagues = () => {
                           leagueId={league.league_id}
                           username={username}
                           rankType="redraft"
+                          onRankCalculated={handleRankCalculated}
                         />
+                        <p>
+                          {" "}
+                          Contender Rank:
+                          {ranks[league.league_id]?.adpRank || "N/A"}
+                        </p>
                       </td>
                       <td>
                         <UserRank
                           leagueId={league.league_id}
                           username={username}
                           rankType="dynasty"
+                          onRankCalculated={handleRankCalculated}
                         />
+                        <p>
+                          Dynasty Rank:{" "}
+                          {ranks[league.league_id]?.dynastyRank || "N/A"}
+                        </p>
                       </td>
                       <td className="w-20">
                         <label className="input input-bordered flex items-center gap-2">

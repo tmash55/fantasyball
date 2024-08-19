@@ -18,3 +18,8 @@ export const fetchUsername = async (userId) => {
     return "Unknown User";
   }
 };
+// utils/helpers.js
+
+export const stripSuffix = (name) => {
+  return name.replace(/( Jr\.| Sr\.)$/, "");
+};
