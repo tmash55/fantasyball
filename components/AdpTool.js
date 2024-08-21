@@ -66,11 +66,22 @@ const AdpTool = () => {
     });
   };
 
+  const calculateConsensusPick = (rank) => {
+    if (!rank) return "N/A";
+    const round = Math.ceil(rank / 12);
+    const pick = rank % 12 === 0 ? 12 : rank % 12;
+    return `${round}.${pick.toString().padStart(2, "0")}`;
+  };
+
   const sortedData = [...adpData].sort((a, b) => {
     if (sortConfig.key) {
       let aValue, bValue;
 
       switch (sortConfig.key) {
+        case "consensus_pick":
+          aValue = calculateConsensusPick(a.consensus_playerrank);
+          bValue = calculateConsensusPick(b.consensus_playerrank);
+          break;
         case "nfc_rank":
           aValue = a.nfc_playerrank;
           bValue = b.nfc_playerrank;
@@ -83,12 +94,16 @@ const AdpTool = () => {
           aValue = a.sleeper_playerrank;
           bValue = b.sleeper_playerrank;
           break;
+        case "consensus_rank":
+          aValue = a.consensus_playerrank;
+          bValue = b.consensus_playerrank;
+          break;
         case "nfcValue":
         case "espnValue":
         case "sleeperValue":
           aValue = parseFloat(
             sortConfig.key === "nfcValue"
-              ? a.avg_playerrank - a.nfc_adp
+              ? a.consensus_playerrank - a.nfc_adp
               : sortConfig.key === "espnValue"
               ? a.espn_playerrank - a.nfc_adp
               : sortConfig.key === "sleeperValue"
@@ -97,7 +112,7 @@ const AdpTool = () => {
           );
           bValue = parseFloat(
             sortConfig.key === "nfcValue"
-              ? b.avg_playerrank - b.nfc_adp
+              ? b.consensus_playerrank - b.nfc_adp
               : sortConfig.key === "espnValue"
               ? b.espn_playerrank - b.nfc_adp
               : sortConfig.key === "sleeperValue"
@@ -114,9 +129,9 @@ const AdpTool = () => {
       if (bValue == null) return -1;
 
       if (sortConfig.direction === "ascending") {
-        return aValue - bValue;
+        return aValue > bValue ? 1 : -1;
       } else {
-        return bValue - aValue;
+        return aValue > bValue ? -1 : 1;
       }
     }
     return 0;
@@ -181,9 +196,7 @@ const AdpTool = () => {
 
   return (
     <div className="overflow-x-auto">
-      <h1 className="text-3xl font-bold mb-20 text-center">
-        Top 200 ADP Players
-      </h1>
+      <h1 className="text-3xl font-bold mb-20 text-center">ADP Value Tool</h1>
 
       {/* Search Bar and Filters */}
       <div className="flex items-center justify-between mb-4">
@@ -265,26 +278,34 @@ const AdpTool = () => {
           <tr className="text-center">
             <th
               className="cursor-pointer hover:bg-base-300"
-              onClick={() => handleSort("nfc_rank")}
+              onClick={() => handleSort("consensus_pick")}
             >
-              NFC Rank
-              {renderSortIcon("nfc_rank")}
+              Consensus Pick
+              {renderSortIcon("consensus_pick")}
             </th>
-            <th className="">Full Name</th>
+            <th
+              className="cursor-pointer hover:bg-base-300"
+              onClick={() => handleSort("consensus_rank")}
+            >
+              Consensus Rank
+              {renderSortIcon("consensus_rank")}
+            </th>
+            <th className="border-r-2 border-gray-700 p-2">Full Name</th>
+
             {visiblePlatforms.NFC && (
               <>
                 <th>NFC Position Rank</th>
-                <th className="border-r-2 border-gray-700 p-2">NFC ADP</th>
+                <th className="">NFC ADP</th>
+                <th
+                  className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
+                  onClick={() => handleSort("nfcValue")}
+                >
+                  NFC Value
+                  {renderSortIcon("nfcValue")}
+                </th>
               </>
             )}
-            <th className="">Consensus</th>
-            <th
-              className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
-              onClick={() => handleSort("nfcValue")}
-            >
-              Value
-              {renderSortIcon("nfcValue")}
-            </th>
+
             {visiblePlatforms.ESPN && (
               <>
                 <th
@@ -328,7 +349,7 @@ const AdpTool = () => {
         <tbody>
           {filteredData.map((player, index) => {
             const nfcValue = player.nfc_playerrank
-              ? (player.avg_playerrank - player.nfc_adp).toFixed(2)
+              ? (player.consensus_playerrank - player.nfc_adp).toFixed(2)
               : "N/A";
             const espnValue = player.espn_playerrank
               ? (player.espn_playerrank - player.nfc_adp).toFixed(2)
@@ -336,27 +357,32 @@ const AdpTool = () => {
             const sleeperValue = player.sleeper_playerrank
               ? (player.sleeper_playerrank - player.nfc_adp).toFixed(2)
               : "N/A";
+            const consensusPick = calculateConsensusPick(
+              player.consensus_playerrank
+            );
 
             return (
               <tr key={`${player.full_name}-${index}`} className="text-center">
-                <td className="">{player.nfc_playerrank}</td>
-                <td className="">{player.full_name}</td>
+                <td className="">{consensusPick}</td>
+                <td className="">{player.consensus_playerrank}</td>
+                <td className="border-r-2 border-gray-700 p-2">
+                  {player.full_name}
+                </td>
+
                 {visiblePlatforms.NFC && (
                   <>
                     <td>{player.nfc_positionrank}</td>
-                    <td className="border-r-2 border-gray-700 p-2">
-                      {player.nfc_adp}
+                    <td className="">{player.nfc_adp}</td>
+                    <td
+                      className={`border-r-2 border-gray-700 p-2 font-bold ${getValueClass(
+                        nfcValue
+                      )}`}
+                    >
+                      {nfcValue}
                     </td>
                   </>
                 )}
-                <td className="">{player.avg_playerrank}</td>
-                <td
-                  className={`border-r-2 border-gray-700 p-2 font-bold ${getValueClass(
-                    nfcValue
-                  )}`}
-                >
-                  {nfcValue}
-                </td>
+
                 {visiblePlatforms.ESPN && (
                   <>
                     <td className="">{player.espn_playerrank}</td>
