@@ -5,7 +5,12 @@ import React, { useEffect, useState } from "react";
 const AdpTool = () => {
   const [adpData, setAdpData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterPositions, setFilterPositions] = useState([]);
+  const [filterPositions, setFilterPositions] = useState([
+    "QB",
+    "RB",
+    "WR",
+    "TE",
+  ]);
   const [visiblePlatforms, setVisiblePlatforms] = useState({
     NFC: true,
     ESPN: true,
@@ -47,33 +52,66 @@ const AdpTool = () => {
     setSortConfig({ key, direction });
   };
 
+  const handleReset = () => {
+    setSearchTerm("");
+    setFilterPositions(["QB", "RB", "WR", "TE"]);
+    setVisiblePlatforms({
+      NFC: true,
+      ESPN: true,
+      Sleeper: true,
+    });
+    setSortConfig({
+      key: null,
+      direction: "ascending",
+    });
+  };
+
   const sortedData = [...adpData].sort((a, b) => {
     if (sortConfig.key) {
       let aValue, bValue;
 
-      if (sortConfig.key === "nfc_rank") {
-        aValue = a.nfc_playerrank;
-        bValue = b.nfc_playerrank;
-      } else {
-        aValue = parseFloat(
-          sortConfig.key === "nfcValue"
-            ? a.avg_playerrank - a.nfc_adp
-            : sortConfig.key === "espnValue"
-            ? a.espn_playerrank - a.nfc_adp
-            : sortConfig.key === "sleeperValue"
-            ? a.sleeper_playerrank - a.nfc_adp
-            : 0
-        );
-        bValue = parseFloat(
-          sortConfig.key === "nfcValue"
-            ? b.avg_playerrank - b.nfc_adp
-            : sortConfig.key === "espnValue"
-            ? b.espn_playerrank - b.nfc_adp
-            : sortConfig.key === "sleeperValue"
-            ? b.sleeper_playerrank - b.nfc_adp
-            : 0
-        );
+      switch (sortConfig.key) {
+        case "nfc_rank":
+          aValue = a.nfc_playerrank;
+          bValue = b.nfc_playerrank;
+          break;
+        case "espn_rank":
+          aValue = a.espn_playerrank;
+          bValue = b.espn_playerrank;
+          break;
+        case "sleeper_rank":
+          aValue = a.sleeper_playerrank;
+          bValue = b.sleeper_playerrank;
+          break;
+        case "nfcValue":
+        case "espnValue":
+        case "sleeperValue":
+          aValue = parseFloat(
+            sortConfig.key === "nfcValue"
+              ? a.avg_playerrank - a.nfc_adp
+              : sortConfig.key === "espnValue"
+              ? a.espn_playerrank - a.nfc_adp
+              : sortConfig.key === "sleeperValue"
+              ? a.sleeper_playerrank - a.nfc_adp
+              : 0
+          );
+          bValue = parseFloat(
+            sortConfig.key === "nfcValue"
+              ? b.avg_playerrank - b.nfc_adp
+              : sortConfig.key === "espnValue"
+              ? b.espn_playerrank - b.nfc_adp
+              : sortConfig.key === "sleeperValue"
+              ? b.sleeper_playerrank - b.nfc_adp
+              : 0
+          );
+          break;
+        default:
+          return 0;
       }
+
+      // Handling null/undefined values
+      if (aValue == null) return 1;
+      if (bValue == null) return -1;
 
       if (sortConfig.direction === "ascending") {
         return aValue - bValue;
@@ -99,6 +137,47 @@ const AdpTool = () => {
 
     return matchesSearch && matchesPosition;
   });
+
+  const renderSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      if (sortConfig.direction === "ascending") {
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-4 h-4 inline-block ml-1"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 15l7-7 7 7"
+            />
+          </svg>
+        );
+      } else {
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-4 h-4 inline-block ml-1"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        );
+      }
+    }
+    return null;
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -137,6 +216,7 @@ const AdpTool = () => {
               <input
                 type="checkbox"
                 value={position}
+                checked={filterPositions.includes(position)}
                 onChange={(e) => {
                   if (e.target.checked) {
                     setFilterPositions([...filterPositions, position]);
@@ -172,17 +252,26 @@ const AdpTool = () => {
             </label>
           ))}
         </div>
+
+        {/* Reset Button */}
+        <button
+          onClick={handleReset}
+          className="btn btn-warning text-white ml-4"
+        >
+          Reset Filters
+        </button>
       </div>
 
       {/* ADP Table */}
-      <table className="table table-pin-rows">
+      <table className="table table-pin-rows table-zebra">
         <thead>
-          <tr>
+          <tr className="text-center">
             <th
-              className="cursor-pointer"
+              className="cursor-pointer hover:bg-base-300"
               onClick={() => handleSort("nfc_rank")}
             >
               NFC Rank
+              {renderSortIcon("nfc_rank")}
             </th>
             <th className="">Full Name</th>
             {visiblePlatforms.NFC && (
@@ -193,32 +282,47 @@ const AdpTool = () => {
             )}
             <th className="">Consensus</th>
             <th
-              className="border-r-2 border-gray-700 p-2 cursor-pointer"
+              className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
               onClick={() => handleSort("nfcValue")}
             >
-              NFC Value
+              Value
+              {renderSortIcon("nfcValue")}
             </th>
             {visiblePlatforms.ESPN && (
               <>
-                <th className="">ESPN Rank</th>
+                <th
+                  className="cursor-pointer hover:bg-base-300"
+                  onClick={() => handleSort("espn_rank")}
+                >
+                  ESPN Rank
+                  {renderSortIcon("espn_rank")}
+                </th>
                 <th className="">ESPN Position Rank</th>
                 <th
-                  className="border-r-2 border-gray-700 p-2 cursor-pointer"
+                  className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                   onClick={() => handleSort("espnValue")}
                 >
                   ESPN Value
+                  {renderSortIcon("espnValue")}
                 </th>
               </>
             )}
             {visiblePlatforms.Sleeper && (
               <>
-                <th className="">Sleeper Rank</th>
+                <th
+                  className="cursor-pointer hover:bg-base-300"
+                  onClick={() => handleSort("sleeper_rank")}
+                >
+                  Sleeper Rank
+                  {renderSortIcon("sleeper_rank")}
+                </th>
                 <th className="">Sleeper Position Rank</th>
                 <th
-                  className="p-2 cursor-pointer"
+                  className="p-2 cursor-pointer hover:bg-base-300"
                   onClick={() => handleSort("sleeperValue")}
                 >
                   Sleeper Value
+                  {renderSortIcon("sleeperValue")}
                 </th>
               </>
             )}
