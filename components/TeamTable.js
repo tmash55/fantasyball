@@ -29,7 +29,7 @@ const TeamTable = ({ players, position, playerAdps }) => {
     } else if (rankNumber >= 49 && rankNumber <= 60) {
       return "bg-[#dad7cd]";
     } else if (rankNumber >= 61 && rankNumber <= 72) {
-      return "bg-[#FFCA28]";
+      return "bg-[#ea9c00]";
     } else {
       return "bg-[#333533]";
     }
