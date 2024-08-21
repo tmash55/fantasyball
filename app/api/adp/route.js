@@ -9,7 +9,7 @@ export async function fetchTop200Adp() {
   const { data, error } = await supabase
     .from("adp_comparison_8")
     .select(
-      "sleeper_playerrank, sleeper_positionrank, espn_playerrank, espn_positionrank, nfc_playerrank, nfc_positionrank, full_name, consensus_playerrank, nfc_adp, consensus_playerrank"
+      "sleeper_playerrank, sleeper_positionrank, espn_playerrank, espn_positionrank, nfc_playerrank, nfc_positionrank, full_name, consensus_playerrank, nfc_adp, consensus_positionrank"
     )
     .order("nfc_playerrank", { ascending: true })
     .limit(200);

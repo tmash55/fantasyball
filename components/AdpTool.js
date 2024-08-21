@@ -290,6 +290,7 @@ const AdpTool = () => {
               Consensus Rank
               {renderSortIcon("consensus_rank")}
             </th>
+            <th>Consensus Position Rank</th>
             <th className="border-r-2 border-gray-700 p-2">Full Name</th>
 
             {visiblePlatforms.NFC && (
@@ -365,6 +366,7 @@ const AdpTool = () => {
               <tr key={`${player.full_name}-${index}`} className="text-center">
                 <td className="">{consensusPick}</td>
                 <td className="">{player.consensus_playerrank}</td>
+                <td className="">{player.consensus_positionrank}</td>
                 <td className="border-r-2 border-gray-700 p-2">
                   {player.full_name}
                 </td>
