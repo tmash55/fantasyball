@@ -254,10 +254,7 @@ const AdpTool = () => {
         </div>
 
         {/* Reset Button */}
-        <button
-          onClick={handleReset}
-          className="btn btn-warning text-white ml-4"
-        >
+        <button onClick={handleReset} className="btn btn-ghost text-white ml-4">
           Reset Filters
         </button>
       </div>
