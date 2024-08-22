@@ -19,6 +19,12 @@ export default async function ADP() {
           id="league"
           className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-2 md:gap-6"
         >
+          <h1 className="text-5xl font-bold m-20 text-center">
+            Redraft <span className="text-orange-400">ADP</span> Value Tool
+          </h1>
+          <div className="pb-6">
+            <AdpToolWithPopup />
+          </div>
           <AdpTool />
         </section>
       </main>
