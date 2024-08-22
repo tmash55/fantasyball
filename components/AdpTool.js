@@ -282,11 +282,19 @@ const AdpTool = () => {
         <table className="table table-pin-rows table-zebra table-xs ">
           <thead>
             <tr className="text-center text-lg relative">
-              <th colSpan="3" className="relative">
+              <th colSpan="3" className="border-r-2 border-gray-700">
                 Consensus
               </th>
-              {visiblePlatforms.NFC && <th colSpan="4">NFC</th>}
-              {visiblePlatforms.ESPN && <th colSpan="3">ESPN</th>}
+              {visiblePlatforms.NFC && (
+                <th colSpan="4" className="border-r-2 border-gray-700">
+                  NFC
+                </th>
+              )}
+              {visiblePlatforms.ESPN && (
+                <th colSpan="3" className="border-r-2 border-gray-700">
+                  ESPN
+                </th>
+              )}
               {visiblePlatforms.Sleeper && <th colSpan="3">Sleeper</th>}
             </tr>
 
