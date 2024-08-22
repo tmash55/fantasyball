@@ -1,4 +1,5 @@
 import AdpTool from "@/components/AdpTool";
+import AdpToolWithPopup from "@/components/AdpToolWithPopup";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import SleeperInput from "@/components/SleeperInput";
@@ -18,8 +19,6 @@ export default async function ADP() {
           id="league"
           className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-2 md:gap-6"
         >
-          <div className="m-8 flex "> </div>
-
           <AdpTool />
         </section>
       </main>

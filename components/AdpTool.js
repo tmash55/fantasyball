@@ -1,6 +1,7 @@
 "use client";
 import { fetchTop200Adp } from "@/app/api/adp/route";
 import React, { useEffect, useState } from "react";
+import AdpToolWithPopup from "./AdpToolWithPopup";
 
 const AdpTool = () => {
   const [adpData, setAdpData] = useState([]);
@@ -196,20 +197,37 @@ const AdpTool = () => {
 
   return (
     <div className="">
-      <h1 className="text-3xl font-bold mb-20 text-center">ADP Value Tool</h1>
+      <h1 className="text-5xl font-bold m-20 text-center">
+        Redraft <span className="text-orange-400">ADP</span> Value Tool
+      </h1>
+      <div className="pb-6">
+        <AdpToolWithPopup />
+      </div>
 
       {/* Search Bar and Filters */}
       <div className="flex flex-wrap items-center justify-between mb-4 space-x-4 bg-gray-800 p-4 rounded-lg">
         {/* Search Bar */}
-        <div className="flex items-center gap-2 mb-2">
-          <label className="input input-bordered flex items-center w-60">
+        <div className="flex items-center gap-2 ">
+          <label className="input input-bordered flex items-center gap-2 w-72">
             <input
               type="text"
-              className="grow bg-gray-700  placeholder-gray-500 focus:outline-none px-2 py-1 rounded-md"
+              className="grow"
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="h-4 w-4 opacity-70"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                clipRule="evenodd"
+              />
+            </svg>
           </label>
         </div>
 
