@@ -181,7 +181,7 @@ const Team = ({
                     className="grid grid-cols-6 gap-2 border-t py-1 text-sm h-16 hover:bg-base-300 cursor-pointer"
                     onClick={() => handlePlayerClick(player, dialogId)}
                   >
-                    <div className="text-[#118ab2] font-bold items-center justify-start flex col-span-2 ">
+                    <div className="text-[#41ADBB] font-bold items-center justify-start flex col-span-2 ">
                       {player
                         ? `${position} - ${player.full_name}`
                         : `Unknown Player (${starterId}) - ${position}`}

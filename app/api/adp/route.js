@@ -7,9 +7,9 @@ const supabase = createClient(
 
 export async function fetchTop200Adp() {
   const { data, error } = await supabase
-    .from("adp_comparison_8")
+    .from("adp_comparison_10")
     .select(
-      "sleeper_playerrank, sleeper_positionrank, espn_playerrank, espn_positionrank, nfc_playerrank, nfc_positionrank, full_name, nfc_adp, avg_playerrank, consensus_pick"
+      "sleeper_playerrank, sleeper_positionrank, espn_playerrank, espn_positionrank, nfc_playerrank, nfc_positionrank, full_name, nfc_adp, avg_playerrank, consensus_pick, yahoo_playerrank, yahoo_positionrank"
     )
     .order("nfc_playerrank", { ascending: true })
     .limit(200);

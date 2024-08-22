@@ -1,7 +1,7 @@
 "use client";
 import { fetchTop200Adp } from "@/app/api/adp/route";
 import React, { useEffect, useState } from "react";
-import AdpToolWithPopup from "./AdpToolWithPopup";
+import Papa from "papaparse";
 
 const AdpTool = () => {
   const [adpData, setAdpData] = useState([]);
@@ -16,6 +16,7 @@ const AdpTool = () => {
     NFC: true,
     ESPN: true,
     Sleeper: true,
+    Yahoo: true, // Added Yahoo here
   });
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -36,13 +37,102 @@ const AdpTool = () => {
   }, []);
 
   const getValueClass = (value) => {
-    if (value > 0 && value <= 5) return "bg-[#55a630]";
-    if (value > 5 && value <= 10) return "bg-[#2b9348]";
-    if (value < 0 && value >= -5) return "bg-[#c92517]";
-    if (value < -5 && value >= -10) return "bg-[#b30f00]";
-    if (value < -10) return "bg-[#990d00]";
-    if (value > 10) return "bg-[#007f5f]";
+    //if (value > 0 && value <= 5) return "bg-[#55a630]";
+    //if (value > 5 && value <= 10) return "bg-[#2b9348]";
+    //if (value < 0 && value >= -5) return "bg-[#c92517]";
+    //if (value < -5 && value >= -10) return "bg-[#FA3C48] text-base-300 bg-opacity-95";
+    if (value < -10) return "bg-red-500 text-base-300";
+    if (value > 10) return "bg-[#7ADF61] text-base-300 bg-opacity-95";
     return "";
+  };
+  const handleDownloadCSV = () => {
+    const headers = [
+      "Consensus Pick",
+      "Full Name",
+      "Consensus Rank",
+      ...(visiblePlatforms.NFC
+        ? ["NFC Rank", "Position Rank", "ADP", "Value"]
+        : []),
+      ...(visiblePlatforms.ESPN ? ["ESPN Rank", "Position Rank", "Value"] : []),
+      ...(visiblePlatforms.Sleeper
+        ? ["Sleeper Rank", "Position Rank", "Value"]
+        : []),
+      ...(visiblePlatforms.Yahoo
+        ? ["Yahoo Rank", "Position Rank", "Value"]
+        : []),
+    ];
+
+    const csvData = filteredData.map((player, index) => {
+      const nfcValue = player.nfc_playerrank
+        ? (player.avg_playerrank - player.nfc_adp).toFixed(2)
+        : "N/A";
+      const espnValue = player.espn_playerrank
+        ? (player.espn_playerrank - player.nfc_adp).toFixed(2)
+        : "N/A";
+      const sleeperValue = player.sleeper_playerrank
+        ? (player.sleeper_playerrank - player.nfc_adp).toFixed(2)
+        : "N/A";
+      const yahooValue = player.yahoo_playerrank
+        ? (player.yahoo_playerrank - player.nfc_adp).toFixed(2)
+        : "N/A";
+      const consensusPick = calculateConsensusPick(
+        player.avg_playerrank,
+        index
+      );
+
+      return {
+        "Consensus Pick": consensusPick,
+        "Full Name": player.full_name,
+        "Consensus Rank": player.avg_playerrank,
+        ...(visiblePlatforms.NFC
+          ? {
+              "NFC Rank": player.nfc_playerrank || "N/A",
+              "Position Rank": player.nfc_positionrank || "N/A",
+              ADP: player.nfc_adp || "N/A",
+              Value: nfcValue !== "N/A" ? nfcValue : "",
+            }
+          : {}),
+        ...(visiblePlatforms.ESPN
+          ? {
+              "ESPN Rank": player.espn_playerrank || "N/A",
+              "Position Rank": player.espn_positionrank || "N/A",
+              Value: espnValue !== "N/A" ? espnValue : "",
+            }
+          : {}),
+        ...(visiblePlatforms.Sleeper
+          ? {
+              "Sleeper Rank": player.sleeper_playerrank || "N/A",
+              "Position Rank": player.sleeper_positionrank || "N/A",
+              Value: sleeperValue !== "N/A" ? sleeperValue : "",
+            }
+          : {}),
+        ...(visiblePlatforms.Yahoo
+          ? {
+              "Yahoo Rank": player.yahoo_playerrank || "N/A",
+              "Position Rank": player.yahoo_positionrank || "N/A",
+              Value: yahooValue !== "N/A" ? yahooValue : "",
+            }
+          : {}),
+      };
+    });
+
+    const csv = Papa.unparse({
+      fields: headers,
+      data: csvData,
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "adp_data.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  const getValue = (rank, adp) => {
+    if (!rank || !adp) return "N/A";
+    return (rank - adp).toFixed(2);
   };
 
   const handleSort = (key) => {
@@ -60,6 +150,7 @@ const AdpTool = () => {
       NFC: true,
       ESPN: true,
       Sleeper: true,
+      Yahoo: true, // Added Yahoo here
     });
     setSortConfig({
       key: null,
@@ -80,8 +171,18 @@ const AdpTool = () => {
 
       switch (sortConfig.key) {
         case "consensus_pick":
-          aValue = calculateConsensusPick(a.avg_playerrank);
-          bValue = calculateConsensusPick(b.avg_playerrank);
+          // Split the consensus_pick into round and pick parts
+          const [aRound, aPick] = a.consensus_pick.split(".").map(Number);
+          const [bRound, bPick] = b.consensus_pick.split(".").map(Number);
+
+          // Compare by round first, then by pick
+          if (aRound !== bRound) {
+            aValue = aRound;
+            bValue = bRound;
+          } else {
+            aValue = aPick;
+            bValue = bPick;
+          }
           break;
         case "nfc_rank":
           aValue = a.nfc_playerrank;
@@ -95,13 +196,22 @@ const AdpTool = () => {
           aValue = a.sleeper_playerrank;
           bValue = b.sleeper_playerrank;
           break;
+        case "yahoo_rank":
+          aValue = a.yahoo_playerrank;
+          bValue = b.yahoo_playerrank;
+          break;
         case "consensus_rank":
           aValue = a.avg_playerrank;
           bValue = b.avg_playerrank;
+          if (aValue === bValue) {
+            // Secondary sort by full_name to ensure stable sorting
+            return a.full_name.localeCompare(b.full_name);
+          }
           break;
         case "nfcValue":
         case "espnValue":
         case "sleeperValue":
+        case "yahooValue":
           aValue = parseFloat(
             sortConfig.key === "nfcValue"
               ? a.avg_playerrank - a.nfc_adp
@@ -109,6 +219,8 @@ const AdpTool = () => {
               ? a.espn_playerrank - a.nfc_adp
               : sortConfig.key === "sleeperValue"
               ? a.sleeper_playerrank - a.nfc_adp
+              : sortConfig.key === "yahooValue"
+              ? a.yahoo_playerrank - a.nfc_adp
               : 0
           );
           bValue = parseFloat(
@@ -118,6 +230,8 @@ const AdpTool = () => {
               ? b.espn_playerrank - b.nfc_adp
               : sortConfig.key === "sleeperValue"
               ? b.sleeper_playerrank - b.nfc_adp
+              : sortConfig.key === "yahooValue"
+              ? b.yahoo_playerrank - b.nfc_adp
               : 0
           );
           break;
@@ -125,7 +239,6 @@ const AdpTool = () => {
           return 0;
       }
 
-      // Handling null/undefined values
       if (aValue == null) return 1;
       if (bValue == null) return -1;
 
@@ -198,10 +311,10 @@ const AdpTool = () => {
   return (
     <div className="">
       {/* Search Bar and Filters */}
-      <div className="flex flex-wrap items-center justify-between mb-4 space-x-4 bg-gray-800 p-4 rounded-lg">
+      <div className="flex flex-wrap items-center justify-between mb-4 space-y-4 md:space-y-0 bg-gray-800 p-4 rounded-lg">
         {/* Search Bar */}
-        <div className="flex items-center gap-2 ">
-          <label className="input input-bordered flex items-center gap-2 w-72">
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <label className="input input-bordered flex items-center gap-2 w-full md:w-72">
             <input
               type="text"
               className="grow"
@@ -225,63 +338,117 @@ const AdpTool = () => {
         </div>
 
         {/* Position Filters */}
-        <div className="flex space-x-4">
-          {["QB", "RB", "WR", "TE"].map((position) => (
-            <label key={position} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                value={position}
-                checked={filterPositions.includes(position)}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setFilterPositions([...filterPositions, position]);
-                  } else {
-                    setFilterPositions(
-                      filterPositions.filter((pos) => pos !== position)
-                    );
-                  }
-                }}
-                className="form-checkbox h-5 w-5 text-orange-500 rounded-full focus:ring-2 focus:ring-orange-400"
-              />
-              <span className="text-white">{position}</span>
-            </label>
-          ))}
+        <div className="dropdown w-full md:w-auto">
+          <label
+            tabIndex={0}
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]"
+          >
+            Position Filters
+          </label>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full md:w-52 z-50"
+          >
+            {["QB", "RB", "WR", "TE"].map((position) => (
+              <li key={position}>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    value={position}
+                    checked={filterPositions.includes(position)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setFilterPositions([...filterPositions, position]);
+                      } else {
+                        setFilterPositions(
+                          filterPositions.filter((pos) => pos !== position)
+                        );
+                      }
+                    }}
+                    className="form-checkbox h-5 w-5 text-orange-400 rounded-full focus:ring-2 focus:ring-orange-400"
+                  />
+                  <span>{position}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Platform Visibility Filters */}
-        <div className="flex space-x-4">
-          {Object.keys(visiblePlatforms).map((platform) => (
-            <label key={platform} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={visiblePlatforms[platform]}
-                onChange={(e) =>
-                  setVisiblePlatforms({
-                    ...visiblePlatforms,
-                    [platform]: e.target.checked,
-                  })
-                }
-                className="form-checkbox h-5 w-5 text-orange-500 rounded-full focus:ring-2 focus:ring-orange-400"
-              />
-              <span className="text-white">{platform}</span>
-            </label>
-          ))}
+        {/* Platform Filters */}
+        <div className="dropdown w-full md:w-auto">
+          <label
+            tabIndex={0}
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]"
+          >
+            Platform Filters
+          </label>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full md:w-52 z-50"
+          >
+            {Object.keys(visiblePlatforms).map((platform) => (
+              <li key={platform}>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={visiblePlatforms[platform]}
+                    onChange={(e) =>
+                      setVisiblePlatforms({
+                        ...visiblePlatforms,
+                        [platform]: e.target.checked,
+                      })
+                    }
+                    className="form-checkbox h-5 w-5 text-orange-400 rounded-full focus:ring-2 focus:ring-orange-400"
+                  />
+                  <span>{platform}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Reset Button */}
-        <button
-          onClick={handleReset}
-          className="ml-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-        >
-          Reset Filters
-        </button>
+        <div className="w-full md:w-auto">
+          <button
+            onClick={handleReset}
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]"
+          >
+            Reset Filters
+          </button>
+        </div>
+
+        {/* CSV Download Button */}
+        <div className="w-full md:w-auto">
+          <button
+            onClick={handleDownloadCSV}
+            className="btn m-1 w-full md:w-auto btn-outline border-orange-400 text-orange-400 hover:bg-orange-400 hover:border-orange-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-download"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+              <path d="M7 11l5 5l5 -5" />
+              <path d="M12 4l0 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div className="overflow-x-auto pt-2">
+      <div className="overflow-x-auto max-h-[800px] ">
         {/* ADP Table */}
         <table className="table table-pin-rows table-zebra table-xs ">
-          <thead>
-            <tr className="text-center text-lg relative">
+          <thead className="">
+            <tr className="text-center text-lg relative bg-gray-800 p-2">
               <th colSpan="3" className="border-r-2 border-gray-700">
                 Consensus
               </th>
@@ -295,7 +462,12 @@ const AdpTool = () => {
                   ESPN
                 </th>
               )}
-              {visiblePlatforms.Sleeper && <th colSpan="3">Sleeper</th>}
+              {visiblePlatforms.Sleeper && (
+                <th colSpan="3" className="border-r-2 border-gray-700">
+                  Sleeper
+                </th>
+              )}
+              {visiblePlatforms.Yahoo && <th colSpan="3">Yahoo</th>}
             </tr>
 
             <tr className="text-center">
@@ -324,13 +496,13 @@ const AdpTool = () => {
                     NFC Rank
                     {renderSortIcon("nfc_rank")}
                   </th>
-                  <th>Position Rank</th>
-                  <th className="">ADP</th>
+                  <th>NFC Pos. Rank</th>
+                  <th className="">NFC ADP</th>
                   <th
                     className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("nfcValue")}
                   >
-                    Value
+                    NFC Value
                     {renderSortIcon("nfcValue")}
                   </th>
                 </>
@@ -342,10 +514,10 @@ const AdpTool = () => {
                     className="cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("espn_rank")}
                   >
-                    Rank
+                    ESPN Rank
                     {renderSortIcon("espn_rank")}
                   </th>
-                  <th className="">Position Rank</th>
+                  <th className="">ESPN Pos. Rank</th>
                   <th
                     className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("espnValue")}
@@ -361,16 +533,35 @@ const AdpTool = () => {
                     className="cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("sleeper_rank")}
                   >
-                    Rank
+                    Sleeper Rank
                     {renderSortIcon("sleeper_rank")}
                   </th>
-                  <th className="">Position Rank</th>
+                  <th className="">Sleeper Pos. Rank</th>
                   <th
-                    className="p-2 cursor-pointer hover:bg-base-300"
+                    className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("sleeperValue")}
                   >
-                    Value
+                    Sleeper Value
                     {renderSortIcon("sleeperValue")}
+                  </th>
+                </>
+              )}
+              {visiblePlatforms.Yahoo && (
+                <>
+                  <th
+                    className="cursor-pointer hover:bg-base-300 border-l-2 border-gray-700"
+                    onClick={() => handleSort("yahoo_rank")}
+                  >
+                    Yahoo Rank
+                    {renderSortIcon("yahoo_rank")}
+                  </th>
+                  <th className="">Yahoo Pos. Rank</th>
+                  <th
+                    className="p-2 cursor-pointer hover:bg-base-300"
+                    onClick={() => handleSort("yahooValue")}
+                  >
+                    Yahoo Value
+                    {renderSortIcon("yahooValue")}
                   </th>
                 </>
               )}
@@ -387,6 +578,9 @@ const AdpTool = () => {
               const sleeperValue = player.sleeper_playerrank
                 ? (player.sleeper_playerrank - player.nfc_adp).toFixed(2)
                 : "N/A";
+              const yahooValue = player.yahoo_playerrank
+                ? (player.yahoo_playerrank - player.nfc_adp).toFixed(2)
+                : "N/A";
               const consensusPick = calculateConsensusPick(
                 player.avg_playerrank,
                 index
@@ -395,7 +589,7 @@ const AdpTool = () => {
               return (
                 <tr
                   key={`${player.full_name}-${index}`}
-                  className="text-center"
+                  className="text-center font-sans"
                 >
                   <td className="">{player.consensus_pick}</td>
                   <td>{player.full_name}</td>
@@ -436,11 +630,22 @@ const AdpTool = () => {
                       <td className="">{player.sleeper_playerrank}</td>
                       <td className="">{player.sleeper_positionrank}</td>
                       <td
-                        className={`p-2 font-bold ${getValueClass(
+                        className={`p-2 font-bold border-r-2 border-gray-700 ${getValueClass(
                           sleeperValue
                         )}`}
                       >
                         {sleeperValue}
+                      </td>
+                    </>
+                  )}
+                  {visiblePlatforms.Yahoo && (
+                    <>
+                      <td className="">{player.yahoo_playerrank}</td>
+                      <td className="">{player.yahoo_positionrank}</td>
+                      <td
+                        className={`p-2 font-bold ${getValueClass(yahooValue)}`}
+                      >
+                        {yahooValue}
                       </td>
                     </>
                   )}
