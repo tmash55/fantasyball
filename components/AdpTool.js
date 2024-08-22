@@ -170,7 +170,7 @@ const AdpTool = () => {
       let aValue, bValue;
 
       switch (sortConfig.key) {
-        case "consensus_pick":
+        case "consensus_pick": {
           // Split the consensus_pick into round and pick parts
           const [aRound, aPick] = a.consensus_pick.split(".").map(Number);
           const [bRound, bPick] = b.consensus_pick.split(".").map(Number);
@@ -184,6 +184,8 @@ const AdpTool = () => {
             bValue = bPick;
           }
           break;
+        }
+
         case "nfc_rank":
           aValue = a.nfc_playerrank;
           bValue = b.nfc_playerrank;
