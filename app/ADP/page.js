@@ -13,7 +13,7 @@ export default async function ADP() {
   return (
     <>
       {" "}
-      <main className="min-h-screen pb-24">
+      <main className="min-h-screen pb-24 relative">
         <Header />
         <section
           id="league"
@@ -22,7 +22,7 @@ export default async function ADP() {
           <h1 className="text-5xl font-bold m-20 mb-12 text-center">
             Redraft <span className="text-orange-400">ADP</span> Value Tool
           </h1>
-          <div className="pb-6">
+          <div className="pb-6 relative z-10">
             <AdpToolWithPopup />
           </div>
           <AdpTool />
