@@ -66,10 +66,10 @@ const AdpTool = () => {
     });
   };
 
-  const calculateConsensusPick = (rank) => {
+  const calculateConsensusPick = (rank, index) => {
     if (!rank) return "N/A";
-    const round = Math.ceil(rank / 12);
-    const pick = rank % 12 === 0 ? 12 : rank % 12;
+    const pick = (index % 12) + 1; // Ensure picks go from 1-12
+    const round = Math.floor(index / 12) + 1; // Ensure the round increments properly
     return `${round}.${pick.toString().padStart(2, "0")}`;
   };
 
@@ -79,8 +79,8 @@ const AdpTool = () => {
 
       switch (sortConfig.key) {
         case "consensus_pick":
-          aValue = calculateConsensusPick(a.consensus_playerrank);
-          bValue = calculateConsensusPick(b.consensus_playerrank);
+          aValue = calculateConsensusPick(a.avg_playerrank);
+          bValue = calculateConsensusPick(b.avg_playerrank);
           break;
         case "nfc_rank":
           aValue = a.nfc_playerrank;
@@ -95,15 +95,15 @@ const AdpTool = () => {
           bValue = b.sleeper_playerrank;
           break;
         case "consensus_rank":
-          aValue = a.consensus_playerrank;
-          bValue = b.consensus_playerrank;
+          aValue = a.avg_playerrank;
+          bValue = b.avg_playerrank;
           break;
         case "nfcValue":
         case "espnValue":
         case "sleeperValue":
           aValue = parseFloat(
             sortConfig.key === "nfcValue"
-              ? a.consensus_playerrank - a.nfc_adp
+              ? a.avg_playerrank - a.nfc_adp
               : sortConfig.key === "espnValue"
               ? a.espn_playerrank - a.nfc_adp
               : sortConfig.key === "sleeperValue"
@@ -112,7 +112,7 @@ const AdpTool = () => {
           );
           bValue = parseFloat(
             sortConfig.key === "nfcValue"
-              ? b.consensus_playerrank - b.nfc_adp
+              ? b.avg_playerrank - b.nfc_adp
               : sortConfig.key === "espnValue"
               ? b.espn_playerrank - b.nfc_adp
               : sortConfig.key === "sleeperValue"
@@ -199,33 +199,24 @@ const AdpTool = () => {
       <h1 className="text-3xl font-bold mb-20 text-center">ADP Value Tool</h1>
 
       {/* Search Bar and Filters */}
-      <div className="flex items-center justify-between mb-4">
-        <label className="input input-bordered flex items-center gap-2 mb-2 w-60">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="h-4 w-4 opacity-70"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-              clipRule="evenodd"
+      <div className="flex flex-wrap items-center justify-between mb-4 space-x-4 bg-gray-800 p-4 rounded-lg">
+        {/* Search Bar */}
+        <div className="flex items-center gap-2 mb-2">
+          <label className="input input-bordered flex items-center w-60">
+            <input
+              type="text"
+              className="grow bg-gray-700  placeholder-gray-500 focus:outline-none px-2 py-1 rounded-md"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </svg>
-          <input
-            type="text"
-            className="grow"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </label>
+          </label>
+        </div>
 
         {/* Position Filters */}
         <div className="flex space-x-4">
           {["QB", "RB", "WR", "TE"].map((position) => (
-            <label key={position} className="inline-flex items-center">
+            <label key={position} className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 value={position}
@@ -239,9 +230,9 @@ const AdpTool = () => {
                     );
                   }
                 }}
-                className="form-checkbox h-5 w-5 text-gray-600"
+                className="form-checkbox h-5 w-5 text-orange-500 rounded-full focus:ring-2 focus:ring-orange-400"
               />
-              <span className="ml-2">{position}</span>
+              <span className="text-white">{position}</span>
             </label>
           ))}
         </div>
@@ -249,7 +240,7 @@ const AdpTool = () => {
         {/* Platform Visibility Filters */}
         <div className="flex space-x-4">
           {Object.keys(visiblePlatforms).map((platform) => (
-            <label key={platform} className="inline-flex items-center">
+            <label key={platform} className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 checked={visiblePlatforms[platform]}
@@ -259,24 +250,28 @@ const AdpTool = () => {
                     [platform]: e.target.checked,
                   })
                 }
-                className="form-checkbox h-5 w-5 text-gray-600"
+                className="form-checkbox h-5 w-5 text-orange-500 rounded-full focus:ring-2 focus:ring-orange-400"
               />
-              <span className="ml-2">{platform}</span>
+              <span className="text-white">{platform}</span>
             </label>
           ))}
         </div>
 
         {/* Reset Button */}
-        <button onClick={handleReset} className="btn btn-ghost text-white ml-4">
+        <button
+          onClick={handleReset}
+          className="ml-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+        >
           Reset Filters
         </button>
       </div>
-      <div className="overflow-x-auto">
+
+      <div className="overflow-x-auto pt-2">
         {/* ADP Table */}
-        <table className="table table-pin-rows table-zebra">
+        <table className="table table-pin-rows table-zebra table-xs ">
           <thead>
-            <tr className="text-center">
-              <th colSpan="4">Consensus</th>
+            <tr className="text-center text-lg ">
+              <th colSpan="3">Consensus</th>
               {visiblePlatforms.NFC && <th colSpan="4">NFC</th>}
               {visiblePlatforms.ESPN && <th colSpan="3">ESPN</th>}
               {visiblePlatforms.Sleeper && <th colSpan="3">Sleeper</th>}
@@ -291,14 +286,11 @@ const AdpTool = () => {
               </th>
               <th className="">Full Name</th>
               <th
-                className="cursor-pointer hover:bg-base-300"
+                className="cursor-pointer hover:bg-base-300 border-r-2 border-gray-700 p-2"
                 onClick={() => handleSort("consensus_rank")}
               >
                 Consensus Rank
                 {renderSortIcon("consensus_rank")}
-              </th>
-              <th className="border-r-2 border-gray-700 p-2">
-                Consensus Position Rank
               </th>
 
               {visiblePlatforms.NFC && (
@@ -310,13 +302,13 @@ const AdpTool = () => {
                     NFC Rank
                     {renderSortIcon("nfc_rank")}
                   </th>
-                  <th>NFC Position Rank</th>
-                  <th className="">NFC ADP</th>
+                  <th>Position Rank</th>
+                  <th className="">ADP</th>
                   <th
                     className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("nfcValue")}
                   >
-                    NFC Value
+                    Value
                     {renderSortIcon("nfcValue")}
                   </th>
                 </>
@@ -328,15 +320,15 @@ const AdpTool = () => {
                     className="cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("espn_rank")}
                   >
-                    ESPN Rank
+                    Rank
                     {renderSortIcon("espn_rank")}
                   </th>
-                  <th className="">ESPN Position Rank</th>
+                  <th className="">Position Rank</th>
                   <th
                     className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("espnValue")}
                   >
-                    ESPN Value
+                    Value
                     {renderSortIcon("espnValue")}
                   </th>
                 </>
@@ -347,15 +339,15 @@ const AdpTool = () => {
                     className="cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("sleeper_rank")}
                   >
-                    Sleeper Rank
+                    Rank
                     {renderSortIcon("sleeper_rank")}
                   </th>
-                  <th className="">Sleeper Position Rank</th>
+                  <th className="">Position Rank</th>
                   <th
                     className="p-2 cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("sleeperValue")}
                   >
-                    Sleeper Value
+                    Value
                     {renderSortIcon("sleeperValue")}
                   </th>
                 </>
@@ -365,7 +357,7 @@ const AdpTool = () => {
           <tbody>
             {filteredData.map((player, index) => {
               const nfcValue = player.nfc_playerrank
-                ? (player.consensus_playerrank - player.nfc_adp).toFixed(2)
+                ? (player.avg_playerrank - player.nfc_adp).toFixed(2)
                 : "N/A";
               const espnValue = player.espn_playerrank
                 ? (player.espn_playerrank - player.nfc_adp).toFixed(2)
@@ -374,7 +366,8 @@ const AdpTool = () => {
                 ? (player.sleeper_playerrank - player.nfc_adp).toFixed(2)
                 : "N/A";
               const consensusPick = calculateConsensusPick(
-                player.consensus_playerrank
+                player.avg_playerrank,
+                index
               );
 
               return (
@@ -382,11 +375,10 @@ const AdpTool = () => {
                   key={`${player.full_name}-${index}`}
                   className="text-center"
                 >
-                  <td className="">{consensusPick}</td>
+                  <td className="">{player.consensus_pick}</td>
                   <td>{player.full_name}</td>
-                  <td className="">{player.consensus_playerrank}</td>
-                  <td className="border-r-2 border-gray-700 p-2">
-                    {player.consensus_positionrank}
+                  <td className="border-r-2 border-gray-700">
+                    {player.avg_playerrank}
                   </td>
 
                   {visiblePlatforms.NFC && (
