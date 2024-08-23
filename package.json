@@ -28,7 +28,7 @@
     "eslint-config-next": "13.4.19",
     "file-saver": "^2.0.5",
     "form-data": "^4.0.0",
-    "framer-motion": "^11.2.12",
+    "framer-motion": "^11.3.30",
     "idb": "^8.0.0",
     "lucide-react": "^0.399.0",
     "mailgun.js": "^9.2.1",
@@ -51,7 +51,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-tooltip": "^5.26.3",
     "stripe": "^13.11.0",
-    "tailwind-merge": "^2.3.0",
+    "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
