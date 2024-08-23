@@ -19,13 +19,16 @@ export default async function ADP() {
           id="league"
           className="max-w-full mx-auto p-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
         >
-          <h1 className="text-4xl font-bold mb-8 text-center">
-            Redraft{" "}
-            <span className="text-orange-400 text-[45px] font-extrabold">
-              ADP
-            </span>{" "}
-            Value Tool
-          </h1>
+          <div className="pt-20">
+            <h1 className="text-5xl font-bold mb-8 text-center">
+              Redraft{" "}
+              <span className="text-orange-400 font-extrabold">
+                Average Draft Position (ADP)
+              </span>{" "}
+              Value Tool
+            </h1>
+          </div>
+
           <div className="pb-6 relative z-10">
             <AdpToolWithPopup />
           </div>
