@@ -19,7 +19,7 @@ const AdpTool = () => {
     Yahoo: true, // Added Yahoo here
   });
   const [sortConfig, setSortConfig] = useState({
-    key: null,
+    key: "nfc_adp",
     direction: "ascending",
   });
 
@@ -509,7 +509,7 @@ const AdpTool = () => {
                 {renderSortIcon("consensus_pick")}
               </th>
               <th
-                className="sticky top-0 left-0 bg-gray-800 border-r-2 border-gray-700 z-50 "
+                className="sticky top-0 left-0 bg-gray-800 border-r-2 border-gray-700 z-20 "
                 colSpan="2"
                 style={{ boxShadow: "2px 0 5px -2px rgba(0, 0, 0, 0.75)" }}
               >
@@ -524,6 +524,7 @@ const AdpTool = () => {
                     onClick={() => handleSort("nfc_adp")}
                   >
                     NFC ADP
+                    {renderSortIcon("nfc_adp")}
                   </th>
                 </>
               )}
