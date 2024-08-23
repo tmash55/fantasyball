@@ -134,7 +134,7 @@ const Leagues = () => {
                         />
                         <p>
                           {" "}
-                          Contender Rank:
+                          Contender Rank:{" "}
                           {ranks[league.league_id]?.adpRank || "N/A"}
                         </p>
                       </td>

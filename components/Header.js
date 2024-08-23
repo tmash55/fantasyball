@@ -20,23 +20,19 @@ const guestLinks = [
     label: "Reviews",
   },
   {
-    href: "/#faq",
-    label: "FAQ",
+    href: "/ADP",
+    label: "Fantasy Tools",
   },
 ];
 
 const userLinks = [
   {
-    href: "/",
-    label: "Home",
-  },
-  {
     href: "/dashboard",
-    label: "Dashboard",
+    label: "My Leagues",
   },
   {
     href: "/ADP",
-    label: "Tools",
+    label: "Fantasy Tools",
   },
 ];
 
@@ -151,16 +147,47 @@ const Header = () => {
 
         {/* Your links on large screens */}
         <div className="hidden lg:flex lg:justify-center lg:gap-12 lg:items-center">
-          {links.map((link) => (
-            <Link
-              href={link.href}
-              key={link.href}
-              className="link link-hover hover:text-primary"
-              title={link.label}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {links.map((link) => {
+            if (link.label === "Fantasy Tools") {
+              return (
+                <div className="dropdown" key={link.href}>
+                  <label
+                    tabIndex={0}
+                    className="link link-hover hover:text-primary cursor-pointer"
+                  >
+                    Fantasy Tools
+                  </label>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                  >
+                    <li>
+                      <Link href="/ADP" title="ADP Tool">
+                        Redraft Values
+                      </Link>
+                    </li>
+                    <li className="disabled">
+                      <Link href="" title="Another Tool">
+                        More Coming Soon!
+                      </Link>
+                    </li>
+                    {/* Add more tools here */}
+                  </ul>
+                </div>
+              );
+            } else {
+              return (
+                <Link
+                  href={link.href}
+                  key={link.href}
+                  className="link link-hover hover:text-primary"
+                  title={link.label}
+                >
+                  {link.label}
+                </Link>
+              );
+            }
+          })}
         </div>
 
         {/* CTA on large screens */}
@@ -217,21 +244,46 @@ const Header = () => {
           <div className="flow-root mt-6">
             <div className="py-4">
               <div className="flex flex-col gap-y-4 items-start">
-                {links.map((link) => (
-                  <Link
-                    href={link.href}
-                    key={link.href}
-                    className="link link-hover"
-                    title={link.label}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {links.map((link) => {
+                  if (link.label === "Fantasy Tools") {
+                    return (
+                      <details key={link.href} className="w-full">
+                        <summary className="link link-hover hover:text-primary cursor-pointer">
+                          Tools
+                        </summary>
+                        <ul className="ml-4 pl-4 border-l border-neutral-200">
+                          <li>
+                            <Link href="/ADP" title="ADP Tool">
+                              ADP Values
+                            </Link>
+                          </li>
+                          <li className="disabled">
+                            <Link href="" title="Another Tool">
+                              More Coming Soon!
+                            </Link>
+                          </li>
+                          {/* Add more tools here */}
+                        </ul>
+                      </details>
+                    );
+                  } else {
+                    return (
+                      <Link
+                        href={link.href}
+                        key={link.href}
+                        className="link link-hover"
+                        title={link.label}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  }
+                })}
               </div>
             </div>
             <div className="divider"></div>
             {/* Your CTA on small screens */}
-            <div className="flex flex-col">{cta}</div>
+            <div className="flex flex-col z-0">{cta}</div>
           </div>
         </div>
       </div>
