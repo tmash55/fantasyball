@@ -695,6 +695,11 @@ const AdpTool = () => {
           </tbody>
         </table>
       </div>
+      <div className="flex justify-end p-10">
+        <p className="italic">
+          *** PPR Scoring <span>***</span>
+        </p>
+      </div>
     </div>
   );
 };
