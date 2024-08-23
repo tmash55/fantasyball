@@ -15,7 +15,10 @@ const guestLinks = [
     href: "/#features",
     label: "Features",
   },
-
+  {
+    href: "/dashboard",
+    label: "My Leagues",
+  },
   {
     href: "/ADP",
     label: "Fantasy Tools",
