@@ -17,9 +17,9 @@ export default async function ADP() {
         <Header />
         <section
           id="league"
-          className="max-w-7xl lg:mx-auto p-5 md:px-10 xl:px-0 w-full my-8 flex flex-col gap-2 md:gap-6"
+          className="max-w-full mx-auto p-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
         >
-          <h1 className="text-4xl font-bold m-20 mb-12 text-center">
+          <h1 className="text-4xl font-bold mb-8 text-center">
             Redraft{" "}
             <span className="text-orange-400 text-[45px] font-extrabold">
               ADP
