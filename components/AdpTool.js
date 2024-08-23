@@ -453,36 +453,48 @@ const AdpTool = () => {
         <table className="table table-pin-rows table-zebra ">
           <thead className="sticky top-0 bg-gray-800 z-20">
             <tr className="text-center  relative">
-              <th colSpan="1" className=" w-[12rem]"></th>
+              <th colSpan="1" className=" w-[12rem] bg-gray-900"></th>
               <th
                 colSpan="2"
-                className="border-r-2 border-gray-700 min-w-[12rem]"
+                className="border-r-2 border-gray-700 min-w-[12rem] bg-gray-900"
               ></th>
               {visiblePlatforms.NFC && (
-                <th colSpan="2" className="border-r-2 border-gray-700">
+                <th
+                  colSpan="2"
+                  className="border-r-2 border-gray-700 bg-gray-900"
+                >
                   <span className="text-lg">NFC ADP</span>
                   <br />
                   (High Stakes)
                 </th>
               )}
-              <th colSpan="2" className="border-r-2 border-gray-700">
+              <th
+                colSpan="2"
+                className="border-r-2 border-gray-700 bg-gray-900"
+              >
                 <span className="text-lg">Consensus</span>
                 <br />
                 (ESPN/Sleeper/Yahoo AVG)
               </th>
 
               {visiblePlatforms.ESPN && (
-                <th colSpan="3" className="border-r-2 border-gray-700 text-lg">
+                <th
+                  colSpan="3"
+                  className="border-r-2 border-gray-700 text-lg bg-gray-900"
+                >
                   ESPN
                 </th>
               )}
               {visiblePlatforms.Sleeper && (
-                <th colSpan="3" className="border-r-2 border-gray-700 text-lg">
+                <th
+                  colSpan="3"
+                  className="border-r-2 border-gray-700 text-lg bg-gray-900"
+                >
                   Sleeper
                 </th>
               )}
               {visiblePlatforms.Yahoo && (
-                <th colSpan="3" className="text-lg">
+                <th colSpan="3" className="text-lg bg-gray-900">
                   Yahoo
                 </th>
               )}
