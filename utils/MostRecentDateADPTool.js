@@ -1,15 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 // utils/supabaseUtils.js
 
-export const getMostRecentDate = async () => {
+export const MostRecentDateADPTool = async () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const supabase = createClient(supabaseUrl, supabaseKey);
+
   try {
     const { data, error } = await supabase
-      .from("ktc_test")
-      .select("date")
-      .order("date", { ascending: false })
+      .from("adp_comparison_10")
+      .select("date_added")
+      .order("date_added", { ascending: false })
       .limit(1);
 
     if (error) {
@@ -18,14 +19,14 @@ export const getMostRecentDate = async () => {
     }
 
     if (data.length) {
-      const date = new Date(data[0].date);
-      const formattedDate = `${String(date.getUTCMonth() + 1).padStart(
+      const dateAdded = new Date(data[0].date_added);
+      const formattedDate = `${String(dateAdded.getUTCMonth() + 1).padStart(
         2,
         "0"
-      )}/${String(date.getUTCDate()).padStart(
+      )}/${String(dateAdded.getUTCDate()).padStart(
         2,
         "0"
-      )}/${date.getUTCFullYear()}`;
+      )}/${dateAdded.getUTCFullYear()}`;
       return formattedDate;
     }
 

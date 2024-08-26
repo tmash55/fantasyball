@@ -186,13 +186,12 @@ const LeagueDetails = () => {
         </Link>
       </div>
       <div>
-        <h1 className="text-5xl text-primary mb-16">{leagueName}</h1>
+        <h1 className="text-5xl text-primary mb-16 text-center">
+          {leagueName}
+        </h1>
         <div>
-          <h2 className="text-sm">
-            Values as of{" "}
-            {mostRecentDate
-              ? new Date(mostRecentDate).toLocaleDateString()
-              : "Loading..."}
+          <h2 className="text-sm italic p-[-1]">
+            Values as of {mostRecentDate ? mostRecentDate : "Loading..."}
           </h2>
         </div>
       </div>

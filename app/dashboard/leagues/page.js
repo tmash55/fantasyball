@@ -151,8 +151,8 @@ const Leagues = () => {
                             {ranks[league.league_id]?.dynastyRank || "N/A"}
                           </p>
                         </td>
-                        <td className="w-20">
-                          <label className="input input-bordered flex items-center gap-2">
+                        <td className="w-20 disabled">
+                          <label className="input input-bordered flex items-center gap-2 ">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="24"
@@ -175,8 +175,9 @@ const Leagues = () => {
                             </svg>
                             <input
                               type="text"
-                              className="grow"
-                              placeholder="0"
+                              className="grow text-sm opacity-50"
+                              placeholder="0 (Coming soon)"
+                              disabled
                               value={buyIns[league.league_id] || ""}
                               onChange={(e) =>
                                 handleBuyInChange(

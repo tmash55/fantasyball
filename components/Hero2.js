@@ -1,39 +1,32 @@
-import Image from "next/image";
-import TestimonialsAvatars from "./TestimonialsAvatars";
-import config from "@/config";
-import { data1, football } from "@/assets";
-import ButtonSignin from "./ButtonSignin";
-import Link from "next/link";
+"use client";
+import { motion } from "framer-motion";
+import { HeroHighlight, Highlight } from "./ui/hero-highlight";
 
 const Hero = () => {
   return (
-    <section className="relative hero xl:min-h-screen lg:min-h-screen md:min-h-screen  bg-base-100 ">
-      <Image
-        src={football}
-        alt="Background"
-        className="object-cover w-full hidden md:block"
-        fill
-      />
-
-      <div className="relative hero-overlay  bg-base-100 bg-opacity-70"></div>
-      <div className="relative hero-content text-center text-neutral-content p-8">
-        <div className="max-w-xl ">
-          <h1 className="font-extrabold text-4xl lg:text-6xl tracking-tight mb-5">
-            Unlock Your Advanced Fantasy Football Metrics
-          </h1>
-          <p className="text-lg opacity-80 mb-12 md:mb-16 ">
-            Gain Deeper Insights and Make Smarter Moves in Your Fantasy Football
-            Leagues. Enhance Your Strategy with In-Depth League Analysis.
-          </p>
-
-          <Link href={"/dashboard"}>
-            <button className="btn btn-primary btn-wide"> Get Started</button>
-          </Link>
-          <div className="mt-8">
-            <TestimonialsAvatars priority={true} />
-          </div>
-        </div>
-      </div>
+    <section className=" hero xl:min-h-screen lg:min-h-screen md:min-h-screen bg-base-200">
+      <HeroHighlight containerClassName="overflow-hidden">
+        <motion.h1
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+          animate={{
+            opacity: 1,
+            y: [20, -5, 0],
+          }}
+          transition={{
+            duration: 0.5,
+            ease: [0.4, 0.0, 0.2, 1],
+          }}
+          className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white dark:text-white max-w-3xl lg:max-w-5xl leading-relaxed lg:leading-snug text-center mx-auto px-6"
+        >
+          Step Up Your Game: Advanced Fantasy{" "}
+          <Highlight className="text-white dark:text-white">
+            Metrics for the Win
+          </Highlight>
+        </motion.h1>
+      </HeroHighlight>
     </section>
   );
 };

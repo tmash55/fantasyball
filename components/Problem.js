@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { HeroHighlight, Highlight } from "./ui/hero-highlight";
+
 const Arrow = ({ extraStyle }) => {
   return (
     <svg
@@ -42,26 +47,28 @@ const Step = ({ emoji, text }) => {
 const Problem = () => {
   return (
     <section className="bg-neutral text-neutral-content">
-      <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
-        <h2 className="max-w-3xl mx-auto font-extrabold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8">
-          Fantasy Leagues: Sleep Optional
-        </h2>
-        <p className="max-w-xl mx-auto text-lg opacity-90 leading-relaxed mb-12 md:mb-20">
-          Drafts, Trades, Lineups... There&apos;s So Much To Keep Track Of.
-        </p>
-
-        <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6">
-          <Step emoji="🧑‍💻" text="Where to begin" />
-
-          <Arrow extraStyle="max-md:-scale-x-100 md:-rotate-90" />
-
-          <Step emoji="😮‍💨" text="Struggle to find time" />
-
-          <Arrow extraStyle="md:-scale-x-100 md:-rotate-90" />
-
-          <Step emoji="😔" text="Lose Leagues" />
-        </div>
-      </div>
+      <HeroHighlight containerClassName="overflow-hidden">
+        <motion.h1
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+          animate={{
+            opacity: 1,
+            y: [20, -5, 0],
+          }}
+          transition={{
+            duration: 0.5,
+            ease: [0.4, 0.0, 0.2, 1],
+          }}
+          className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white dark:text-white max-w-3xl lg:max-w-5xl leading-relaxed lg:leading-snug text-center mx-auto px-6"
+        >
+          Step Up Your Game: Advanced Fantasy{" "}
+          <Highlight className="text-white dark:text-white">
+            Metrics for the Win
+          </Highlight>
+        </motion.h1>
+      </HeroHighlight>
     </section>
   );
 };

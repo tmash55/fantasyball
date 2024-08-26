@@ -2,10 +2,12 @@
 import { fetchTop200Adp } from "@/app/api/adp/route";
 import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
+import { MostRecentDateADPTool } from "@/utils/MostRecentDateADPTool";
 
 const AdpTool = () => {
   const [adpData, setAdpData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [mostRecentDate, setMostRecentDate] = useState(null);
   const [filterPositions, setFilterPositions] = useState([
     "QB",
     "RB",
@@ -34,6 +36,14 @@ const AdpTool = () => {
     };
 
     fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchMostRecentDate = async () => {
+      const date = await MostRecentDateADPTool();
+      setMostRecentDate(date);
+    };
+    console.log(mostRecentDate);
+    fetchMostRecentDate();
   }, []);
 
   const getValueClass = (value) => {
@@ -315,12 +325,15 @@ const AdpTool = () => {
   };
 
   return (
-    <div className="">
+    <div className="p-2">
+      <div className="flex p-4 text-sm">
+        <p className="italic">last updated: {mostRecentDate}</p>
+      </div>
       {/* Search Bar and Filters */}
-      <div className="flex flex-wrap items-center justify-between mb-4 space-y-4 md:space-y-0 bg-gray-800 p-4 rounded-lg">
+      <div className="flex flex-wrap items-center justify-between mb-4 space-y-2 md:space-y-0 bg-gray-800 p-2 md:p-4 ">
         {/* Search Bar */}
         <div className="flex items-center gap-2 w-full md:w-auto">
-          <label className="input input-bordered flex items-center gap-2 w-full md:w-72">
+          <label className="input input-bordered flex items-center gap-2 w-full md:w-60">
             <input
               type="text"
               className="grow"
@@ -453,7 +466,7 @@ const AdpTool = () => {
         <table className="table table-pin-rows table-zebra ">
           <thead className="sticky top-0 bg-gray-800 z-20">
             <tr className="text-center  relative">
-              <th colSpan="1" className=" w-[12rem] bg-gray-900"></th>
+              <th colSpan="1" className="w-[8rem] bg-gray-900"></th>
               <th
                 colSpan="2"
                 className="border-r-2 border-gray-700 min-w-[12rem] bg-gray-900"
@@ -463,24 +476,24 @@ const AdpTool = () => {
                   colSpan="2"
                   className="border-r-2 border-gray-700 bg-gray-900"
                 >
-                  <span className="text-lg">NFC ADP</span>
+                  <span className="text-sm md:text-lg">NFC ADP</span>
                   <br />
-                  (High Stakes)
+                  <span className="text-xs">(High Stakes)</span>
                 </th>
               )}
               <th
                 colSpan="2"
                 className="border-r-2 border-gray-700 bg-gray-900"
               >
-                <span className="text-lg">Consensus</span>
+                <span className="text-sm md:text-lg">Consensus</span>
                 <br />
-                (ESPN/Sleeper/Yahoo AVG)
+                <span className="text-xs">(ESPN/Sleeper/Yahoo AVG)</span>
               </th>
 
               {visiblePlatforms.ESPN && (
                 <th
                   colSpan="3"
-                  className="border-r-2 border-gray-700 text-lg bg-gray-900"
+                  className="border-r-2 border-gray-700 text-sm md:text-lg bg-gray-900"
                 >
                   ESPN
                 </th>
@@ -488,13 +501,13 @@ const AdpTool = () => {
               {visiblePlatforms.Sleeper && (
                 <th
                   colSpan="3"
-                  className="border-r-2 border-gray-700 text-lg bg-gray-900"
+                  className="border-r-2 border-gray-700 text-sm md:text-lg bg-gray-900"
                 >
                   Sleeper
                 </th>
               )}
               {visiblePlatforms.Yahoo && (
-                <th colSpan="3" className="text-lg bg-gray-900">
+                <th colSpan="3" className="text-sm md:text-lg bg-gray-900">
                   Yahoo
                 </th>
               )}
@@ -502,7 +515,7 @@ const AdpTool = () => {
 
             <tr className="text-center bg-gray-800 z-20">
               <th
-                className="cursor-pointer hover:bg-base-300"
+                className="cursor-pointer hover:bg-base-300 "
                 onClick={() => handleSort("consensus_pick")}
               >
                 Consensus Pick
@@ -518,9 +531,9 @@ const AdpTool = () => {
 
               {visiblePlatforms.NFC && (
                 <>
-                  <th>NFC Pos. Rank</th>
+                  <th className="">NFC Pos. Rank</th>
                   <th
-                    className="border-r-2 border-gray-700 cursor-pointer hover:bg-base-300"
+                    className="border-r-2 border-gray-700 cursor-pointer hover:bg-base-300 "
                     onClick={() => handleSort("nfc_adp")}
                   >
                     NFC ADP
@@ -529,7 +542,7 @@ const AdpTool = () => {
                 </>
               )}
               <th
-                className="cursor-pointer hover:bg-base-300  p-2"
+                className="cursor-pointer hover:bg-base-300  p-2 "
                 onClick={() => handleSort("consensus_rank")}
               >
                 Consensus Rank
@@ -546,13 +559,13 @@ const AdpTool = () => {
               {visiblePlatforms.ESPN && (
                 <>
                   <th
-                    className="cursor-pointer hover:bg-base-300"
+                    className="cursor-pointer hover:bg-base-300 "
                     onClick={() => handleSort("espn_rank")}
                   >
                     Rank
                     {renderSortIcon("espn_rank")}
                   </th>
-                  <th className=""> Pos. Rank</th>
+                  <th className="">Pos. Rank</th>
                   <th
                     className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                     onClick={() => handleSort("espnValue")}
@@ -565,7 +578,7 @@ const AdpTool = () => {
               {visiblePlatforms.Sleeper && (
                 <>
                   <th
-                    className="cursor-pointer hover:bg-base-300"
+                    className="cursor-pointer hover:bg-base-300 "
                     onClick={() => handleSort("sleeper_rank")}
                   >
                     Rank
@@ -584,7 +597,7 @@ const AdpTool = () => {
               {visiblePlatforms.Yahoo && (
                 <>
                   <th
-                    className="cursor-pointer hover:bg-base-300 border-l-2 border-gray-700"
+                    className="cursor-pointer hover:bg-base-300 text-sm border-l-2 border-gray-700"
                     onClick={() => handleSort("yahoo_rank")}
                   >
                     Rank
@@ -627,26 +640,26 @@ const AdpTool = () => {
                   key={`${player.full_name}-${index}`}
                   className="text-center font-sans"
                 >
-                  <td className="">{player.consensus_pick}</td>
+                  <td className="text-sm">{player.consensus_pick}</td>
                   <td
                     colSpan="2"
-                    className="sticky left-0 bg-gray-900 border-r-2 border-gray-700 z-10"
+                    className="sticky left-0 bg-gray-900 border-r-2 border-gray-700 z-10 text-sm"
                     style={{ boxShadow: "2px 0 5px -2px rgba(0, 0, 0, 0.75)" }}
                   >
                     {player.full_name}
                   </td>
                   {visiblePlatforms.NFC && (
                     <>
-                      <td>{player.nfc_positionrank}</td>
-                      <td className="border-r-2 border-gray-700">
+                      <td className="text-sm">{player.nfc_positionrank}</td>
+                      <td className="border-r-2 border-gray-700 text-sm">
                         {player.nfc_adp}
                       </td>
                     </>
                   )}
 
-                  <td className="">{player.avg_playerrank}</td>
+                  <td className="text-sm">{player.avg_playerrank}</td>
                   <td
-                    className={` p-2 font-bold border-r-2 border-gray-700 ${getValueClass(
+                    className={`p-2 font-bold border-r-2 border-gray-700 text-sm ${getValueClass(
                       consensusValue
                     )}`}
                   >
@@ -655,10 +668,10 @@ const AdpTool = () => {
 
                   {visiblePlatforms.ESPN && (
                     <>
-                      <td className="">{player.espn_playerrank}</td>
-                      <td className="">{player.espn_positionrank}</td>
+                      <td className="text-sm">{player.espn_playerrank}</td>
+                      <td className="text-sm">{player.espn_positionrank}</td>
                       <td
-                        className={`border-r-2 border-gray-700 p-2 font-bold ${getValueClass(
+                        className={`border-r-2 border-gray-700 p-2 font-bold text-sm ${getValueClass(
                           espnValue
                         )}`}
                       >
@@ -668,10 +681,10 @@ const AdpTool = () => {
                   )}
                   {visiblePlatforms.Sleeper && (
                     <>
-                      <td className="">{player.sleeper_playerrank}</td>
-                      <td className="">{player.sleeper_positionrank}</td>
+                      <td className="text-sm">{player.sleeper_playerrank}</td>
+                      <td className="text-sm">{player.sleeper_positionrank}</td>
                       <td
-                        className={`p-2 font-bold border-r-2 border-gray-700 ${getValueClass(
+                        className={`p-2 font-bold border-r-2 border-gray-700 text-sm ${getValueClass(
                           sleeperValue
                         )}`}
                       >
@@ -681,10 +694,12 @@ const AdpTool = () => {
                   )}
                   {visiblePlatforms.Yahoo && (
                     <>
-                      <td className="">{player.yahoo_playerrank}</td>
-                      <td className="">{player.yahoo_positionrank}</td>
+                      <td className="text-sm">{player.yahoo_playerrank}</td>
+                      <td className="text-sm">{player.yahoo_positionrank}</td>
                       <td
-                        className={`p-2 font-bold ${getValueClass(yahooValue)}`}
+                        className={`p-2 font-bold text-sm ${getValueClass(
+                          yahooValue
+                        )}`}
                       >
                         {yahooValue}
                       </td>
@@ -697,7 +712,7 @@ const AdpTool = () => {
         </table>
       </div>
       <div className="flex justify-end p-10">
-        <p className="italic">
+        <p className="italic text-sm">
           *** PPR Scoring <span>***</span>
         </p>
       </div>
