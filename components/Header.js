@@ -12,8 +12,8 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const guestLinks = [
   {
-    href: "/#features",
-    label: "Features",
+    href: "/ADP",
+    label: "Redraft Values",
   },
   {
     href: "/dashboard",
