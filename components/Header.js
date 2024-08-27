@@ -12,7 +12,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 const guestLinks = [
   {
-    href: "/ADP",
+    href: "/ADP", // Keep this one for Redraft Values
     label: "Redraft Values",
   },
   {
@@ -20,7 +20,7 @@ const guestLinks = [
     label: "My Leagues",
   },
   {
-    href: "/ADP",
+    href: "/fantasy-tools", // Change this href to make it unique
     label: "Fantasy Tools",
   },
 ];
@@ -31,7 +31,7 @@ const userLinks = [
     label: "My Leagues",
   },
   {
-    href: "/ADP",
+    href: "/fantasy-tools", // Ensure this is unique
     label: "Fantasy Tools",
   },
 ];
@@ -166,8 +166,13 @@ const Header = () => {
                         Redraft Values
                       </Link>
                     </li>
+                    <li>
+                      <Link href="/props" title="Props Tool">
+                        Player Props
+                      </Link>
+                    </li>
                     <li className="disabled">
-                      <Link href="" title="Another Tool">
+                      <Link href="#" title="Another Tool">
                         More Coming Soon!
                       </Link>
                     </li>
@@ -249,20 +254,24 @@ const Header = () => {
                     return (
                       <details key={link.href} className="w-full">
                         <summary className="link link-hover hover:text-primary cursor-pointer">
-                          Tools
+                          Fantasy Tools
                         </summary>
                         <ul className="ml-4 pl-4 border-l border-neutral-200">
                           <li>
                             <Link href="/ADP" title="ADP Tool">
-                              ADP Values
+                              Redraft Values
+                            </Link>
+                          </li>
+                          <li>
+                            <Link href="/props" title="Props Tool">
+                              Player Props
                             </Link>
                           </li>
                           <li className="disabled">
-                            <Link href="" title="Another Tool">
+                            <Link href="#" title="Another Tool">
                               More Coming Soon!
                             </Link>
                           </li>
-                          {/* Add more tools here */}
                         </ul>
                       </details>
                     );

@@ -8,6 +8,7 @@ const AdpTool = () => {
   const [adpData, setAdpData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [mostRecentDate, setMostRecentDate] = useState(null);
+  const [selectedPlayer, setSelectedPlayer] = useState(null); // New state for the selected player
   const [filterPositions, setFilterPositions] = useState([
     "QB",
     "RB",
@@ -45,6 +46,15 @@ const AdpTool = () => {
     console.log(mostRecentDate);
     fetchMostRecentDate();
   }, []);
+  const handlePlayerClick = (player) => {
+    if (player.hasProps) {
+      // Check if the player has prop data
+      setSelectedPlayer(player);
+    }
+  };
+  const handleModalClose = () => {
+    setSelectedPlayer(null);
+  };
 
   const getValueClass = (value) => {
     //if (value > 0 && value <= 5) return "bg-[#55a630]";
@@ -482,7 +492,7 @@ const AdpTool = () => {
                 </th>
               )}
               <th
-                colSpan="2"
+                colSpan="3"
                 className="border-r-2 border-gray-700 bg-gray-900"
               >
                 <span className="text-sm md:text-lg">Consensus</span>
@@ -548,6 +558,7 @@ const AdpTool = () => {
                 Consensus Rank
                 {renderSortIcon("consensus_rank")}
               </th>
+              <th className="">Pos. Rank</th>
               <th
                 className="border-r-2 border-gray-700 p-2 cursor-pointer hover:bg-base-300"
                 onClick={() => handleSort("consensusValue")}
@@ -658,6 +669,7 @@ const AdpTool = () => {
                   )}
 
                   <td className="text-sm">{player.avg_playerrank}</td>
+                  <td className="text-sm">{player.consensus_positionrank}</td>
                   <td
                     className={`p-2 font-bold border-r-2 border-gray-700 text-sm ${getValueClass(
                       consensusValue

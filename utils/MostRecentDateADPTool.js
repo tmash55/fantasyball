@@ -8,7 +8,7 @@ export const MostRecentDateADPTool = async () => {
 
   try {
     const { data, error } = await supabase
-      .from("adp_comparison_10")
+      .from("adp_comparison_11")
       .select("date_added")
       .order("date_added", { ascending: false })
       .limit(1);
