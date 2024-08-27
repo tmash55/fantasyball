@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-// utils/supabaseUtils.js
 
 export const MostRecentDateADPTool = async () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -8,7 +7,7 @@ export const MostRecentDateADPTool = async () => {
 
   try {
     const { data, error } = await supabase
-      .from("adp_comparison_11")
+      .from("nfc_adp_ppr")
       .select("date_added")
       .order("date_added", { ascending: false })
       .limit(1);
@@ -18,7 +17,9 @@ export const MostRecentDateADPTool = async () => {
       return null;
     }
 
-    if (data.length) {
+    console.log("Fetched data:", data);
+
+    if (data && data.length > 0 && data[0].date_added) {
       const dateAdded = new Date(data[0].date_added);
       const formattedDate = `${String(dateAdded.getUTCMonth() + 1).padStart(
         2,
@@ -30,6 +31,7 @@ export const MostRecentDateADPTool = async () => {
       return formattedDate;
     }
 
+    console.warn("No date data found.");
     return null;
   } catch (error) {
     console.error("Error fetching most recent date:", error);
