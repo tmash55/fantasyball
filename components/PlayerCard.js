@@ -213,49 +213,57 @@ const PlayerCard = ({ player }) => {
   if (!playerData.length) return <div>No data available for this player.</div>;
 
   return (
-    <div>
+    <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-lg text-white max-w-lg mx-auto">
       <div className="text-center mb-4">
-        <h2 className="text-xl font-bold">
+        <h2 className="text-2xl font-extrabold flex items-center justify-center">
           {additionalData.first_name} {additionalData.last_name}
         </h2>
-        <p className="text-gray-500">
+        <p className="text-gray-400 text-lg">
           {additionalData.position} - {additionalData.team}
         </p>
       </div>
       <div className="text-left">
-        <h3 className="text-lg font-semibold">Stats:</h3>
-        <ul className="list-disc list-inside">
+        <h3 className="text-xl font-semibold mb-2">Stats:</h3>
+        <ul className="list-disc list-inside text-gray-300 space-y-2">
           {maxValue !== null && (
             <li>
-              Max Dynasty Value of <span className="font-bold">{maxValue}</span>{" "}
-              on {new Date(maxValueDate).toLocaleDateString()}
+              Max Dynasty Value of{" "}
+              <span className="font-bold text-white">{maxValue}</span> on{" "}
+              <span className="font-bold text-white">
+                {new Date(maxValueDate).toLocaleDateString()}
+              </span>
             </li>
           )}
           {additionalData && (
             <>
               <li>
                 SF Value:{" "}
-                <span className="font-bold">{additionalData.sf_value}</span>
+                <span className="font-bold text-white">
+                  {additionalData.sf_value}
+                </span>
               </li>
               <li>
-                Age: <span className="font-bold">{additionalData.age}</span>
+                Age:{" "}
+                <span className="font-bold text-white">
+                  {additionalData.age}
+                </span>
               </li>
               <li>
                 SF Position Rank:{" "}
-                <span className="font-bold">
+                <span className="font-bold text-white">
                   {additionalData.sf_position_rank}
                 </span>
               </li>
             </>
           )}
         </ul>
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold text-center">
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold text-center mb-4">
             All Time Dynasty Value
           </h3>
           <div className="relative h-64">
             {chartLoading ? (
-              <div className="skeleton h-full w-full" />
+              <div className="skeleton h-full w-full bg-gray-700 animate-pulse" />
             ) : (
               <Line
                 data={{
@@ -284,12 +292,12 @@ const PlayerCard = ({ player }) => {
               />
             )}
           </div>
-          <h3 className="text-lg font-semibold mt-6 text-center">
+          <h3 className="text-xl font-semibold mt-6 text-center mb-4">
             Dynasty Value Last 6 Months
           </h3>
           <div className="relative h-64">
             {chartLoading ? (
-              <div className="skeleton h-full w-full" />
+              <div className="skeleton h-full w-full bg-gray-700 animate-pulse" />
             ) : (
               <Line
                 data={{

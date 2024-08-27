@@ -27,7 +27,7 @@ const TeamTable = ({ players, position, playerAdps }) => {
     } else if (rankNumber >= 37 && rankNumber <= 48) {
       return "bg-[#80b918]";
     } else if (rankNumber >= 49 && rankNumber <= 60) {
-      return "bg-[#dad7cd]";
+      return "bg-[#2A3439]";
     } else if (rankNumber >= 61 && rankNumber <= 72) {
       return "bg-[#ea9c00]";
     } else {
@@ -53,14 +53,16 @@ const TeamTable = ({ players, position, playerAdps }) => {
 
   return (
     <div className="mb-4 overflow-auto h-full">
-      <h2 className="text-xl font-bold mb-2 text-center">{position}</h2>
-      <table className="min-w-full text-slate-50 border rounded-lg overflow-hidden shadow-lg table-lg">
+      <h2 className="text-2xl font-extrabold mb-4 text-center text-white">
+        {position}
+      </h2>
+      <table className="min-w-full bg-gradient-to-br from-gray-800 to-gray-900 text-slate-50 border border-gray-700 rounded-lg overflow-hidden shadow-lg">
         <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Player</th>
-            <th className="py-2 px-4 border-b text-center">Position Rank</th>
-            <th className="py-2 px-4 border-b text-center">UD ADP</th>
-            <th className="py-2 px-4 border-b text-center">Dynasty Value</th>
+          <tr className="bg-gray-700 text-gray-300 text-xs sm:text-sm uppercase tracking-wide">
+            <th className="py-3 px-2 sm:px-4 text-left">Player</th>
+            <th className="py-3 px-2 sm:px-4 text-center">Position Rank</th>
+            <th className="py-3 px-2 sm:px-4 text-center">UD ADP</th>
+            <th className="py-3 px-2 sm:px-4 text-center">Dynasty Value</th>
           </tr>
         </thead>
         <tbody>
@@ -74,19 +76,19 @@ const TeamTable = ({ players, position, playerAdps }) => {
                 key={player.id}
                 className={`${getRowClass(
                   rankNumber
-                )} hover:bg-opacity-80 cursor-pointer`}
+                )} hover:bg-gray-700 hover:bg-opacity-60 cursor-pointer transition duration-200 ease-in-out`}
                 onClick={() => handlePlayerClick(player)}
               >
-                <td className="py-2 px-4 border-b text-sm text-center">
+                <td className="py-3 px-2 sm:px-4 border-b border-gray-700 text-xs sm:text-sm text-left font-semibold">
                   {player.name}
                 </td>
-                <td className="py-2 px-4 border-b text-sm text-center">
+                <td className="py-3 px-2 sm:px-4 border-b border-gray-700 text-xs sm:text-sm text-center">
                   {positionRank}
                 </td>
-                <td className="py-2 px-4 border-b text-sm text-center">
+                <td className="py-3 px-2 sm:px-4 border-b border-gray-700 text-xs sm:text-sm text-center">
                   {playerAdps[player.id]?.adp || "-"}
                 </td>
-                <td className="py-2 px-4 border-b text-sm text-center">
+                <td className="py-3 px-2 sm:px-4 border-b border-gray-700 text-xs sm:text-sm text-center">
                   {playerAdps[player.id]?.dynastyValue || "-"}
                 </td>
               </tr>
@@ -97,19 +99,19 @@ const TeamTable = ({ players, position, playerAdps }) => {
       {filteredPlayers.length > 6 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-2 text-sm text-default btn btn-ghost"
+          className="mt-4 text-sm font-semibold text-gray-400 hover:text-white transition"
         >
           {expanded ? "Show Less" : "Show More"}
         </button>
       )}
 
       {selectedPlayer && (
-        <dialog id="player_modal" className="modal">
-          <div className="modal-box">
+        <dialog id="player_modal" className="modal bg-transparent p-0">
+          <div className="modal-box bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl rounded-lg p-6 max-w-xl">
             <PlayerCard player={selectedPlayer} />
-            <div className="modal-action">
+            <div className="modal-action justify-center mt-4">
               <button
-                className="btn"
+                className="btn btn-outline text-white border-gray-500 hover:bg-gray-700 hover:border-gray-500"
                 onClick={() => {
                   document.getElementById("player_modal").close();
                   setSelectedPlayer(null);
