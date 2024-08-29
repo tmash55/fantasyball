@@ -1,10 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+import supabase from "@/lib/supabaseClient";
 
 export const MostRecentDateADPTool = async () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
   try {
     const { data, error } = await supabase
       .from("nfc_adp_ppr")

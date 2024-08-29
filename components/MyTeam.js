@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
 import TeamTable from "./TeamTable";
 import { useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { refreshPlayerDataIfNeeded } from "@/utils/playerData";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import supabase from "@/lib/supabaseClient";
 
 const stripSuffix = (name) => {
   return name.replace(/( Jr\.| Sr\.)$/, "");

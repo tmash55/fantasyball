@@ -1,12 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 import "chartjs-adapter-date-fns";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import supabase from "@/lib/supabaseClient";
 
 const stripSuffix = (name) => {
   return name.replace(/( Jr\.| Sr\.)$/, "");

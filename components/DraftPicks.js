@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import clsx from "clsx"; // To easily manage conditional class names
-import { createClient } from "@supabase/supabase-js";
+
 import { formatDate } from "@/utils/dateUtils";
 import PlayerCard from "./PlayerCard"; // Import PlayerCard component
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import supabase from "@/lib/supabaseClient";
 
 const DraftPicks = ({ draftId, leagueId }) => {
   const [picks, setPicks] = useState([]);

@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+
 import { formatDate } from "../utils/dateUtils";
 import classNames from "classnames";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import supabase from "@/lib/supabaseClient";
 
 const IndividualTrade = ({ trade, players, rosters }) => {
   const [historicalData, setHistoricalData] = useState({});
