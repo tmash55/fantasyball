@@ -2,7 +2,7 @@ import AdpTool from "@/components/AdpTool";
 import AdpToolWithPopup from "@/components/AdpToolWithPopup";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import PropsTool from "@/components/PropsTool";
+import PropsTool from "@/components/props/PropsTool";
 import SleeperInput from "@/components/SleeperInput";
 
 export const dynamic = "force-dynamic";

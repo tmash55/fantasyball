@@ -76,11 +76,11 @@ const config = {
     // REQUIRED — Email 'From' field to be used when sending magic login links
     fromNoReply: `Fantasy Nexus <noreply@mg.FantasyNexus.st>`,
     // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
-    fromAdmin: `Tyler at FantasyNexus <tyler@mg.FantasyNexus.st>`,
+    fromAdmin: `Tyler at FantasyNexus <tyler@fantasynexus.us>`,
     // Email shown to customer if need support. Leave empty if not needed => if empty, set up Crisp above, otherwise you won't be able to offer customer support."
-    supportEmail: "tyler@mg.FantasyNexus.st",
+    supportEmail: "tyler@fantasynexus.us",
     // When someone replies to supportEmail sent by the app, forward it to the email below (otherwise it's lost). If you set supportEmail to empty, this will be ignored.
-    forwardRepliesTo: "tyler.maschoff@gmail.com",
+    forwardRepliesTo: "tyler@fantasynexus.us",
   },
   colors: {
     // REQUIRED — The DaisyUI theme to use (added to the main layout.js). Leave blank for default (light & dark mode). If you any other theme than light/dark, you need to add it in config.tailwind.js in daisyui.themes.
