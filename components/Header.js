@@ -171,6 +171,11 @@ const Header = () => {
                         Player Props
                       </Link>
                     </li>
+                    <li>
+                      <Link href="/props/tds" title="Props Tool">
+                        Week 1 TD Props
+                      </Link>
+                    </li>
                     <li className="disabled">
                       <Link href="#" title="Another Tool">
                         More Coming Soon!
@@ -265,6 +270,11 @@ const Header = () => {
                           <li>
                             <Link href="/props" title="Props Tool">
                               Player Props
+                            </Link>
+                          </li>
+                          <li>
+                            <Link href="/props/tds" title="Props Tool">
+                              Week 1 TD Props
                             </Link>
                           </li>
                           <li className="disabled">

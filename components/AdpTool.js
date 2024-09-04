@@ -370,7 +370,7 @@ const AdpTool = () => {
         <div className="dropdown w-full md:w-auto">
           <label
             tabIndex={0}
-            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]"
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]  hover:text-gray-800"
           >
             Position Filters
           </label>
@@ -407,7 +407,7 @@ const AdpTool = () => {
         <div className="dropdown w-full md:w-auto">
           <label
             tabIndex={0}
-            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]"
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]  hover:text-gray-800"
           >
             Platform Filters
           </label>
@@ -440,7 +440,7 @@ const AdpTool = () => {
         <div className="w-full md:w-auto">
           <button
             onClick={handleReset}
-            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]"
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]  hover:text-gray-800"
           >
             Reset Filters
           </button>
