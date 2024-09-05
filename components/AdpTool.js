@@ -296,42 +296,65 @@ const AdpTool = () => {
   const renderSortIcon = (key) => {
     if (sortConfig.key === key) {
       if (sortConfig.direction === "ascending") {
+        // Ascending icon
         return (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
+            width="24"
+            height="24"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            fill="none"
             stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             className="w-4 h-4 inline-block ml-1"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 15l7-7 7 7"
-            />
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M8 9l4 -4l4 4" />
           </svg>
         );
       } else {
+        // Descending icon
         return (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
+            width="24"
+            height="24"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            fill="none"
             stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             className="w-4 h-4 inline-block ml-1"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 9l-7 7-7-7"
-            />
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M16 15l-4 4l-4 -4" />
           </svg>
         );
       }
     }
-    return null;
+
+    // Default unsorted icon
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-4 h-4 inline-block ml-1"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M8 9l4 -4l4 4" />
+        <path d="M16 15l-4 4l-4 -4" />
+      </svg>
+    );
   };
 
   return (
@@ -486,7 +509,7 @@ const AdpTool = () => {
                   colSpan="2"
                   className="border-r-2 border-gray-700 bg-gray-900"
                 >
-                  <span className="text-sm md:text-lg">NFC ADP</span>
+                  <span className="text-sm md:text-[17px]">NFC ADP</span>
                   <br />
                   <span className="text-xs">(High Stakes)</span>
                 </th>
@@ -495,7 +518,7 @@ const AdpTool = () => {
                 colSpan="3"
                 className="border-r-2 border-gray-700 bg-gray-900"
               >
-                <span className="text-sm md:text-lg">Consensus</span>
+                <span className="text-sm md:text-[17px]">Consensus</span>
                 <br />
                 <span className="text-xs">(ESPN/Sleeper/Yahoo AVG)</span>
               </th>
@@ -503,7 +526,7 @@ const AdpTool = () => {
               {visiblePlatforms.ESPN && (
                 <th
                   colSpan="3"
-                  className="border-r-2 border-gray-700 text-sm md:text-lg bg-gray-900"
+                  className="border-r-2 border-gray-700 text-sm md:text-[17px] bg-gray-900"
                 >
                   ESPN
                 </th>
@@ -511,19 +534,19 @@ const AdpTool = () => {
               {visiblePlatforms.Sleeper && (
                 <th
                   colSpan="3"
-                  className="border-r-2 border-gray-700 text-sm md:text-lg bg-gray-900"
+                  className="border-r-2 border-gray-700 text-sm md:text-[17px] bg-gray-900"
                 >
                   Sleeper
                 </th>
               )}
               {visiblePlatforms.Yahoo && (
-                <th colSpan="3" className="text-sm md:text-lg bg-gray-900">
+                <th colSpan="3" className="text-sm md:text-[17px] bg-gray-900">
                   Yahoo
                 </th>
               )}
             </tr>
 
-            <tr className="text-center bg-gray-800 z-20">
+            <tr className="text-center bg-gray-800 z-20 md:text-[12px] ">
               <th
                 className="cursor-pointer hover:bg-base-300 "
                 onClick={() => handleSort("consensus_pick")}

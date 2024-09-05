@@ -303,7 +303,7 @@ const WeekOneTds = () => {
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
           <thead>
-            <tr>
+            <tr className="text-[15px] bg-gray-800">
               <th
                 onClick={() => handleSort("player")}
                 className="cursor-pointer hover:bg-base-300 "

@@ -1,4 +1,29 @@
-const PropCard = ({ player, selectedTab }) => {
+"use client";
+import { fetchPropData } from "@/app/api/props/route";
+import { useEffect, useState } from "react";
+
+const PropTools = () => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await fetchPropData();
+        // Sort by position, then by player name or stats
+        result.sort(
+          (a, b) =>
+            a.position.localeCompare(b.position) ||
+            a.player_name.localeCompare(b.player_name)
+        );
+        setData(result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const getProgressColor = (progress) => {
     if (progress >= 0.8) return "progress-success";
     if (progress >= 0.5) return "progress-warning";
@@ -8,18 +33,20 @@ const PropCard = ({ player, selectedTab }) => {
   const calculatePerGame = (total) => (total / 17).toFixed(1);
 
   return (
-    <div className="card bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl p-6 rounded-lg text-white">
-      <div className="card-body">
-        <h2 className="card-title text-xl font-extrabold mb-4 flex items-center justify-between">
-          {player.player_name}
-          <span className="text-sm text-gray-400">
-            ({player.position} - {player.team})
-          </span>
-        </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {data.map((player, index) => (
+        <div
+          key={index}
+          className="card bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl p-6 rounded-lg text-white"
+        >
+          <div className="card-body">
+            <h2 className="card-title text-xl font-extrabold mb-4 flex items-center justify-between">
+              {player.player_name}
+              <span className="text-sm text-gray-400">
+                ({player.position} - {player.team})
+              </span>
+            </h2>
 
-        {/* Display Props dynamically for the selected tab */}
-        {selectedTab === "Season Long" ? (
-          <>
             {player.passing_yards_progress !== null && (
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-gray-300 flex items-center mb-2">
@@ -43,7 +70,7 @@ const PropCard = ({ player, selectedTab }) => {
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
                   <span>Avg: {calculatePerGame(player.passing_yards)}</span>
                   <span>
-                    Req Avg: {calculatePerGame(player.passing_yards_over_under)}
+                    Avg: {calculatePerGame(player.passing_yards_over_under)}
                   </span>
                 </div>
               </div>
@@ -72,7 +99,7 @@ const PropCard = ({ player, selectedTab }) => {
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
                   <span>Avg: {calculatePerGame(player.passing_tds)}</span>
                   <span>
-                    Req Avg: {calculatePerGame(player.passing_tds_over_under)}
+                    Avg: {calculatePerGame(player.passing_tds_over_under)}
                   </span>
                 </div>
               </div>
@@ -101,8 +128,7 @@ const PropCard = ({ player, selectedTab }) => {
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
                   <span>Avg: {calculatePerGame(player.receiving_yards)}</span>
                   <span>
-                    Req Avg:{" "}
-                    {calculatePerGame(player.receiving_yards_over_under)}
+                    Avg: {calculatePerGame(player.receiving_yards_over_under)}
                   </span>
                 </div>
               </div>
@@ -131,7 +157,7 @@ const PropCard = ({ player, selectedTab }) => {
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
                   <span>Avg: {calculatePerGame(player.receiving_tds)}</span>
                   <span>
-                    Req Avg: {calculatePerGame(player.receiving_tds_over_under)}
+                    Avg: {calculatePerGame(player.receiving_tds_over_under)}
                   </span>
                 </div>
               </div>
@@ -160,7 +186,7 @@ const PropCard = ({ player, selectedTab }) => {
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
                   <span>Avg: {calculatePerGame(player.rushing_yards)}</span>
                   <span>
-                    Req Avg: {calculatePerGame(player.rushing_yards_over_under)}
+                    Avg: {calculatePerGame(player.rushing_yards_over_under)}
                   </span>
                 </div>
               </div>
@@ -187,49 +213,18 @@ const PropCard = ({ player, selectedTab }) => {
                   max="100"
                 ></progress>
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span> Avg: {calculatePerGame(player.rushing_tds)}</span>
+                  <span>Avg: {calculatePerGame(player.rushing_tds)}</span>
                   <span>
-                    Req Avg: {calculatePerGame(player.rushing_tds_over_under)}
+                    Avg: {calculatePerGame(player.rushing_tds_over_under)}
                   </span>
                 </div>
               </div>
             )}
-          </>
-        ) : (
-          <>
-            {/* Render weekly props by category */}
-            {player.weekly_passing_props && (
-              <div className="mb-4">
-                {/* Display weekly passing data */}
-                <h3 className="text-sm font-semibold text-gray-300 mb-2">
-                  Passing Props
-                </h3>
-                {/* Render passing props here */}
-              </div>
-            )}
-            {player.weekly_receiving_props && (
-              <div className="mb-4">
-                {/* Display weekly receiving data */}
-                <h3 className="text-sm font-semibold text-gray-300 mb-2">
-                  Receiving Props
-                </h3>
-                {/* Render receiving props here */}
-              </div>
-            )}
-            {player.weekly_rushing_props && (
-              <div className="mb-4">
-                {/* Display weekly rushing data */}
-                <h3 className="text-sm font-semibold text-gray-300 mb-2">
-                  Rushing Props
-                </h3>
-                {/* Render rushing props here */}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
 
-export default PropCard;
+export default PropTools;
