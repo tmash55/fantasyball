@@ -1,4 +1,4 @@
-const SearchBar = ({ searchQuery, onSearch }) => {
+const SearchBar = ({ searchQuery }) => {
   return (
     <label className="input input-bordered flex items-center gap-2 w-full md:w-60 bg-gray-700 text-white rounded-md">
       <input
