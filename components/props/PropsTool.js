@@ -8,6 +8,7 @@ import WeekSelector from "./WeekSelector";
 import PropList from "./PropList";
 import WeekPropsTable from "./WeekPropsTable";
 import Filters from "./Filters";
+import SearchBar from "./SearchBar";
 
 const PropsTool = () => {
   const [data, setData] = useState([]);
@@ -212,34 +213,44 @@ const PropsTool = () => {
   return (
     <div className="p-6">
       {selectedTab === "Weekly" && (
-        <div className="flex mb-4 space-x-2 justify-end">
-          <button
-            className={`btn btn-outline ${
-              activeWeeklyPropType === "passing" ? "btn-active" : ""
-            }`}
-            onClick={() => handleWeeklyPropTypeChange("passing")}
-          >
-            Passing Props
-          </button>
-          <button
-            className={`btn btn-outline ${
-              activeWeeklyPropType === "rushing" ? "btn-active" : ""
-            }`}
-            onClick={() => handleWeeklyPropTypeChange("rushing")}
-          >
-            Rushing Props
-          </button>
-          <button
-            className={`btn btn-outline ${
-              activeWeeklyPropType === "receiving" ? "btn-active" : ""
-            }`}
-            onClick={() => handleWeeklyPropTypeChange("receiving")}
-          >
-            Receiving Props
-          </button>
+        <div className="flex justify-between">
+          <div className="">
+            {" "}
+            <TabNavigation
+              selectedTab={selectedTab}
+              onTabChange={setSelectedTab}
+            />
+          </div>
+
+          <div className=" mb-4 space-x-4">
+            <button
+              className={`btn btn-outline ${
+                activeWeeklyPropType === "passing" ? "btn-active" : ""
+              }`}
+              onClick={() => handleWeeklyPropTypeChange("passing")}
+            >
+              Passing Props
+            </button>
+            <button
+              className={`btn btn-outline ${
+                activeWeeklyPropType === "rushing" ? "btn-active" : ""
+              }`}
+              onClick={() => handleWeeklyPropTypeChange("rushing")}
+            >
+              Rushing Props
+            </button>
+            <button
+              className={`btn btn-outline ${
+                activeWeeklyPropType === "receiving" ? "btn-active" : ""
+              }`}
+              onClick={() => handleWeeklyPropTypeChange("receiving")}
+            >
+              Receiving Props
+            </button>
+          </div>
         </div>
       )}
-      <TabNavigation selectedTab={selectedTab} onTabChange={setSelectedTab} />
+
       {selectedTab === "Weekly" && (
         <WeekSelector
           selectedWeek={selectedWeek}
@@ -266,6 +277,10 @@ const PropsTool = () => {
       {/* Display Data */}
       {selectedTab === "Season Long" ? (
         <div>
+          <TabNavigation
+            selectedTab={selectedTab}
+            onTabChange={setSelectedTab}
+          />
           <p>
             This season long props will update each week to keep track of the
             players progress!
@@ -273,10 +288,13 @@ const PropsTool = () => {
           <PropList data={filteredSeasonLongData} selectedTab={selectedTab} />
         </div>
       ) : (
-        <WeekPropsTable
-          weekData={filteredWeeklyData}
-          activePropType={activeWeeklyPropType}
-        />
+        <>
+          {/*Add new filter here from word doc */}
+          <WeekPropsTable
+            weekData={filteredWeeklyData}
+            activePropType={activeWeeklyPropType}
+          />
+        </>
       )}
     </div>
   );

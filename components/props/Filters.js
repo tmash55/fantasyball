@@ -81,7 +81,7 @@ const Filters = ({
         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
           {/* Over/Under Filters */}
           <div className="flex flex-col gap-2">
-            <span className="font-semibold text-[#41ADBB] mb-2">
+            <span className="font-semibold text-[#41ADBB] mb-2 text-center">
               {activeWeeklyPropType.charAt(0).toUpperCase() +
                 activeWeeklyPropType.slice(1)}{" "}
               Over/Under Filters

@@ -6,35 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import ButtonSignin from "./ButtonSignin";
 import ButtonAccount from "./ButtonAccount";
+import ThemeSwitcher from "./ThemeSwitcher"; // Import the ThemeSwitcher component
 import logo from "@/app/icon.png";
 import config from "@/config";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
-const guestLinks = [
-  {
-    href: "/ADP", // Keep this one for Redraft Values
-    label: "Redraft Values",
-  },
-  {
-    href: "/dashboard",
-    label: "My Leagues",
-  },
-  {
-    href: "/fantasy-tools", // Change this href to make it unique
-    label: "Fantasy Tools",
-  },
-];
-
-const userLinks = [
-  {
-    href: "/dashboard",
-    label: "My Leagues",
-  },
-  {
-    href: "/fantasy-tools", // Ensure this is unique
-    label: "Fantasy Tools",
-  },
-];
 
 const Header = () => {
   const searchParams = useSearchParams();
@@ -61,7 +36,7 @@ const Header = () => {
     return (
       <header className="bg-base-200">
         <nav
-          className="container flex items-center justify-between px-8 py-4 mx-auto "
+          className="container flex items-center justify-between px-8 py-4 mx-auto"
           aria-label="Global"
         >
           {/* Your logo/name on large screens */}
@@ -88,7 +63,6 @@ const Header = () => {
     );
   }
 
-  const links = user ? userLinks : guestLinks;
   const cta = user ? (
     <ButtonAccount />
   ) : (
@@ -98,7 +72,7 @@ const Header = () => {
   return (
     <header className="bg-base-200">
       <nav
-        className="container flex items-center justify-between px-8 py-4 mx-auto "
+        className="container flex items-center justify-between px-8 py-4 mx-auto"
         aria-label="Global"
       >
         {/* Your logo/name on large screens */}
@@ -120,6 +94,7 @@ const Header = () => {
             <span className="font-extrabold text-lg">{config.appName}</span>
           </Link>
         </div>
+
         {/* Burger button to open menu on mobile */}
         <div className="flex lg:hidden">
           <button
@@ -147,57 +122,67 @@ const Header = () => {
 
         {/* Your links on large screens */}
         <div className="hidden lg:flex lg:justify-center lg:gap-12 lg:items-center">
-          {links.map((link) => {
-            if (link.label === "Fantasy Tools") {
-              return (
-                <div className="dropdown" key={link.href}>
-                  <label
-                    tabIndex={0}
-                    className="link link-hover hover:text-primary cursor-pointer"
-                  >
-                    Fantasy Tools
-                  </label>
-                  <ul
-                    tabIndex={0}
-                    className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-                  >
-                    <li>
-                      <Link href="/ADP" title="ADP Tool">
-                        Redraft Values
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/props" title="Props Tool">
-                        Player Props
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/props/tds" title="Props Tool">
-                        Week 1 TD Props
-                      </Link>
-                    </li>
-                    <li className="disabled">
-                      <Link href="#" title="Another Tool">
-                        More Coming Soon!
-                      </Link>
-                    </li>
-                    {/* Add more tools here */}
-                  </ul>
-                </div>
-              );
-            } else {
-              return (
-                <Link
-                  href={link.href}
-                  key={link.href}
-                  className="link link-hover hover:text-primary"
-                  title={link.label}
-                >
-                  {link.label}
+          {/* Betting Dropdown */}
+          <div className="dropdown dropdown-hover">
+            <label
+              tabIndex={0}
+              className="link link-hover hover:text-primary cursor-pointer text-[16px]"
+            >
+              Betting
+            </label>
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+            >
+              <li>
+                <Link href="/props" title="Props Tool">
+                  Player Props
                 </Link>
-              );
-            }
-          })}
+              </li>
+              <li>
+                <Link href="/props/tds" title="Props Tool">
+                  Weekly TD Props
+                </Link>
+              </li>
+              <li className="disabled">
+                <Link href="#" title="Another Tool">
+                  More Coming Soon!
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Fantasy Dropdown */}
+          <div className="dropdown dropdown-hover">
+            <label
+              tabIndex={0}
+              className="link link-hover hover:text-primary cursor-pointer text-[16px]"
+            >
+              Fantasy
+            </label>
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+            >
+              <li>
+                <Link href="/ADP" title="ADP Tool">
+                  Redraft Values
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard" title="My Leagues">
+                  My Leagues
+                </Link>
+              </li>
+              <li className="disabled">
+                <Link href="#" title="Another Tool">
+                  More Coming Soon!
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* More categories can be added here for different sports */}
         </div>
 
         {/* CTA on large screens */}
@@ -254,50 +239,63 @@ const Header = () => {
           <div className="flow-root mt-6">
             <div className="py-4">
               <div className="flex flex-col gap-y-4 items-start">
-                {links.map((link) => {
-                  if (link.label === "Fantasy Tools") {
-                    return (
-                      <details key={link.href} className="w-full">
-                        <summary className="link link-hover hover:text-primary cursor-pointer">
-                          Fantasy Tools
-                        </summary>
-                        <ul className="ml-4 pl-4 border-l border-neutral-200">
-                          <li>
-                            <Link href="/ADP" title="ADP Tool">
-                              Redraft Values
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/props" title="Props Tool">
-                              Player Props
-                            </Link>
-                          </li>
-                          <li>
-                            <Link href="/props/tds" title="Props Tool">
-                              Week 1 TD Props
-                            </Link>
-                          </li>
-                          <li className="disabled">
-                            <Link href="#" title="Another Tool">
-                              More Coming Soon!
-                            </Link>
-                          </li>
-                        </ul>
-                      </details>
-                    );
-                  } else {
-                    return (
-                      <Link
-                        href={link.href}
-                        key={link.href}
-                        className="link link-hover"
-                        title={link.label}
-                      >
-                        {link.label}
+                {/* Betting tools on mobile */}
+                <details className="w-full">
+                  <summary className="link link-hover hover:text-primary cursor-pointer">
+                    Betting
+                  </summary>
+                  <ul className="ml-4 pl-4 border-l border-neutral-200">
+                    <li>
+                      <Link href="/props" title="Props Tool">
+                        Player Props
                       </Link>
-                    );
-                  }
-                })}
+                    </li>
+                    <li>
+                      <Link href="/props/tds" title="Props Tool">
+                        Weekly TD Props
+                      </Link>
+                    </li>
+                    <li className="disabled">
+                      <Link
+                        href="#"
+                        title="Another Tool"
+                        className="opacity-70"
+                      >
+                        More Coming Soon!
+                      </Link>
+                    </li>
+                  </ul>
+                </details>
+
+                {/* Fantasy tools on mobile */}
+                <details className="w-full">
+                  <summary className="link link-hover hover:text-primary cursor-pointer">
+                    Fantasy
+                  </summary>
+                  <ul className="ml-4 pl-4 border-l border-neutral-200">
+                    <li>
+                      <Link href="/ADP" title="ADP Tool">
+                        Redraft Values
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/dashboard" title="My Leagues">
+                        My Leagues
+                      </Link>
+                    </li>
+                    <li className="disabled">
+                      <Link
+                        href="#"
+                        title="Another Tool"
+                        className="opacity-70"
+                      >
+                        More Coming Soon!
+                      </Link>
+                    </li>
+                  </ul>
+                </details>
+
+                {/* More categories can be added here for different sports */}
               </div>
             </div>
             <div className="divider"></div>

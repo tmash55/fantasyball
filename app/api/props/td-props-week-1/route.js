@@ -1,12 +1,12 @@
-// utils/fetchTdPropsWeek1Data.js
+// utils/fetchTdPropsWeekData.js
 import supabase from "@/lib/supabaseClient";
 
-export async function fetchTdPropsWeek1Data() {
-  // Fetch the TD props data from the `td_props_week_1` table
+export async function fetchTdPropsWeekData(week) {
+  // Fetch the TD props data for the selected week
   const { data: tdPropsData, error: tdPropsError } = await supabase
-    .from("td_props_week_1")
+    .from(`td_props_week_${week}`)
     .select(
-      "player, team, position, game, date, first_td_odds, anytime_td_odds, two_plus_td_odds, new_datetime"
+      "player, team, position, game, date, first_td_odds, anytime_td_odds, two_plus_td_odds, new_datetime, anytime_td, first_td, two_plus_tds, total_tds, is_completed"
     );
 
   if (tdPropsError) {

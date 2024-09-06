@@ -140,6 +140,7 @@ const WeekPropsTable = ({ weekData, activePropType }) => {
                   <div className="text-sm text-gray-400">
                     {player.position} - {player.team}
                   </div>
+                  <div className="text-xs text-gray-400">{player.game}</div>
                 </div>
               </td>
               <td className="p-2">{player.receivingyardsou}</td>
@@ -156,6 +157,7 @@ const WeekPropsTable = ({ weekData, activePropType }) => {
                   <div className="text-sm text-gray-400">
                     {player.position} - {player.team}
                   </div>
+                  <div className="text-xs text-gray-400">{player.game}</div>
                 </div>
               </td>
               <td className="p-2">{player.rushyardsou}</td>
