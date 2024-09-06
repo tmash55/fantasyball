@@ -41,7 +41,7 @@ const PropCard = ({ player, selectedTab }) => {
                   max="100"
                 ></progress>
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {calculatePerGame(player.passing_yards)}</span>
+                  <span>Avg: {player.passing_yards}</span>
                   <span>
                     Req Avg: {calculatePerGame(player.passing_yards_over_under)}
                   </span>
@@ -70,7 +70,7 @@ const PropCard = ({ player, selectedTab }) => {
                   max="100"
                 ></progress>
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {calculatePerGame(player.passing_tds)}</span>
+                  <span>Avg: {player.passing_tds}</span>
                   <span>
                     Req Avg: {calculatePerGame(player.passing_tds_over_under)}
                   </span>
@@ -99,7 +99,7 @@ const PropCard = ({ player, selectedTab }) => {
                   max="100"
                 ></progress>
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {calculatePerGame(player.receiving_yards)}</span>
+                  <span>Avg: {player.receiving_yards}</span>
                   <span>
                     Req Avg:{" "}
                     {calculatePerGame(player.receiving_yards_over_under)}
@@ -129,7 +129,7 @@ const PropCard = ({ player, selectedTab }) => {
                   max="100"
                 ></progress>
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {calculatePerGame(player.receiving_tds)}</span>
+                  <span>Avg: {player.receiving_tds}</span>
                   <span>
                     Req Avg: {calculatePerGame(player.receiving_tds_over_under)}
                   </span>
@@ -158,7 +158,7 @@ const PropCard = ({ player, selectedTab }) => {
                   max="100"
                 ></progress>
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {calculatePerGame(player.rushing_yards)}</span>
+                  <span>Avg: {player.rushing_yards}</span>
                   <span>
                     Req Avg: {calculatePerGame(player.rushing_yards_over_under)}
                   </span>
@@ -187,7 +187,7 @@ const PropCard = ({ player, selectedTab }) => {
                   max="100"
                 ></progress>
                 <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span> Avg: {calculatePerGame(player.rushing_tds)}</span>
+                  <span> Avg: {player.rushing_tds}</span>
                   <span>
                     Req Avg: {calculatePerGame(player.rushing_tds_over_under)}
                   </span>
