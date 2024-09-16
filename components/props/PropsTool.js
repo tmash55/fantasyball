@@ -1,300 +1,302 @@
 "use client";
-import React, { useState, useEffect } from "react";
 
+import React, { useState, useEffect, useCallback } from "react";
 import { fetchPropData } from "@/app/api/props/route";
-import { fetchWeekPropData } from "@/app/api/props/weeklyprops";
+import { fetchWeekData } from "@/app/api/props/weeklyprops2";
 import TabNavigation from "./TabNavigation";
 import WeekSelector from "./WeekSelector";
 import PropList from "./PropList";
 import WeekPropsTable from "./WeekPropsTable";
 import Filters from "./Filters";
-import SearchBar from "./SearchBar";
 
 const PropsTool = () => {
   const [data, setData] = useState([]);
   const [weekData, setWeekData] = useState([]);
   const [selectedTab, setSelectedTab] = useState("Weekly");
-  const [selectedWeek, setSelectedWeek] = useState("1");
+  const [selectedWeek, setSelectedWeek] = useState("2");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeWeeklyPropType, setActiveWeeklyPropType] = useState("passing");
   const [filterPositions, setFilterPositions] = useState([]);
   const [overFilters, setOverFilters] = useState({});
   const [underFilters, setUnderFilters] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  const filterWeekDataByPropType = useCallback((data, propType) => {
+    return data.filter((player) => {
+      switch (propType) {
+        case "passing":
+          return (
+            player.passyardsou !== null ||
+            player.passtdsnumber !== null ||
+            player.passattempts !== null ||
+            player.passcompletions !== null
+          );
+        case "rushing":
+          return player.rushyardsou !== null || player.rushattempts !== null;
+        case "receiving":
+          return (
+            player.receivingyardsou !== null || player.receptionsou !== null
+          );
+        default:
+          return false;
+      }
+    });
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (selectedTab === "Season Long") {
+        const result = await fetchPropData();
+        result.sort(
+          (a, b) =>
+            a.position.localeCompare(b.position) ||
+            a.player_name.localeCompare(b.player_name)
+        );
+        setData(result);
+      } else if (selectedTab === "Weekly") {
+        const weekProps = await fetchWeekData(selectedWeek);
+        const filteredData = filterWeekDataByPropType(
+          weekProps,
+          activeWeeklyPropType
+        );
+        setWeekData(filteredData);
+      }
+    } catch (error) {
+      console.error(`Error fetching ${selectedTab} data:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    selectedTab,
+    selectedWeek,
+    activeWeeklyPropType,
+    filterWeekDataByPropType,
+  ]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (selectedTab === "Season Long") {
-        try {
-          const result = await fetchPropData();
-          result.sort(
-            (a, b) =>
-              a.position.localeCompare(b.position) ||
-              a.player_name.localeCompare(b.player_name)
-          );
-          setData(result);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      } else if (selectedTab === "Weekly") {
-        try {
-          const weekProps = await fetchWeekPropData(selectedWeek);
-          setWeekData(weekProps);
-        } catch (error) {
-          console.error("Error fetching weekly data:", error);
-        }
-      }
-    };
-
     fetchData();
-  }, [selectedTab, selectedWeek]);
+  }, [fetchData]);
 
   const handleWeeklyPropTypeChange = (type) => {
     setActiveWeeklyPropType(type);
+    const filteredData = filterWeekDataByPropType(weekData, type);
+    setWeekData(filteredData);
   };
 
   const handleReset = () => {
     setSearchQuery("");
     setFilterPositions([]);
-    setOverFilters({
-      passingyards: "",
-      passingattempts: "",
-      passingcompletions: "",
-      rushingyards: "",
-      rushingattempts: "",
-      receivingyards: "",
-      receptions: "",
-    });
-    setUnderFilters({
-      passingyards: "",
-      passingattempts: "",
-      passingcompletions: "",
-      rushingyards: "",
-      rushingattempts: "",
-      receivingyards: "",
-      receptions: "",
-    });
+    setOverFilters({});
+    setUnderFilters({});
   };
 
-  const filteredSeasonLongData = data.filter((player) => {
-    const playerName = player.player_name
-      ? player.player_name.toLowerCase()
-      : "";
-    const matchup = player.matchup ? player.matchup.toLowerCase() : "";
-    const matchesPosition =
-      filterPositions.length === 0 || filterPositions.includes(player.position);
-    return (
-      (playerName.includes(searchQuery.toLowerCase()) ||
-        matchup.includes(searchQuery.toLowerCase())) &&
-      matchesPosition
-    );
-  });
+  const filterData = useCallback(
+    (dataToFilter, isWeekly = false) => {
+      return dataToFilter.filter((player) => {
+        const playerName =
+          (isWeekly
+            ? player.nfl_players?.player_name
+            : player.player_name
+          )?.toLowerCase() || "";
+        const game = isWeekly ? player.game?.toLowerCase() || "" : "";
+        const matchesPosition =
+          filterPositions.length === 0 ||
+          filterPositions.includes(player.position);
+        const matchesSearch =
+          playerName.includes(searchQuery.toLowerCase()) ||
+          (isWeekly && game.includes(searchQuery.toLowerCase()));
 
-  const filteredWeeklyData = weekData
-    .filter((player) => {
-      const playerName = player.player ? player.player.toLowerCase() : "";
-      const game = player.game ? player.game.toLowerCase() : "";
-      const matchesPosition =
-        filterPositions.length === 0 ||
-        filterPositions.includes(player.position);
-      return (
-        (playerName.includes(searchQuery.toLowerCase()) ||
-          game.includes(searchQuery.toLowerCase())) &&
-        matchesPosition
-      );
-    })
-    .filter((player) => {
-      switch (activeWeeklyPropType) {
-        case "passing":
-          // Ensure that only players with valid passing props are included
-          return (
-            (player.passyardsou !== null && player.passyardsou !== "") ||
-            (player.passtdsnumber !== null && player.passtdsnumber !== "") ||
-            (player.passattempts !== null && player.passattempts !== "") ||
-            (player.passcompletions !== null && player.passcompletions !== "")
-          );
-        case "rushing":
-          return (
-            (player.rushyardsou !== null && player.rushyardsou !== "") ||
-            (player.rushattempts !== null && player.rushattempts !== "")
-          );
-        case "receiving":
-          return (
-            (player.receivingyardsou !== null &&
-              player.receivingyardsou !== "") ||
-            (player.receptions !== null && player.receptions !== "")
-          );
-        default:
-          return false;
-      }
-    })
-    .filter((player) => {
-      // Apply the over/under filters
-      switch (activeWeeklyPropType) {
-        case "passing":
-          return (
-            (!overFilters.passingyards ||
-              (player.passyardsou &&
-                parseFloat(player.passyardsou) >=
-                  parseFloat(overFilters.passingyards))) &&
-            (!underFilters.passingyards ||
-              (player.passyardsou &&
-                parseFloat(player.passyardsou) <=
-                  parseFloat(underFilters.passingyards))) &&
-            (!overFilters.passingattempts ||
-              (player.passattempts &&
-                parseFloat(player.passattempts) >=
-                  parseFloat(overFilters.passingattempts))) &&
-            (!underFilters.passingattempts ||
-              (player.passattempts &&
-                parseFloat(player.passattempts) <=
-                  parseFloat(underFilters.passingattempts))) &&
-            (!overFilters.passingcompletions ||
-              (player.passcompletions &&
-                parseFloat(player.passcompletions) >=
-                  parseFloat(overFilters.passingcompletions))) &&
-            (!underFilters.passingcompletions ||
-              (player.passcompletions &&
-                parseFloat(player.passcompletions) <=
-                  parseFloat(underFilters.passingcompletions)))
-          );
-        case "rushing":
-          return (
-            (!overFilters.rushingyards ||
-              (player.rushyardsou &&
-                parseFloat(player.rushyardsou) >=
-                  parseFloat(overFilters.rushingyards))) &&
-            (!underFilters.rushingyards ||
-              (player.rushyardsou &&
-                parseFloat(player.rushyardsou) <=
-                  parseFloat(underFilters.rushingyards))) &&
-            (!overFilters.rushingattempts ||
-              (player.rushattempts &&
-                parseFloat(player.rushattempts) >=
-                  parseFloat(overFilters.rushingattempts))) &&
-            (!underFilters.rushingattempts ||
-              (player.rushattempts &&
-                parseFloat(player.rushattempts) <=
-                  parseFloat(underFilters.rushingattempts)))
-          );
-        case "receiving":
-          return (
-            (!overFilters.receivingyards ||
-              (player.receivingyardsou &&
-                parseFloat(player.receivingyardsou) >=
-                  parseFloat(overFilters.receivingyards))) &&
-            (!underFilters.receivingyards ||
-              (player.receivingyardsou &&
-                parseFloat(player.receivingyardsou) <=
-                  parseFloat(underFilters.receivingyards))) &&
-            (!overFilters.receptions ||
-              (player.receptions &&
-                parseFloat(player.receptions) >=
-                  parseFloat(overFilters.receptions))) &&
-            (!underFilters.receptions ||
-              (player.receptions &&
-                parseFloat(player.receptions) <=
-                  parseFloat(underFilters.receptions)))
-          );
-        default:
-          return false;
-      }
-    });
+        if (!matchesSearch || !matchesPosition) return false;
 
-  const handleWeekChange = (event) => {
-    setSelectedWeek(event.target.value);
+        if (isWeekly) {
+          const propTypeCheck = {
+            passing: () =>
+              player.passyardsou !== null ||
+              player.passtdsnumber !== null ||
+              player.passattempts !== null ||
+              player.passcompletions !== null,
+            rushing: () =>
+              player.rushyardsou !== null || player.rushattempts !== null,
+            receiving: () =>
+              player.receivingyardsou !== null || player.receptionsou !== null,
+          };
+
+          if (!propTypeCheck[activeWeeklyPropType]()) return false;
+
+          const filterCheck = {
+            passing: () =>
+              (!overFilters.passingyards ||
+                (player.passyardsou &&
+                  parseFloat(player.passyardsou) >=
+                    parseFloat(overFilters.passingyards))) &&
+              (!underFilters.passingyards ||
+                (player.passyardsou &&
+                  parseFloat(player.passyardsou) <=
+                    parseFloat(underFilters.passingyards))) &&
+              (!overFilters.passingattempts ||
+                (player.passattempts &&
+                  parseFloat(player.passattempts) >=
+                    parseFloat(overFilters.passingattempts))) &&
+              (!underFilters.passingattempts ||
+                (player.passattempts &&
+                  parseFloat(player.passattempts) <=
+                    parseFloat(underFilters.passingattempts))) &&
+              (!overFilters.passingcompletions ||
+                (player.passcompletions &&
+                  parseFloat(player.passcompletions) >=
+                    parseFloat(overFilters.passingcompletions))) &&
+              (!underFilters.passingcompletions ||
+                (player.passcompletions &&
+                  parseFloat(player.passcompletions) <=
+                    parseFloat(underFilters.passingcompletions))),
+            rushing: () =>
+              (!overFilters.rushingyards ||
+                (player.rushyardsou &&
+                  parseFloat(player.rushyardsou) >=
+                    parseFloat(overFilters.rushingyards))) &&
+              (!underFilters.rushingyards ||
+                (player.rushyardsou &&
+                  parseFloat(player.rushyardsou) <=
+                    parseFloat(underFilters.rushingyards))) &&
+              (!overFilters.rushingattempts ||
+                (player.rushattempts &&
+                  parseFloat(player.rushattempts) >=
+                    parseFloat(overFilters.rushingattempts))) &&
+              (!underFilters.rushingattempts ||
+                (player.rushattempts &&
+                  parseFloat(player.rushattempts) <=
+                    parseFloat(underFilters.rushingattempts))),
+            receiving: () =>
+              (!overFilters.receivingyards ||
+                (player.receivingyardsou &&
+                  parseFloat(player.receivingyardsou) >=
+                    parseFloat(overFilters.receivingyards))) &&
+              (!underFilters.receivingyards ||
+                (player.receivingyardsou &&
+                  parseFloat(player.receivingyardsou) <=
+                    parseFloat(underFilters.receivingyards))) &&
+              (!overFilters.receptions ||
+                (player.receptions &&
+                  parseFloat(player.receptions) >=
+                    parseFloat(overFilters.receptions))) &&
+              (!underFilters.receptions ||
+                (player.receptions &&
+                  parseFloat(player.receptions) <=
+                    parseFloat(underFilters.receptions))),
+          };
+
+          return filterCheck[activeWeeklyPropType]();
+        }
+
+        return true;
+      });
+    },
+    [
+      searchQuery,
+      filterPositions,
+      overFilters,
+      underFilters,
+      activeWeeklyPropType,
+    ]
+  );
+
+  const filteredSeasonLongData = filterData(data);
+  const filteredWeeklyData = filterData(weekData, true);
+
+  const handleWeekChange = (selectedWeek) => {
+    setSelectedWeek(selectedWeek);
   };
 
   const weekOptions = Array.from({ length: 18 }, (_, i) => ({
     value: (i + 1).toString(),
     label: `Week ${i + 1}`,
-    disabled: i > 0, // Disable all weeks except week 1 for now
   }));
 
   return (
     <div className="p-6">
+      <div className="pt-20">
+        <h1 className="text-5xl font-bold mb-8 text-center">
+          <span className="text-orange-400 font-extrabold">Player Props!</span>
+        </h1>
+      </div>
+
       {selectedTab === "Weekly" && (
-        <div className="flex justify-between">
-          <div className="">
-            {" "}
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4 p-4">
+          <div className="w-full md:w-auto mb-4 md:mb-0 flex justify-center md:justify-start">
             <TabNavigation
               selectedTab={selectedTab}
               onTabChange={setSelectedTab}
             />
           </div>
-
-          <div className=" mb-4 space-x-4">
-            <button
-              className={`btn btn-outline ${
-                activeWeeklyPropType === "passing" ? "btn-active" : ""
-              }`}
-              onClick={() => handleWeeklyPropTypeChange("passing")}
-            >
-              Passing Props
-            </button>
-            <button
-              className={`btn btn-outline ${
-                activeWeeklyPropType === "rushing" ? "btn-active" : ""
-              }`}
-              onClick={() => handleWeeklyPropTypeChange("rushing")}
-            >
-              Rushing Props
-            </button>
-            <button
-              className={`btn btn-outline ${
-                activeWeeklyPropType === "receiving" ? "btn-active" : ""
-              }`}
-              onClick={() => handleWeeklyPropTypeChange("receiving")}
-            >
-              Receiving Props
-            </button>
+          <div className="flex flex-wrap justify-center md:justify-start gap-2 md:gap-4">
+            {["passing", "rushing", "receiving"].map((type) => (
+              <button
+                key={type}
+                className={`btn btn-outline rounded-lg ${
+                  activeWeeklyPropType === type ? "btn-active" : ""
+                }`}
+                onClick={() => handleWeeklyPropTypeChange(type)}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)} Props
+              </button>
+            ))}
           </div>
         </div>
       )}
 
       {selectedTab === "Weekly" && (
-        <WeekSelector
-          selectedWeek={selectedWeek}
-          onWeekChange={handleWeekChange}
-          weekOptions={weekOptions}
-        />
-      )}
-
-      {selectedTab === "Weekly" && (
-        <Filters
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          filterPositions={filterPositions}
-          setFilterPositions={setFilterPositions}
-          overFilters={overFilters}
-          setOverFilters={setOverFilters}
-          underFilters={underFilters}
-          setUnderFilters={setUnderFilters}
-          activeWeeklyPropType={activeWeeklyPropType}
-          handleReset={handleReset}
-        />
-      )}
-
-      {/* Display Data */}
-      {selectedTab === "Season Long" ? (
-        <div>
-          <TabNavigation
-            selectedTab={selectedTab}
-            onTabChange={setSelectedTab}
-          />
-          <p>
-            This season long props will update each week to keep track of the
-            players progress!
-          </p>
-          <PropList data={filteredSeasonLongData} selectedTab={selectedTab} />
-        </div>
-      ) : (
         <>
-          {/*Add new filter here from word doc */}
-          <WeekPropsTable
-            weekData={filteredWeeklyData}
-            activePropType={activeWeeklyPropType}
-          />
+          <div className="mt-4 flex justify-center md:justify-start">
+            <WeekSelector
+              selectedWeek={selectedWeek}
+              onWeekChange={handleWeekChange}
+              weekOptions={weekOptions}
+            />
+          </div>
+          <div className="mt-4">
+            <Filters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              filterPositions={filterPositions}
+              setFilterPositions={setFilterPositions}
+              overFilters={overFilters}
+              setOverFilters={setOverFilters}
+              underFilters={underFilters}
+              setUnderFilters={setUnderFilters}
+              activeWeeklyPropType={activeWeeklyPropType}
+              handleReset={handleReset}
+            />
+          </div>
         </>
+      )}
+
+      {isLoading ? (
+        <div className="text-center mt-8">Loading...</div>
+      ) : (
+        <div className="mt-6">
+          {selectedTab === "Season Long" ? (
+            <>
+              <TabNavigation
+                selectedTab={selectedTab}
+                onTabChange={setSelectedTab}
+              />
+              <p className="mt-4 text-center md:text-left">
+                This season-long props will update each week to keep track of
+                the players progress!
+              </p>
+              <PropList
+                data={filteredSeasonLongData}
+                selectedTab={selectedTab}
+              />
+            </>
+          ) : (
+            <WeekPropsTable
+              weekData={filteredWeeklyData}
+              activePropType={activeWeeklyPropType}
+            />
+          )}
+        </div>
       )}
     </div>
   );

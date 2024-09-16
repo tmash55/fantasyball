@@ -24,14 +24,17 @@ const WeekSelector = ({ selectedWeek, onWeekChange }) => {
 
   return (
     <div className="flex items-center space-x-2">
-      <label className="text-white">Select Week:</label>
       <select
-        className="select select-bordered select-sm bg-gray-800 text-white"
+        className="select select-bordered  bg-gray-800 text-white  w-full max-w-xs"
         value={selectedWeek}
         onChange={(e) => onWeekChange(e.target.value)}
       >
         {weeks.map((week) => (
-          <option key={week} value={week} disabled={week !== "1"}>
+          <option
+            key={week}
+            value={week}
+            disabled={week !== "1" && week !== "2"}
+          >
             Week {week}
           </option>
         ))}

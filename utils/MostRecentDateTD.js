@@ -3,7 +3,7 @@ import supabase from "@/lib/supabaseClient";
 export const MostRecentDateTD = async () => {
   try {
     const { data, error } = await supabase
-      .from("td_props_week_1")
+      .from("weekly_touchdowns")
       .select("date_added")
       .order("date_added", { ascending: false })
       .limit(1);

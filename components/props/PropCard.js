@@ -1,234 +1,154 @@
+import React from "react";
+import { motion } from "framer-motion";
+import { Football, Target, Shirt, Running, TrendingUp } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import ProgressBar from "../ui/ProgressBar";
+
 const PropCard = ({ player, selectedTab }) => {
-  const getProgressColor = (progress) => {
-    if (progress >= 0.8) return "progress-success";
-    if (progress >= 0.5) return "progress-warning";
-    return "progress-error";
+  const getPositionColor = (position) => {
+    switch (position) {
+      case "QB":
+        return "bg-red-500";
+      case "RB":
+        return "bg-blue-500";
+      case "WR":
+        return "bg-green-500";
+      case "TE":
+        return "bg-yellow-500";
+      default:
+        return "bg-gray-500";
+    }
   };
 
-  const calculatePerGame = (total) => (total / 17).toFixed(1);
-
   return (
-    <div className="card bg-gradient-to-br from-gray-800 to-gray-900 shadow-2xl p-6 rounded-lg text-white">
-      <div className="card-body">
-        <h2 className="card-title text-xl font-extrabold mb-4 flex items-center justify-between">
-          {player.player_name}
-          <span className="text-sm text-gray-400">
-            ({player.position} - {player.team})
-          </span>
-        </h2>
-
-        {/* Display Props dynamically for the selected tab */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-gradient-to-br from-gray-800 to-gray-900 text-white overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+    >
+      <div className="p-6">
+        <div className="flex items-center space-x-4 mb-6">
+          <Avatar className="w-16 h-16 border-2 border-white shadow-lg">
+            <AvatarImage
+              src={player.nfl_players?.headshot_url}
+              alt={player.nfl_players?.player_name || "Player"}
+              className="object-cover"
+            />
+            <AvatarFallback
+              className={`${getPositionColor(
+                player.position
+              )} text-white text-2xl font-bold`}
+            >
+              {player.nfl_players?.player_name?.charAt(0) || "?"}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="text-xl font-bold">{player.player_name}</h2>
+            <span className="text-sm text-gray-300 flex items-center">
+              <span
+                className={`w-2 h-2 rounded-full ${getPositionColor(
+                  player.position
+                )} mr-2`}
+              ></span>
+              {player.position} - {player.team}
+            </span>
+          </div>
+        </div>
         {selectedTab === "Season Long" ? (
-          <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
             {player.passing_yards_progress !== null && (
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-300 flex items-center mb-2">
-                  <span className="mr-2">🏈</span> Passing Yards
-                </h3>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">
-                    Season: {player.passing_yards}
-                  </span>
-                  <span className="text-gray-400">
-                    O/U: {player.passing_yards_over_under}
-                  </span>
-                </div>
-                <progress
-                  className={`progress ${getProgressColor(
-                    player.passing_yards_progress
-                  )} w-full h-2 rounded-full`}
-                  value={player.passing_yards_progress * 100}
-                  max="100"
-                ></progress>
-                <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {player.passing_yards}</span>
-                  <span>
-                    Req Avg: {calculatePerGame(player.passing_yards_over_under)}
-                  </span>
-                </div>
-              </div>
+              <ProgressBar
+                label="Passing Yards"
+                current={player.passing_yards}
+                total={player.passing_yards_over_under}
+                icon={Football}
+              />
             )}
-
             {player.passing_tds_progress !== null && (
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-300 flex items-center mb-2">
-                  <span className="mr-2">🎯</span> Passing TDs
-                </h3>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">
-                    Season: {player.passing_tds}
-                  </span>
-                  <span className="text-gray-400">
-                    O/U: {player.passing_tds_over_under}
-                  </span>
-                </div>
-                <progress
-                  className={`progress ${getProgressColor(
-                    player.passing_tds_progress
-                  )} w-full h-2 rounded-full`}
-                  value={player.passing_tds_progress * 100}
-                  max="100"
-                ></progress>
-                <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {player.passing_tds}</span>
-                  <span>
-                    Req Avg: {calculatePerGame(player.passing_tds_over_under)}
-                  </span>
-                </div>
-              </div>
+              <ProgressBar
+                label="Passing TDs"
+                current={player.passing_tds}
+                total={player.passing_tds_over_under}
+                icon={Target}
+              />
             )}
-
             {player.receiving_yards_progress !== null && (
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-300 flex items-center mb-2">
-                  <span className="mr-2">🎽</span> Receiving Yards
-                </h3>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">
-                    Season: {player.receiving_yards}
-                  </span>
-                  <span className="text-gray-400">
-                    O/U: {player.receiving_yards_over_under}
-                  </span>
-                </div>
-                <progress
-                  className={`progress ${getProgressColor(
-                    player.receiving_yards_progress
-                  )} w-full h-2 rounded-full`}
-                  value={player.receiving_yards_progress * 100}
-                  max="100"
-                ></progress>
-                <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {player.receiving_yards}</span>
-                  <span>
-                    Req Avg:{" "}
-                    {calculatePerGame(player.receiving_yards_over_under)}
-                  </span>
-                </div>
-              </div>
+              <ProgressBar
+                label="Receiving Yards"
+                current={player.receiving_yards}
+                total={player.receiving_yards_over_under}
+                icon={Shirt}
+              />
             )}
-
             {player.receiving_tds_progress !== null && (
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-300 flex items-center mb-2">
-                  <span className="mr-2">🎯</span> Receiving TDs
-                </h3>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">
-                    Season: {player.receiving_tds}
-                  </span>
-                  <span className="text-gray-400">
-                    O/U: {player.receiving_tds_over_under}
-                  </span>
-                </div>
-                <progress
-                  className={`progress ${getProgressColor(
-                    player.receiving_tds_progress
-                  )} w-full h-2 rounded-full`}
-                  value={player.receiving_tds_progress * 100}
-                  max="100"
-                ></progress>
-                <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {player.receiving_tds}</span>
-                  <span>
-                    Req Avg: {calculatePerGame(player.receiving_tds_over_under)}
-                  </span>
-                </div>
-              </div>
+              <ProgressBar
+                label="Receiving TDs"
+                current={player.receiving_tds}
+                total={player.receiving_tds_over_under}
+                icon={Target}
+              />
             )}
-
             {player.rushing_yards_progress !== null && (
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-300 flex items-center mb-2">
-                  <span className="mr-2">🏃‍♂️</span> Rushing Yards
-                </h3>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">
-                    Season: {player.rushing_yards}
-                  </span>
-                  <span className="text-gray-400">
-                    O/U: {player.rushing_yards_over_under}
-                  </span>
-                </div>
-                <progress
-                  className={`progress ${getProgressColor(
-                    player.rushing_yards_progress
-                  )} w-full h-2 rounded-full`}
-                  value={player.rushing_yards_progress * 100}
-                  max="100"
-                ></progress>
-                <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span>Avg: {player.rushing_yards}</span>
-                  <span>
-                    Req Avg: {calculatePerGame(player.rushing_yards_over_under)}
-                  </span>
-                </div>
-              </div>
+              <ProgressBar
+                label="Rushing Yards"
+                current={player.rushing_yards}
+                total={player.rushing_yards_over_under}
+                icon={Running}
+              />
             )}
-
             {player.rushing_tds_progress !== null && (
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-300 flex items-center mb-2">
-                  <span className="mr-2">🏈</span> Rushing TDs
-                </h3>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">
-                    Season: {player.rushing_tds}
-                  </span>
-                  <span className="text-gray-400">
-                    O/U: {player.rushing_tds_over_under}
-                  </span>
-                </div>
-                <progress
-                  className={`progress ${getProgressColor(
-                    player.rushing_tds_progress
-                  )} w-full h-2 rounded-full`}
-                  value={player.rushing_tds_progress * 100}
-                  max="100"
-                ></progress>
-                <div className="flex justify-between text-xs mt-2 text-gray-500">
-                  <span> Avg: {player.rushing_tds}</span>
-                  <span>
-                    Req Avg: {calculatePerGame(player.rushing_tds_over_under)}
-                  </span>
-                </div>
-              </div>
+              <ProgressBar
+                label="Rushing TDs"
+                current={player.rushing_tds}
+                total={player.rushing_tds_over_under}
+                icon={Target}
+              />
             )}
-          </>
+          </motion.div>
         ) : (
-          <>
-            {/* Render weekly props by category */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
             {player.weekly_passing_props && (
-              <div className="mb-4">
-                {/* Display weekly passing data */}
-                <h3 className="text-sm font-semibold text-gray-300 mb-2">
+              <div className="bg-gray-700 bg-opacity-50 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-300 mb-2 flex items-center">
+                  <Football className="w-4 h-4 mr-2" />
                   Passing Props
                 </h3>
-                {/* Render passing props here */}
+                {/* Render weekly passing props here */}
               </div>
             )}
             {player.weekly_receiving_props && (
-              <div className="mb-4">
-                {/* Display weekly receiving data */}
-                <h3 className="text-sm font-semibold text-gray-300 mb-2">
+              <div className="bg-gray-700 bg-opacity-50 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-300 mb-2 flex items-center">
+                  <Shirt className="w-4 h-4 mr-2" />
                   Receiving Props
                 </h3>
-                {/* Render receiving props here */}
+                {/* Render weekly receiving props here */}
               </div>
             )}
             {player.weekly_rushing_props && (
-              <div className="mb-4">
-                {/* Display weekly rushing data */}
-                <h3 className="text-sm font-semibold text-gray-300 mb-2">
+              <div className="bg-gray-700 bg-opacity-50 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-300 mb-2 flex items-center">
+                  <Running className="w-4 h-4 mr-2" />
                   Rushing Props
                 </h3>
-                {/* Render rushing props here */}
+                {/* Render weekly rushing props here */}
               </div>
             )}
-          </>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

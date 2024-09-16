@@ -6,13 +6,22 @@ export async function fetchPropData() {
   const { data: propData, error: propError } = await supabase
     .from("draftkings_2024_playerprops")
     .select(
-      "player_name, position, team, passing_yards, passing_tds, receiving_yards, receiving_tds, rushing_yards, rushing_tds"
+      "player_id, player_name, position, team, passing_yards, passing_tds, receiving_yards, receiving_tds, rushing_yards, rushing_tds"
     );
 
   const { data: statsData, error: statsError } = await supabase
-    .from("player_season_stats_2024")
+    .from("player_seasonal_stats")
     .select(
-      "player_name, position, team, passing_yards, passing_tds, receiving_yards, receiving_tds, rushing_yards, rushing_tds"
+      `
+      player_id,
+      passing_yards, 
+      passing_tds, 
+      receiving_yards, 
+      receiving_tds, 
+      rushing_yards, 
+      rushing_tds,
+      nfl_players (player_name, position, team, headshot_url)
+      `
     );
 
   if (propError || statsError) {
@@ -23,14 +32,14 @@ export async function fetchPropData() {
   const combinedData = propData
     .map((prop) => {
       const playerStats = statsData.find(
-        (stats) => stats.player_name === prop.player_name
+        (stats) => stats.player_id === prop.player_id
       );
 
       if (playerStats) {
         return {
-          player_name: prop.player_name,
-          position: playerStats.position || prop.position, // Fallback to prop position if missing in stats
-          team: playerStats.team || prop.team, // Fallback to prop team if missing in stats
+          player_name: playerStats.nfl_players.player_name || prop.player_name,
+          position: playerStats.nfl_players.position || prop.position,
+          team: playerStats.nfl_players.team || prop.team,
           passing_yards: playerStats.passing_yards,
           passing_yards_over_under:
             prop.passing_yards !== "N/A" ? prop.passing_yards : null,
@@ -82,4 +91,3 @@ export async function fetchPropData() {
 
   return combinedData;
 }
-``;

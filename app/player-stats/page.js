@@ -2,9 +2,8 @@ import AdpTool from "@/components/AdpTool";
 import AdpToolWithPopup from "@/components/AdpToolWithPopup";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import PlayerStatsTable from "@/components/playerStats/PlayerStatsTable";
 import PropsTool from "@/components/props/PropsTool";
-import WeekTds from "@/components/props/td/WeeklyTouchdowns";
-
 import SleeperInput from "@/components/SleeperInput";
 
 export const dynamic = "force-dynamic";
@@ -16,13 +15,20 @@ export default async function ADP() {
   return (
     <>
       {" "}
-      <Header />
-      <main className="min-h-screen p-8">
+      <main className="min-h-screen pb-24 relative">
+        <Header />
         <section
           id="league"
           className="max-w-full mx-auto p-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
         >
-          <WeekTds />
+          <div className="pt-20">
+            <h1 className="text-5xl font-bold mb-8 text-center">
+              <span className="text-orange-400 font-extrabold">
+                Player Stats
+              </span>{" "}
+            </h1>
+          </div>
+          <PlayerStatsTable />
           <div className="pb-6 relative z-10"></div>
         </section>
       </main>

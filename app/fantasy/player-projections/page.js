@@ -3,6 +3,7 @@ import AdpToolWithPopup from "@/components/AdpToolWithPopup";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import FantasyProjectionsPPR from "@/components/playerProjections/FantasyProjectionsPPR";
+import WeeklyFantasyProjections from "@/components/playerProjections/WeeklyFantasyProjections";
 import PropsTool from "@/components/props/PropsTool";
 import SleeperInput from "@/components/SleeperInput";
 
@@ -21,14 +22,7 @@ export default async function PlayerProjections() {
           id="league"
           className="max-w-full mx-auto p-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
         >
-          <div className="pt-20">
-            <h1 className="text-5xl font-bold mb-8 text-center">
-              <span className="text-orange-400 font-extrabold">
-                Player Projections
-              </span>{" "}
-            </h1>
-          </div>
-          <FantasyProjectionsPPR />
+          <WeeklyFantasyProjections />
           <div className="pb-6 relative z-10"></div>
         </section>
       </main>

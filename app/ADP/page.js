@@ -19,8 +19,8 @@ export default async function ADP() {
           id="league"
           className="max-w-full mx-auto p-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
         >
-          <div className="pt-20">
-            <h1 className="text-5xl font-bold mb-8 text-center">
+          <div className="pt-16">
+            <h1 className="text-5xl font-bold mb-20 text-center">
               Redraft{" "}
               <span className="text-orange-400 font-extrabold">
                 Average Draft Position (ADP)

@@ -20,13 +20,6 @@ export default async function ADP() {
           id="league"
           className="max-w-full mx-auto p-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
         >
-          <div className="pt-20">
-            <h1 className="text-5xl font-bold mb-8 text-center">
-              <span className="text-orange-400 font-extrabold">
-                Player Props!
-              </span>{" "}
-            </h1>
-          </div>
           <PropsTool />
           <div className="pb-6 relative z-10"></div>
         </section>

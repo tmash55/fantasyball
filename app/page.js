@@ -9,6 +9,7 @@ import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import FeatureSection from "@/components/FeatureSection";
+import FantasyFootballHero from "@/components/shadcn/FantasyFootballHero";
 
 export default function Home() {
   return (

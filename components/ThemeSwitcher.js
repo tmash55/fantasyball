@@ -1,66 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ThemeSwitcher = () => {
-  const [theme, setTheme] = useState(
-    typeof window !== "undefined"
-      ? localStorage.getItem("theme") || "light"
-      : "light"
-  );
-
-  // Change theme function
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dim" : "light";
-    setTheme(newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-  };
-
-  // Set theme on initial load
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
+  const { theme, setTheme } = useTheme();
 
   return (
-    <button
-      onClick={toggleTheme}
-      className="p-2 rounded-full transition-colors"
-      aria-label="Toggle Theme"
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "light" ? "dim" : "light")}
     >
-      {theme === "light" ? (
-        // Moon icon for dark mode
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6 text-gray-800 dark:text-gray-200"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 3v1m0 16v1m8.66-9H21m-16 0H3m1.54 6.93l.71-.71M4.21 5.64l.71-.71M17.66 17.66l.71-.71M17.66 6.34l.71.71M12 5a7 7 0 100 14 7 7 0 000-14z"
-          />
-        </svg>
-      ) : (
-        // Sun icon for light mode
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6 text-yellow-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 3v1m0 16v1m8.66-9H21m-16 0H3m1.54 6.93l.71-.71M4.21 5.64l.71-.71M17.66 17.66l.71-.71M17.66 6.34l.71.71M12 5a7 7 0 100 14 7 7 0 000-14z"
-          />
-        </svg>
-      )}
-    </button>
+      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   );
 };
 

@@ -3,6 +3,7 @@ import { fetchTop200Adp } from "@/app/api/adp/route";
 import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
 import { MostRecentDateADPTool } from "@/utils/MostRecentDateADPTool";
+import { Filter, RefreshCw } from "lucide-react";
 
 const AdpTool = () => {
   const [adpData, setAdpData] = useState([]);
@@ -363,7 +364,7 @@ const AdpTool = () => {
         <p className="italic">last updated: {mostRecentDate}</p>
       </div>
       {/* Search Bar and Filters */}
-      <div className="flex flex-wrap items-center justify-between mb-4 space-y-2 md:space-y-0 bg-gray-800 p-2 md:p-4 ">
+      <div className="flex flex-wrap items-center justify-between mb-4 space-y-2 md:space-y-0 bg-gray-800 p-2 md:p-4">
         {/* Search Bar */}
         <div className="flex items-center gap-2 w-full md:w-auto">
           <label className="input input-bordered flex items-center gap-2 w-full md:w-60">
@@ -390,11 +391,12 @@ const AdpTool = () => {
         </div>
 
         {/* Position Filters */}
-        <div className="dropdown w-full md:w-auto">
+        <div className="dropdown w-full md:w-auto flex md:flex-none justify-center md:justify-start">
           <label
             tabIndex={0}
-            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]  hover:text-gray-800"
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB] hover:text-gray-800"
           >
+            <Filter className="w-4 h-4 mr-2" />
             Position Filters
           </label>
           <ul
@@ -427,11 +429,12 @@ const AdpTool = () => {
         </div>
 
         {/* Platform Filters */}
-        <div className="dropdown w-full md:w-auto">
+        <div className="dropdown w-full md:w-auto flex md:flex-none justify-center md:justify-start">
           <label
             tabIndex={0}
-            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]  hover:text-gray-800"
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB] hover:text-gray-800"
           >
+            <Filter className="w-4 h-4 mr-2" />
             Platform Filters
           </label>
           <ul
@@ -460,17 +463,18 @@ const AdpTool = () => {
         </div>
 
         {/* Reset Button */}
-        <div className="w-full md:w-auto">
+        <div className="w-full md:w-auto flex md:flex-none justify-center md:justify-start">
           <button
             onClick={handleReset}
-            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB]  hover:text-gray-800"
+            className="btn m-1 w-full md:w-auto btn-outline border-[#41ADBB] text-[#41ADBB] hover:bg-[#41ADBB] hover:border-[#41ADBB] hover:text-gray-800"
           >
+            <RefreshCw className="w-4 h-4 mr-2" />
             Reset Filters
           </button>
         </div>
 
         {/* CSV Download Button */}
-        <div className="w-full md:w-auto">
+        <div className="w-full md:w-auto flex md:flex-none justify-center md:justify-start">
           <button
             onClick={handleDownloadCSV}
             className="btn m-1 w-full md:w-auto btn-outline border-orange-400 text-orange-400 hover:bg-orange-400 hover:border-orange-400"
