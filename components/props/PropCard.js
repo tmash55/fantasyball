@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Football, Target, Shirt, Running, TrendingUp } from "lucide-react";
+import { Target, Shirt, TrendingUp } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ProgressBar from "../ui/ProgressBar";
 
