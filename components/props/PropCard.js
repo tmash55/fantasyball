@@ -67,7 +67,6 @@ const PropCard = ({ player, selectedTab }) => {
                 label="Passing Yards"
                 current={player.passing_yards}
                 total={player.passing_yards_over_under}
-                icon={Football}
               />
             )}
             {player.passing_tds_progress !== null && (
@@ -99,7 +98,6 @@ const PropCard = ({ player, selectedTab }) => {
                 label="Rushing Yards"
                 current={player.rushing_yards}
                 total={player.rushing_yards_over_under}
-                icon={Running}
               />
             )}
             {player.rushing_tds_progress !== null && (
