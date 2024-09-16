@@ -45,7 +45,7 @@ const SleeperInput = () => {
               className="input input-bordered w-full placeholder:opacity-60 rounded text-primary border-2 border-primary"
             />
             <button type="submit" className="btn btn-primary w-full">
-              Let's Go!
+              Let&apos;s Go!
             </button>
           </form>
           <p className="mt-4 text-gray-400 text-center">

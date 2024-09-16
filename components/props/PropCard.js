@@ -121,7 +121,6 @@ const PropCard = ({ player, selectedTab }) => {
             {player.weekly_passing_props && (
               <div className="bg-gray-700 bg-opacity-50 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-300 mb-2 flex items-center">
-                  <Football className="w-4 h-4 mr-2" />
                   Passing Props
                 </h3>
                 {/* Render weekly passing props here */}
@@ -139,7 +138,6 @@ const PropCard = ({ player, selectedTab }) => {
             {player.weekly_rushing_props && (
               <div className="bg-gray-700 bg-opacity-50 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-300 mb-2 flex items-center">
-                  <Running className="w-4 h-4 mr-2" />
                   Rushing Props
                 </h3>
                 {/* Render weekly rushing props here */}
