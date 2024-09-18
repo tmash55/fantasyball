@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import supabase from "@/lib/supabaseClient";
 import {
@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUpDown, Search, Info } from "lucide-react";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
@@ -102,23 +102,23 @@ const PlayerStatsSeasonal = () => {
     fetchData();
   }, []);
 
-  const handleSort = (key) => {
-    setSortConfig({
+  const handleSort = useCallback((key) => {
+    setSortConfig((prevConfig) => ({
       key,
       direction:
-        sortConfig.key === key && sortConfig.direction === "ascending"
+        prevConfig.key === key && prevConfig.direction === "ascending"
           ? "descending"
           : "ascending",
-    });
-  };
+    }));
+  }, []);
 
-  const handleStatTypeChange = (statType) => {
+  const handleStatTypeChange = useCallback((statType) => {
     setSelectedStatType(statType);
     setSortConfig({
       key: `${statType}_yards`,
       direction: "descending",
     });
-  };
+  }, []);
 
   const teams = useMemo(() => {
     const teamSet = new Set(
@@ -203,7 +203,7 @@ const PlayerStatsSeasonal = () => {
     }));
   }, [seasonData, selectedStatType, sortConfig, searchTerm, selectedTeam]);
 
-  const columns = {
+  const columns = useMemo(() => ({
     receiving: [
       {
         key: "rank",
@@ -450,9 +450,9 @@ const PlayerStatsSeasonal = () => {
         tooltip: "Expected Points Added on rushing attempts",
       },
     ],
-  };
+  }), []);
 
-  const getPositionColor = (position) => {
+  const getPositionColor = useCallback((position) => {
     switch (position) {
       case "QB":
         return "bg-red-500";
@@ -465,7 +465,7 @@ const PlayerStatsSeasonal = () => {
       default:
         return "bg-gray-500";
     }
-  };
+  }, []);
 
   return (
     <motion.div
@@ -498,7 +498,7 @@ const PlayerStatsSeasonal = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <Card className="w-full bg-gray-800 border-gray-700">
-            <CardContent className="p-4 sm:p-6">
+            <CardContent className="p-4 sm: p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h2 className="text-2xl font-bold">Season Stats</h2>
                 <div className="flex flex-wrap gap-2">
@@ -555,7 +555,7 @@ const PlayerStatsSeasonal = () => {
                 </Select>
               </div>
               <div className="rounded-md border border-gray-700 overflow-hidden">
-                <div className="w-full overflow-auto max-h-[calc(100vh-100px)]">
+                <ScrollArea className="h-[calc(100vh-300px)]">
                   <Table>
                     <TableHeader className="sticky top-0 z-20 bg-gray-800">
                       <TableRow className="hover:bg-gray-700">
@@ -689,7 +689,7 @@ const PlayerStatsSeasonal = () => {
                       </AnimatePresence>
                     </TableBody>
                   </Table>
-                </div>
+                </ScrollArea>
               </div>
             </CardContent>
           </Card>
