@@ -44,8 +44,8 @@ import PlayerDetailsRow from "./PlayerDetailsRow";
 const WeeklyFantasyProjections = () => {
   const [weekData, setWeekData] = useState([]);
   const [touchdownData, setTouchdownData] = useState([]);
-  const [selectedWeek, setSelectedWeek] = useState("2");
-  const [selectedPlayerIndex, setSelectedPlayerIndex] = useState(null);
+  const [selectedWeek, setSelectedWeek] = useState("3");
+  const [selectedPlayerId, setSelectedPlayerId] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState("All");
   const [sortConfig, setSortConfig] = useState({
     key: "fantasy_points",
@@ -170,48 +170,49 @@ const WeeklyFantasyProjections = () => {
 
   const calculateFantasyPoints = useCallback(
     (player) => {
-      // Safely parse numerical values or default to 0 if not valid
       const passingYards = parseFloat(player.passyardsou) || 0;
       const passingTDs = parseFloat(player.passtdsnumber) || 0;
       const interceptions = parseFloat(player.interceptions) || 0;
       const rushingYards = parseFloat(player.rushyardsou) || 0;
       const receivingYards = parseFloat(player.receivingyardsou) || 0;
       const receptions = parseFloat(player.receptionsou) || 0;
-      const tdOdds = parseOdds(player.anytime_td_odds) || 0;
 
-      // Calculate fantasy points components
       const passingYardsPoints = (passingYards / 25) * 1;
-      // Calculate passing TD points using implied probability
-      const passingTDImpliedProbability = calculateImpliedProbability(
-        player.passtdsoverodds
-      );
-      const expectedPassingTDs =
-        passingTDs * passingTDImpliedProbability +
-        (passingTDs - 0.5) * (1 - passingTDImpliedProbability);
-      const passingTDPoints = expectedPassingTDs * scoringSettings.passingTDPts;
 
-      // Calculate interception points using implied probability
-      const interceptionImpliedProbability = calculateImpliedProbability(
-        player.interceptionsoverodds
-      );
-      const expectedInterceptions =
-        interceptions * interceptionImpliedProbability +
-        (interceptions - 0.5) * (1 - interceptionImpliedProbability);
-      const interceptionPoints = expectedInterceptions * -2; // Negative points for interceptions
+      let passingTDPoints = 0;
+      if (player.passtdsoverodds) {
+        const passingTDImpliedProbability = calculateImpliedProbability(
+          player.passtdsoverodds
+        );
+        const expectedPassingTDs =
+          passingTDs * passingTDImpliedProbability +
+          (passingTDs - 0.5) * (1 - passingTDImpliedProbability);
+        passingTDPoints = expectedPassingTDs * scoringSettings.passingTDPts;
+      }
+
+      let interceptionPoints = 0;
+      if (player.interceptionsoverodds) {
+        const interceptionImpliedProbability = calculateImpliedProbability(
+          player.interceptionsoverodds
+        );
+        const expectedInterceptions =
+          interceptions * interceptionImpliedProbability +
+          (interceptions - 0.5) * (1 - interceptionImpliedProbability);
+        interceptionPoints = expectedInterceptions * -2;
+      }
 
       const rushingYardsPoints = (rushingYards / 10) * 1;
       const receivingYardsPoints = (receivingYards / 10) * 1;
       const receptionsPoints = receptions * scoringSettings.ppr;
 
-      // Calculate implied probability for anytime touchdown odds
+      let touchdownPoints = 0;
+      if (player.anytime_td_odds) {
+        const touchdownImpliedProbability = calculateImpliedProbability(
+          player.anytime_td_odds
+        );
+        touchdownPoints = touchdownImpliedProbability * 6;
+      }
 
-      // Calculate expected touchdown points using implied probability
-
-      const touchdownImpliedProbability = calculateImpliedProbability(
-        player.anytime_td_odds
-      );
-      const touchdownPoints = touchdownImpliedProbability * 6;
-      // Return total fantasy points
       return (
         passingYardsPoints +
         passingTDPoints -
@@ -237,8 +238,8 @@ const WeeklyFantasyProjections = () => {
     setScoringSettings((prev) => ({ ...prev, [setting]: value }));
   };
 
-  const togglePlayerDetails = (index) => {
-    setSelectedPlayerIndex((prevIndex) => (prevIndex === index ? null : index));
+  const togglePlayerDetails = (playerId) => {
+    setSelectedPlayerId((prevId) => (prevId === playerId ? null : playerId));
   };
 
   const filteredAndSortedData = weekData
@@ -465,17 +466,21 @@ const WeeklyFantasyProjections = () => {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredAndSortedData.map((player, index) => (
-                          <React.Fragment key={player.player_id || index}>
+                        filteredAndSortedData.map((player) => (
+                          <React.Fragment key={player.player_id}>
                             <motion.tr
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
                               transition={{ duration: 0.2 }}
                               className={`hover:bg-gray-700 cursor-pointer ${
-                                index % 2 === 0 ? "bg-gray-800" : "bg-gray-900"
+                                player.rank % 2 === 0
+                                  ? "bg-gray-800"
+                                  : "bg-gray-900"
                               }`}
-                              onClick={() => togglePlayerDetails(index)}
+                              onClick={() =>
+                                togglePlayerDetails(player.player_id)
+                              }
                             >
                               <TableCell className="font-medium">
                                 {player.rank}
@@ -526,7 +531,7 @@ const WeeklyFantasyProjections = () => {
                                 </Badge>
                               </TableCell>
                             </motion.tr>
-                            {selectedPlayerIndex === index && (
+                            {selectedPlayerId === player.player_id && (
                               <TableRow>
                                 <TableCell colSpan={4}>
                                   <PlayerDetailsRow

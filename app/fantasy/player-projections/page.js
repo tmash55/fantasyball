@@ -15,12 +15,11 @@ export const dynamic = "force-dynamic";
 export default async function PlayerProjections() {
   return (
     <>
-      {" "}
       <main className="min-h-screen pb-24 relative">
         <Header />
         <section
           id="league"
-          className="max-w-full mx-auto p-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
+          className="max-w-full mx-auto px-1 sm:px-8 md:px-12 xl:px-16 w-full my-6 flex flex-col gap-4 md:gap-6"
         >
           <WeeklyFantasyProjections />
           <div className="pb-6 relative z-10"></div>

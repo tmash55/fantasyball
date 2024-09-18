@@ -9,17 +9,18 @@ import SleeperInput from "@/components/SleeperInput";
 export const dynamic = "force-dynamic";
 
 // This is a private page: It's protected by the layout.js component which ensures the user is authenticated.
-// It's a server component which means you can fetch data (like the user profile) before the page is rendered.
+// It's a server compoment which means you can fetch data (like the user profile) before the page is rendered.
 // See https://shipfa.st/docs/tutorials/private-page
 export default async function ADP() {
   return (
     <>
-      <main className="min-h-screen mb-8 relative">
+      {" "}
+      <main className="min-h-screen pb-2 relative mb-8">
         <Header />
         <section className="max-w-full mx-auto p-4 md:p-8 w-full my-6">
-          <div className="">
-            <PlayerStatsTable />
-          </div>
+          <div className=""></div>
+          <PlayerStatsTable />
+          <div className="pb-6 relative z-10"></div>
         </section>
       </main>
       <Footer />

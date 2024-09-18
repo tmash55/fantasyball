@@ -59,7 +59,7 @@ const WeekTds = () => {
     key: "game_date",
     direction: "asc",
   });
-  const [selectedWeek, setSelectedWeek] = useState("2");
+  const [selectedWeek, setSelectedWeek] = useState("3");
   const [showCompletedGames, setShowCompletedGames] = useState(false);
 
   // Filter state
