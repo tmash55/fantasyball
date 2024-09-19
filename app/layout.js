@@ -8,6 +8,7 @@ import QueryProvider from "@/components/QueryProvider";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import GoogleAnalytics from "@/components/Google/GoogleAnalytics";
+import { Toaster } from "@/components/ui/toaster";
 
 const font = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -33,6 +34,7 @@ export default function RootLayout({ children }) {
         <QueryProvider>
           <ClientLayout>{children}</ClientLayout>
         </QueryProvider>
+        <Toaster />
 
         <Analytics />
         <SpeedInsights />

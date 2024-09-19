@@ -3,5 +3,11 @@
     "env": {
       "NODE_VERSION": "21.6.1"
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/run-python-script",
+      "schedule": "0 18 * * *"
+    }
+  ]
 }

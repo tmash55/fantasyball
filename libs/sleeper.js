@@ -1,161 +1,119 @@
-const dbagsID = 1048461014691328000;
-const WNBAID = 1048724879677218816;
-const BSMTID = 1053041007475994624;
-const junkiesID = 1048406686140116992;
-const buildersID = 1048276775261904896;
+import supabase from "@/lib/supabaseClient";
 
-export async function fetchData(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Network response was not ok " + response.statusText);
-  }
-  return response.json();
-}
+const BASE_URL = "https://api.sleeper.app/v1";
 
-export async function fetchLeagueName(leagueId) {
-  const specificLeagueUrl = `https://api.sleeper.app/v1/league/${leagueId}`;
-  const response = await fetch(specificLeagueUrl);
-  const data = await response.json();
-  return data.name;
-}
-
-export async function fetchLeagueSettings(leagueId) {
-  const specificLeagueUrl = `https://api.sleeper.app/v1/league/${leagueId}`;
-  const response = await fetch(specificLeagueUrl);
-  const data = await response.json();
-  return data.settings;
-}
-
-export async function getStartersWithNames(leagueId) {
-  const playersUrl = "https://api.sleeper.app/v1/players/nfl";
-
-  try {
-    const [rostersData, playersData] = await Promise.all([
-      fetchData(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-      fetchData(playersUrl),
-    ]);
-
-    const playerMap = {};
-    for (const playerId in playersData) {
-      playerMap[playerId] = {
-        name: playersData[playerId].full_name,
-        position: playersData[playerId].position,
-      };
+async function fetchWithRetry(url, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      if (i === retries - 1) throw error;
     }
+  }
+}
 
-    return rostersData.map((team) => {
-      const starterNames = team.starters.map((playerId) => {
-        const player = playerMap[playerId];
-        return player
-          ? `${player.name} (${player.position})`
-          : `Unknown Player (${playerId})`;
+export async function fetchUser(username) {
+  const url = `${BASE_URL}/user/${username}`;
+  return fetchWithRetry(url);
+}
+
+export async function fetchUserLeagues(userId, season) {
+  const url = `${BASE_URL}/user/${userId}/leagues/nfl/${season}`;
+  return fetchWithRetry(url);
+}
+
+export async function fetchLeagueDetails(leagueId) {
+  const url = `${BASE_URL}/league/${leagueId}`;
+  return fetchWithRetry(url);
+}
+
+export async function fetchLeagueRosters(leagueId) {
+  const url = `${BASE_URL}/league/${leagueId}/rosters`;
+  return fetchWithRetry(url);
+}
+
+export async function fetchLeagueUsers(leagueId) {
+  const url = `${BASE_URL}/league/${leagueId}/users`;
+  return fetchWithRetry(url);
+}
+
+export async function fetchUserRoster(leagueId, userId) {
+  const rosters = await fetchLeagueRosters(leagueId);
+  return rosters.find((roster) => roster.owner_id === userId);
+}
+
+export async function fetchPlayerNames(playerIds) {
+  try {
+    const { data, error } = await supabase
+      .from("nfl_players")
+      .select("sleeper_id, player_name")
+      .in("sleeper_id", playerIds);
+
+    if (error) throw error;
+
+    return data.reduce((acc, player) => {
+      acc[player.sleeper_id] = player.player_name;
+      return acc;
+    }, {});
+  } catch (error) {
+    console.error("Error fetching player names:", error);
+    return {};
+  }
+}
+
+export async function fetchUserLeaguesAndDetails(username, season) {
+  const user = await fetchUser(username);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const leagues = await fetchUserLeagues(user.user_id, season);
+  const leaguesWithDetails = await Promise.all(
+    leagues.map(async (league) => {
+      const [leagueDetails, rosters, users] = await Promise.all([
+        fetchLeagueDetails(league.league_id),
+        fetchLeagueRosters(league.league_id),
+        fetchLeagueUsers(league.league_id),
+      ]);
+
+      const allPlayerIds = rosters.flatMap((roster) => [
+        ...(roster.starters || []),
+        ...(roster.players || []),
+      ]);
+      const playerNames = await fetchPlayerNames(allPlayerIds);
+
+      const rostersWithUserDetails = rosters.map((roster) => {
+        const user = users.find((u) => u.user_id === roster.owner_id);
+        return {
+          ...roster,
+          username: user ? user.display_name : `Team ${roster.roster_id}`,
+          avatar: user ? user.avatar : null,
+          starters: (roster.starters || []).map((playerId) => ({
+            id: playerId,
+            name: playerNames[playerId] || playerId,
+          })),
+          players: (roster.players || []).map((playerId) => ({
+            id: playerId,
+            name: playerNames[playerId] || playerId,
+          })),
+        };
       });
 
+      const userRoster = rostersWithUserDetails.find(
+        (roster) => roster.owner_id === user.user_id
+      );
+
       return {
-        rosterId: team.roster_id,
-        starters: starterNames,
+        ...leagueDetails,
+        rosters: rostersWithUserDetails,
+        userRoster,
       };
-    });
-  } catch (error) {
-    console.error("There was a problem with the fetch operation:", error);
-    throw error;
-  }
-}
+    })
+  );
 
-export async function getStartersWithNamesAndPositions(leagueId) {
-  const playersUrl = "https://api.sleeper.app/v1/players/nfl";
-
-  try {
-    const [rostersData, playersData] = await Promise.all([
-      fetchData(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
-      fetchData(playersUrl),
-    ]);
-
-    const playerMap = {};
-    for (const playerId in playersData) {
-      playerMap[playerId] = {
-        name: playersData[playerId].full_name,
-        position: playersData[playerId].position,
-      };
-    }
-
-    return await Promise.all(
-      rostersData.map(async (team) => {
-        const starterNames = team.starters.map((playerId) => {
-          const player = playerMap[playerId];
-          return player
-            ? `${player.name} (${player.position})`
-            : `Unknown Player (${playerId})`;
-        });
-        const username = await fetchUsername(team.owner_id);
-
-        return {
-          rosterId: team.roster_id,
-          owner: username,
-          starters: starterNames,
-        };
-      })
-    );
-  } catch (error) {
-    console.error("There was a problem with the fetch operation:", error);
-    throw error;
-  }
-}
-
-export async function fetchLeagueIds(userId) {
-  const sport = "nfl";
-  const season = "2024";
-  try {
-    const response = await fetch(
-      `https://api.sleeper.app/v1/user/${userId}/leagues/${sport}/${season}`
-    );
-    if (!response.ok) {
-      throw new Error("Network response was not ok " + response.statusText);
-    }
-    const leagues = await response.json();
-
-    if (!Array.isArray(leagues)) {
-      throw new Error("Expected an array of leagues");
-    }
-
-    return leagues.map((league) => league.league_id);
-  } catch (error) {
-    console.error("There was a problem with the fetch operation:", error);
-    throw error;
-  }
-}
-
-export async function fetchUserID(username) {
-  const usernameUrl = `https://api.sleeper.app/v1/user/${username}`;
-  const response = await fetch(usernameUrl);
-  const data = await response.json();
-  return data.user_id;
-}
-
-export async function fetchLeagueIdsAndStarters(userId) {
-  try {
-    const leagueIds = await fetchLeagueIds(userId);
-
-    return await Promise.all(
-      leagueIds.map(async (leagueId) => {
-        const leagueName = await fetchLeagueName(leagueId);
-        const starters = await getStartersWithNamesAndPositions(leagueId);
-        return {
-          leagueId,
-          leagueName,
-          starters,
-        };
-      })
-    );
-  } catch (error) {
-    console.error("There was a problem with the fetch operation:", error);
-    throw error;
-  }
-}
-
-export async function fetchUsername(userId) {
-  const userIdUrl = `https://api.sleeper.app/v1/user/${userId}`;
-  const response = await fetch(userIdUrl);
-  const data = await response.json();
-  return data.username;
+  return leaguesWithDetails;
 }
