@@ -205,7 +205,7 @@ const ExpandedLeagueOverview = ({ league }) => {
       {isCurrentYear && lastYearWinner && (
         <Card>
           <CardHeader>
-            <CardTitle>Last Year's Winner</CardTitle>
+            <CardTitle>Last Year&apos;s Winner</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-2">
