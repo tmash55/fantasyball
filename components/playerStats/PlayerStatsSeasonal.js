@@ -203,254 +203,262 @@ const PlayerStatsSeasonal = () => {
     }));
   }, [seasonData, selectedStatType, sortConfig, searchTerm, selectedTeam]);
 
-  const columns = useMemo(() => ({
-    receiving: [
-      {
-        key: "rank",
-        label: "Rank",
-        sortable: false,
-        tooltip: "Player's rank based on current sort",
-      },
-      {
-        key: "player_name",
-        label: "Name",
-        sortable: false,
-        tooltip: "Player's name",
-      },
-      {
-        key: "position",
-        label: "Pos",
-        sortable: false,
-        tooltip: "Player's position",
-      },
-      { key: "games", label: "G", sortable: true, tooltip: "Games played" },
-      {
-        key: "receptions",
-        label: "Rec",
-        sortable: true,
-        tooltip: "Receptions",
-      },
-      { key: "targets", label: "Tgt", sortable: true, tooltip: "Targets" },
-      {
-        key: "receiving_yards",
-        label: "Yds",
-        sortable: true,
-        tooltip: "Receiving yards",
-      },
-      {
-        key: "avg_yards_per_reception",
-        label: "Y/R",
-        sortable: true,
-        tooltip: "Yards per reception",
-      },
-      {
-        key: "receiving_tds",
-        label: "TD",
-        sortable: true,
-        tooltip: "Receiving touchdowns",
-      },
-      {
-        key: "yards_per_game",
-        label: "Y/G",
-        sortable: true,
-        tooltip: "Receiving yards per game",
-      },
-      {
-        key: "receiving_yards_after_catch",
-        label: "YAC",
-        sortable: true,
-        tooltip: "Yards after catch",
-      },
-      {
-        key: "tgt_sh",
-        label: "Tgt%",
-        sortable: true,
-        tooltip: "Target share",
-      },
-      {
-        key: "ry_sh",
-        label: "Yds%",
-        sortable: true,
-        tooltip: "Receiving yards share",
-      },
-      { key: "dom", label: "DOM", sortable: true, tooltip: "Dominator Rating" },
-      {
-        key: "wopr_x",
-        label: "WOPR",
-        sortable: true,
-        tooltip: "Weighted Opportunity Rating",
-      },
-      {
-        key: "receiving_first_downs",
-        label: "1D",
-        sortable: true,
-        tooltip: "Receiving first downs",
-      },
-      {
-        key: "receiving_epa",
-        label: "EPA",
-        sortable: true,
-        tooltip: "Expected Points Added on receptions",
-      },
-      {
-        key: "racr",
-        label: "RACR",
-        sortable: true,
-        tooltip: "Receiver Air Conversion Ratio",
-      },
-    ],
-    passing: [
-      {
-        key: "rank",
-        label: "Rank",
-        sortable: false,
-        tooltip: "Player's rank based on current sort",
-      },
-      {
-        key: "player_name",
-        label: "Name",
-        sortable: false,
-        tooltip: "Player's name",
-      },
-      {
-        key: "position",
-        label: "Pos",
-        sortable: false,
-        tooltip: "Player's position",
-      },
-      { key: "games", label: "G", sortable: true, tooltip: "Games played" },
-      {
-        key: "completions",
-        label: "Cmp",
-        sortable: true,
-        tooltip: "Completions",
-      },
-      {
-        key: "attempts",
-        label: "Att",
-        sortable: true,
-        tooltip: "Pass attempts",
-      },
-      {
-        key: "passing_yards",
-        label: "Yds",
-        sortable: true,
-        tooltip: "Passing yards",
-      },
-      {
-        key: "passing_tds",
-        label: "TD",
-        sortable: true,
-        tooltip: "Passing touchdowns",
-      },
-      {
-        key: "interceptions",
-        label: "INT",
-        sortable: true,
-        tooltip: "Interceptions thrown",
-      },
-      {
-        key: "yards_per_game",
-        label: "Y/G",
-        sortable: true,
-        tooltip: "Passing yards per game",
-      },
-      {
-        key: "passing_air_yards",
-        label: "AirY",
-        sortable: true,
-        tooltip: "Air yards on completions",
-      },
-      {
-        key: "passing_yards_after_catch",
-        label: "YAC",
-        sortable: true,
-        tooltip: "Yards after catch on completions",
-      },
-      { key: "sacks", label: "Sck", sortable: true, tooltip: "Times sacked" },
-      {
-        key: "sack_yards",
-        label: "SckY",
-        sortable: true,
-        tooltip: "Yards lost on sacks",
-      },
-      {
-        key: "passing_first_downs",
-        label: "1D",
-        sortable: true,
-        tooltip: "Passing first downs",
-      },
-      {
-        key: "passing_epa",
-        label: "EPA",
-        sortable: true,
-        tooltip: "Expected Points Added on pass attempts",
-      },
-      {
-        key: "pacr",
-        label: "PACR",
-        sortable: true,
-        tooltip: "Passing Air Conversion Ratio",
-      },
-    ],
-    rushing: [
-      {
-        key: "rank",
-        label: "Rank",
-        sortable: false,
-        tooltip: "Player's rank based on current sort",
-      },
-      {
-        key: "player_name",
-        label: "Name",
-        sortable: false,
-        tooltip: "Player's name",
-      },
-      {
-        key: "position",
-        label: "Pos",
-        sortable: false,
-        tooltip: "Player's position",
-      },
-      { key: "games", label: "G", sortable: true, tooltip: "Games played" },
-      {
-        key: "carries",
-        label: "Car",
-        sortable: true,
-        tooltip: "Rushing attempts",
-      },
-      {
-        key: "rushing_yards",
-        label: "Yds",
-        sortable: true,
-        tooltip: "Rushing yards",
-      },
-      {
-        key: "avg_yards_per_carry",
-        label: "Y/C",
-        sortable: true,
-        tooltip: "Average yards per carry",
-      },
-      {
-        key: "rushing_tds",
-        label: "TD",
-        sortable: true,
-        tooltip: "Rushing touchdowns",
-      },
-      {
-        key: "yards_per_game",
-        label: "Y/G",
-        sortable: true,
-        tooltip: "Rushing yards per game",
-      },
-      {
-        key: "rushing_epa",
-        label: "EPA",
-        sortable: true,
-        tooltip: "Expected Points Added on rushing attempts",
-      },
-    ],
-  }), []);
+  const columns = useMemo(
+    () => ({
+      receiving: [
+        {
+          key: "rank",
+          label: "Rank",
+          sortable: false,
+          tooltip: "Player's rank based on current sort",
+        },
+        {
+          key: "player_name",
+          label: "Name",
+          sortable: false,
+          tooltip: "Player's name",
+        },
+        {
+          key: "position",
+          label: "Pos",
+          sortable: false,
+          tooltip: "Player's position",
+        },
+        { key: "games", label: "G", sortable: true, tooltip: "Games played" },
+        {
+          key: "receptions",
+          label: "Rec",
+          sortable: true,
+          tooltip: "Receptions",
+        },
+        { key: "targets", label: "Tgt", sortable: true, tooltip: "Targets" },
+        {
+          key: "receiving_yards",
+          label: "Yds",
+          sortable: true,
+          tooltip: "Receiving yards",
+        },
+        {
+          key: "avg_yards_per_reception",
+          label: "Y/R",
+          sortable: true,
+          tooltip: "Yards per reception",
+        },
+        {
+          key: "receiving_tds",
+          label: "TD",
+          sortable: true,
+          tooltip: "Receiving touchdowns",
+        },
+        {
+          key: "yards_per_game",
+          label: "Y/G",
+          sortable: true,
+          tooltip: "Receiving yards per game",
+        },
+        {
+          key: "receiving_yards_after_catch",
+          label: "YAC",
+          sortable: true,
+          tooltip: "Yards after catch",
+        },
+        {
+          key: "tgt_sh",
+          label: "Tgt%",
+          sortable: true,
+          tooltip: "Target share",
+        },
+        {
+          key: "ry_sh",
+          label: "Yds%",
+          sortable: true,
+          tooltip: "Receiving yards share",
+        },
+        {
+          key: "dom",
+          label: "DOM",
+          sortable: true,
+          tooltip: "Dominator Rating",
+        },
+        {
+          key: "wopr_x",
+          label: "WOPR",
+          sortable: true,
+          tooltip: "Weighted Opportunity Rating",
+        },
+        {
+          key: "receiving_first_downs",
+          label: "1D",
+          sortable: true,
+          tooltip: "Receiving first downs",
+        },
+        {
+          key: "receiving_epa",
+          label: "EPA",
+          sortable: true,
+          tooltip: "Expected Points Added on receptions",
+        },
+        {
+          key: "racr",
+          label: "RACR",
+          sortable: true,
+          tooltip: "Receiver Air Conversion Ratio",
+        },
+      ],
+      passing: [
+        {
+          key: "rank",
+          label: "Rank",
+          sortable: false,
+          tooltip: "Player's rank based on current sort",
+        },
+        {
+          key: "player_name",
+          label: "Name",
+          sortable: false,
+          tooltip: "Player's name",
+        },
+        {
+          key: "position",
+          label: "Pos",
+          sortable: false,
+          tooltip: "Player's position",
+        },
+        { key: "games", label: "G", sortable: true, tooltip: "Games played" },
+        {
+          key: "completions",
+          label: "Cmp",
+          sortable: true,
+          tooltip: "Completions",
+        },
+        {
+          key: "attempts",
+          label: "Att",
+          sortable: true,
+          tooltip: "Pass attempts",
+        },
+        {
+          key: "passing_yards",
+          label: "Yds",
+          sortable: true,
+          tooltip: "Passing yards",
+        },
+        {
+          key: "passing_tds",
+          label: "TD",
+          sortable: true,
+          tooltip: "Passing touchdowns",
+        },
+        {
+          key: "interceptions",
+          label: "INT",
+          sortable: true,
+          tooltip: "Interceptions thrown",
+        },
+        {
+          key: "yards_per_game",
+          label: "Y/G",
+          sortable: true,
+          tooltip: "Passing yards per game",
+        },
+        {
+          key: "passing_air_yards",
+          label: "AirY",
+          sortable: true,
+          tooltip: "Air yards on completions",
+        },
+        {
+          key: "passing_yards_after_catch",
+          label: "YAC",
+          sortable: true,
+          tooltip: "Yards after catch on completions",
+        },
+        { key: "sacks", label: "Sck", sortable: true, tooltip: "Times sacked" },
+        {
+          key: "sack_yards",
+          label: "SckY",
+          sortable: true,
+          tooltip: "Yards lost on sacks",
+        },
+        {
+          key: "passing_first_downs",
+          label: "1D",
+          sortable: true,
+          tooltip: "Passing first downs",
+        },
+        {
+          key: "passing_epa",
+          label: "EPA",
+          sortable: true,
+          tooltip: "Expected Points Added on pass attempts",
+        },
+        {
+          key: "pacr",
+          label: "PACR",
+          sortable: true,
+          tooltip: "Passing Air Conversion Ratio",
+        },
+      ],
+      rushing: [
+        {
+          key: "rank",
+          label: "Rank",
+          sortable: false,
+          tooltip: "Player's rank based on current sort",
+        },
+        {
+          key: "player_name",
+          label: "Name",
+          sortable: false,
+          tooltip: "Player's name",
+        },
+        {
+          key: "position",
+          label: "Pos",
+          sortable: false,
+          tooltip: "Player's position",
+        },
+        { key: "games", label: "G", sortable: true, tooltip: "Games played" },
+        {
+          key: "carries",
+          label: "Car",
+          sortable: true,
+          tooltip: "Rushing attempts",
+        },
+        {
+          key: "rushing_yards",
+          label: "Yds",
+          sortable: true,
+          tooltip: "Rushing yards",
+        },
+        {
+          key: "avg_yards_per_carry",
+          label: "Y/C",
+          sortable: true,
+          tooltip: "Average yards per carry",
+        },
+        {
+          key: "rushing_tds",
+          label: "TD",
+          sortable: true,
+          tooltip: "Rushing touchdowns",
+        },
+        {
+          key: "yards_per_game",
+          label: "Y/G",
+          sortable: true,
+          tooltip: "Rushing yards per game",
+        },
+        {
+          key: "rushing_epa",
+          label: "EPA",
+          sortable: true,
+          tooltip: "Expected Points Added on rushing attempts",
+        },
+      ],
+    }),
+    []
+  );
 
   const getPositionColor = useCallback((position) => {
     switch (position) {
@@ -555,7 +563,7 @@ const PlayerStatsSeasonal = () => {
                 </Select>
               </div>
               <div className="rounded-md border border-gray-700 overflow-hidden">
-                <ScrollArea className="h-[calc(100vh-300px)]">
+                <div className="w-full overflow-auto max-h-[calc(100vh-100px)]">
                   <Table>
                     <TableHeader className="sticky top-0 z-20 bg-gray-800">
                       <TableRow className="hover:bg-gray-700">
@@ -689,7 +697,7 @@ const PlayerStatsSeasonal = () => {
                       </AnimatePresence>
                     </TableBody>
                   </Table>
-                </ScrollArea>
+                </div>
               </div>
             </CardContent>
           </Card>
