@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import SleeperInput2 from "@/components/fantasy-dashboard/SleeperInput2";
 
-export default function DashboardLayout({ children }) {
+function DashboardLayoutContent({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [username, setUsername] = useState(null);
   const searchParams = useSearchParams();
@@ -152,6 +152,14 @@ export default function DashboardLayout({ children }) {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({ children }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   );
 }
 
