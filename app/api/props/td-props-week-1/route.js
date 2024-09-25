@@ -13,7 +13,7 @@ export async function fetchTouchdownData(week) {
        two_plus_td_odds,
        date_added,
        name,
-       nfl_players (player_name, team, position, headshot_url),
+       nfl_players (player_name, team, position, headshot_url, sleeper_id),
        nfl_schedule (game_id, is_completed, game_date, game_time, gameday, away_team, home_team)`
     )
     .eq("week", week); // Filter by the selected week

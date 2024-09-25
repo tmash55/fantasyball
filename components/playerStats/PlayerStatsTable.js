@@ -32,7 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const PlayerStatsTable = () => {
   const [weekData, setWeekData] = useState([]);
-  const [selectedWeek, setSelectedWeek] = useState("2");
+  const [selectedWeek, setSelectedWeek] = useState("3");
   const [selectedStatType, setSelectedStatType] = useState("passing");
   const [sortConfig, setSortConfig] = useState({
     key: "passing_yards",

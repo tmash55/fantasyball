@@ -129,7 +129,6 @@ const WeeklyFantasyProjections = () => {
 
       // Check if the first character is a minus sign
       const isNegative = odds.charAt(0) === "−";
-      console.log(isNegative);
 
       // Remove the minus sign if it exists
       if (isNegative) {
@@ -296,28 +295,9 @@ const WeeklyFantasyProjections = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen text-gray-100 p-8"
+      className="min-h-screen text-gray-100"
     >
       <main className="space-y-8">
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <h2 className="text-4xl font-bold mb-2">
-            Weekly Fantasy Projections
-          </h2>
-          <p className="text-gray-400 mb-4">
-            Explore comprehensive NFL player projections for each week. Use the
-            filters and sorting options to customize your view and gain valuable
-            insights for your fantasy team.
-          </p>
-          <div className="flex items-center text-sm text-gray-400">
-            <Info className="mr-2 h-4 w-4" />
-            <span>Pro Tip: Click on a player to see detailed projections.</span>
-          </div>
-        </motion.div>
-
         <Card className="w-full bg-gray-800 border-gray-700">
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">

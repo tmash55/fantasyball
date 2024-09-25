@@ -22,7 +22,7 @@ export async function fetchWeekData(week) {
      rushattempts,
      receptionsou, 
      receivingyardsou,
-     nfl_players (player_name, first_name, last_name, team, position, headshot_url),
+     nfl_players (player_name, first_name, last_name, team, position, headshot_url, sleeper_id),
      nfl_schedule (game_id, is_completed, result, game_date, game_time, home_team, away_team)` // Added home_team and away_team to get opponent
     )
     .eq("week", week); // Filter by the selected week

@@ -1,33 +1,30 @@
-import React, { useEffect } from "react";
-import axios from "axios";
-import { createClient } from "@supabase/supabase-js";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUsername } from "../utils/helpers";
+import { createClient } from "@supabase/supabase-js";
+import axios from "axios";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
-const stripSuffix = (name) => {
-  return name.replace(/( Jr\.| Sr\.)$/, "");
-};
+const stripSuffix = (name) => name.replace(/( Jr\.| Sr\.)$/, "");
 
 const fetchPlayerDataFromDatabase = async (playerId) => {
-  if (playerId === 0) return null; // Skip invalid playerId
+  if (playerId === 0) return null;
   const { data, error } = await supabase
     .from("sleeper_players")
     .select("*")
     .eq("player_id", playerId)
     .single();
 
-  if (error || !data) {
+  if (error) {
     console.error(
       `Error fetching player data for player_id ${playerId}:`,
       error
     );
     return null;
   }
-
   return data;
 };
 
@@ -39,11 +36,14 @@ const fetchAdpData = async (firstName, lastName) => {
     .ilike("lastName", `%${lastName}%`)
     .single();
 
-  if (error || !data) {
+  if (error) {
+    console.error(
+      `Error fetching ADP data for ${firstName} ${lastName}:`,
+      error
+    );
     return null;
   }
-
-  return data.adp;
+  return data?.adp;
 };
 
 const fetchsfValue = async (firstName, strippedLastName) => {
@@ -53,14 +53,29 @@ const fetchsfValue = async (firstName, strippedLastName) => {
     .ilike("first_name", firstName)
     .ilike("last_name", `%${strippedLastName}%`)
     .order("date", { ascending: false })
-    .single()
-    .limit(1);
+    .limit(1)
+    .single();
 
-  if (error || !data) {
+  if (error) {
+    console.error(
+      `Error fetching SF value for ${firstName} ${strippedLastName}:`,
+      error
+    );
     return null;
   }
+  return data?.sf_value;
+};
 
-  return data.sf_value;
+const fetchUsername = async (userId) => {
+  try {
+    const response = await axios.get(
+      `https://api.sleeper.app/v1/user/${userId}`
+    );
+    return response.data.username;
+  } catch (error) {
+    console.error(`Error fetching username for user ID ${userId}:`, error);
+    return null;
+  }
 };
 
 const fetchAndCalculateRanks = async ({ queryKey }) => {
@@ -113,10 +128,7 @@ const fetchAndCalculateRanks = async ({ queryKey }) => {
           })
         );
 
-        teamValues.push({
-          username: ownerUsername,
-          totalValue: totalValueSum,
-        });
+        teamValues.push({ username: ownerUsername, totalValue: totalValueSum });
         teamAdps.push({ username: ownerUsername, totalAdp: totalAdpSum });
       })
     );
@@ -143,7 +155,7 @@ const UserRank = ({ leagueId, username, onRankCalculated }) => {
     staleTime: 60000,
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (data && onRankCalculated) {
       onRankCalculated({
         leagueId,
@@ -152,6 +164,9 @@ const UserRank = ({ leagueId, username, onRankCalculated }) => {
       });
     }
   }, [data, onRankCalculated, leagueId]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error calculating rank</div>;
 
   return null;
 };

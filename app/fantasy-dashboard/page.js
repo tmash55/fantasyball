@@ -4,15 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Trophy, Users, Newspaper, Zap, Scale, UserPlus } from "lucide-react";
+import { BarChart, Trophy, Users, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchUserLeaguesAndDetails } from "@/libs/sleeper";
 import WeeklyProjections from "@/components/fantasy-dashboard/WeeklyProjections";
 import OptimizedLineup from "@/components/fantasy-dashboard/OptimizedLineup";
 import UserRank from "@/components/UserRank";
-
 import RecentPlayerNews from "@/components/fantasy-dashboard/RecentPlayerNews";
 import UpcomingMatchups from "@/components/fantasy-dashboard/UpcomingMatchups";
 import TradeAnalyzer from "@/components/fantasy-dashboard/TradeAnalyzer";
@@ -25,6 +23,7 @@ export default function FantasyDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [ranks, setRanks] = useState({});
+
   const searchParams = useSearchParams();
   const username = searchParams.get("username");
 
@@ -44,7 +43,7 @@ export default function FantasyDashboard() {
         try {
           setLoading(true);
           setError(null);
-          const userLeagues = await fetchUserLeaguesAndDetails(username);
+          const userLeagues = await fetchUserLeaguesAndDetails(username, 2024);
           setLeagues(Array.isArray(userLeagues) ? userLeagues : []);
         } catch (err) {
           console.error("Error fetching leagues:", err);
@@ -84,7 +83,15 @@ export default function FantasyDashboard() {
     return null; // The layout will handle showing the SleeperInput
   }
 
-  if (loading) return <div>Loading your fantasy dashboard...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading your fantasy dashboard...</span>
+      </div>
+    );
+  }
+
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -96,16 +103,24 @@ export default function FantasyDashboard() {
       >
         <h1 className="text-3xl font-bold mb-2 uppercase">
           {username}
-          <span className="lowercase">'s Fantasy Dashboard</span>
+          <span className="lowercase">&apos;s Fantasy Dashboard</span>
         </h1>
         <div className="flex items-center space-x-2 mb-6">
-          <div className="badge badge-lg border-transparent bg-neutral text-neutral-foreground hover:bg-neutral/80 text-sm py-1">
-            <Users className="w-4 h-4 mr-1" />
-            {leagues.length} active leagues
-          </div>
+          <Link href={`/fantasy-dashboard/leagues?username=${username}`}>
+            <div className="badge badge-lg border-transparent bg-neutral text-neutral-foreground hover:bg-neutral/80 text-sm py-1 cursor-pointer">
+              <Users className="w-4 h-4 mr-1" />
+              {leagues.length} active leagues
+            </div>
+          </Link>
+          <Link href={`/fantasy-dashboard/exposure?username=${username}`}>
+            <div className="badge badge-lg border-transparent bg-neutral text-neutral-foreground hover:bg-neutral/80 text-sm py-1 cursor-pointer">
+              <BarChart className="w-4 h-4 mr-1" />
+              View Player Exposure
+            </div>
+          </Link>
         </div>
 
-        <LeagueOverview leagues={leagues} ranks={ranks} />
+        <LeagueOverview leaguesData={leagues} />
 
         <Tabs defaultValue="myTeams" className="w-full">
           <TabsList>
