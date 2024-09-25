@@ -16,10 +16,19 @@ export default function LeagueOverview({ leaguesData }) {
     (league) => league.status === "in_season"
   );
   const activeLeaguesCount = activeLeagues.length;
-  const totalRosters = leaguesData.reduce(
-    (sum, league) => sum + league.total_rosters,
-    0
-  );
+
+  // Calculate total unique players across all leagues
+  const uniquePlayers = new Set();
+  leaguesData.forEach((league) => {
+    const userRoster = league.rosters.find(
+      (roster) => roster.owner_id === league.userRoster.owner_id
+    );
+    if (userRoster && userRoster.players) {
+      userRoster.players.forEach((playerId) => uniquePlayers.add(playerId));
+    }
+  });
+  const totalRosters = uniquePlayers.size;
+
   const averageLeagueSize = (totalRosters / totalLeagues).toFixed(1);
 
   let totalWins = 0;
