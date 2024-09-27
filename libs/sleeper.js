@@ -32,6 +32,31 @@ export const fetchWaiverWirePlayers = async (leagueId) => {
   }
 };
 
+export async function getPlayerOpponents(players, currentWeek) {
+  const schedule = await fetchNFLSchedule(currentWeek);
+
+  return players.map((player) => ({
+    ...player,
+    weeklyStats: player.weeklyStats.map((weekStat, index) => ({
+      ...weekStat,
+      opponent: getOpponentForWeek(player.team, index + 1, schedule),
+    })),
+  }));
+}
+
+function getOpponentForWeek(playerTeam, week, schedule) {
+  const weekSchedule = schedule[week];
+  if (!weekSchedule) return "-";
+
+  const matchup = Object.entries(weekSchedule).find(
+    ([home, away]) => home === playerTeam || away === playerTeam
+  );
+
+  if (!matchup) return "-";
+  const [home, away] = matchup;
+  return playerTeam === home ? away : `@${home}`;
+}
+
 export async function fetchMatchups(leagueId, week) {
   try {
     const response = await fetch(

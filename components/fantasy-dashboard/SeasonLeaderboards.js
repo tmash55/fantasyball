@@ -214,7 +214,7 @@ export default function SeasonLeaderboards() {
 
   const getScoreColor = useCallback((points) => {
     if (points === null || points === undefined)
-      return "bg-gray-100 text-gray-400"; // Neutral color for players who haven't played
+      return "bg-base-200 text-gray-400"; // Neutral color for players who haven't played
     if (points >= 25) return "bg-green-500 text-white";
     if (points >= 20) return "bg-green-400 text-white";
     if (points >= 15) return "bg-green-300 text-black";
@@ -229,20 +229,16 @@ export default function SeasonLeaderboards() {
       const weekSchedule = nflSchedule[week];
       if (!weekSchedule) return "-";
 
-      for (const [homeTeam, awayTeam] of Object.entries(weekSchedule)) {
-        if (playerTeam === homeTeam) {
-          return awayTeam;
-        }
-        if (playerTeam === awayTeam) {
-          return `@${homeTeam}`;
-        }
-      }
+      const matchup = Object.entries(weekSchedule).find(
+        ([home, away]) => home === playerTeam || away === playerTeam
+      );
 
-      return "-";
+      if (!matchup) return "-";
+      const [home, away] = matchup;
+      return playerTeam === home ? away : `@${home}`;
     },
     [nflSchedule]
   );
-
   useEffect(() => {
     setSortConfig({
       key:
