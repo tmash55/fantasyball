@@ -40,11 +40,12 @@ import {
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PlayerDetailsRow from "./PlayerDetailsRow";
+import { getCurrentNFLWeek } from "@/libs/sleeper";
 
 const WeeklyFantasyProjections = () => {
   const [weekData, setWeekData] = useState([]);
   const [touchdownData, setTouchdownData] = useState([]);
-  const [selectedWeek, setSelectedWeek] = useState("3");
+  const [selectedWeek, setSelectedWeek] = useState(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
   const [selectedPosition, setSelectedPosition] = useState("All");
   const [sortConfig, setSortConfig] = useState({
@@ -61,7 +62,23 @@ const WeeklyFantasyProjections = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const initializeWeek = async () => {
+      try {
+        const currentWeek = await getCurrentNFLWeek();
+        setSelectedWeek(currentWeek.toString());
+      } catch (err) {
+        console.error("Error fetching current NFL week:", err);
+        setSelectedWeek("1"); // Default to week 1 if there's an error
+      }
+    };
+
+    initializeWeek();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
+      if (!selectedWeek) return; // Don't fetch if selectedWeek is not set yet
+
       setLoading(true);
       setError(null);
       try {
@@ -403,13 +420,9 @@ const WeeklyFantasyProjections = () => {
                       <TableHead className="w-[100px]">Rank</TableHead>
                       <TableHead>Player</TableHead>
                       <TableHead>Opponent</TableHead>
-                      <TableHead
-                        className="text-right cursor-pointer"
-                        onClick={() => handleSort("fantasy_points")}
-                      >
+                      <TableHead className="text-right cursor-pointer">
                         <div className="flex items-center justify-end">
                           Fantasy Points
-                          <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                         </div>
                       </TableHead>
                     </TableRow>

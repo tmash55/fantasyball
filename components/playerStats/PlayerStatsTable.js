@@ -29,10 +29,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getCurrentNFLWeek } from "@/libs/sleeper";
 
 const PlayerStatsTable = () => {
   const [weekData, setWeekData] = useState([]);
-  const [selectedWeek, setSelectedWeek] = useState("3");
+  const [selectedWeek, setSelectedWeek] = useState(null);
   const [selectedStatType, setSelectedStatType] = useState("passing");
   const [sortConfig, setSortConfig] = useState({
     key: "passing_yards",
@@ -42,10 +43,29 @@ const PlayerStatsTable = () => {
   const [selectedTeam, setSelectedTeam] = useState("All");
   const [teams, setTeams] = useState(["All"]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const initializeWeek = async () => {
+      try {
+        const currentWeek = await getCurrentNFLWeek();
+        setSelectedWeek(currentWeek.toString());
+      } catch (err) {
+        console.error("Error fetching current NFL week:", err);
+        setSelectedWeek("1"); // Default to week 1 if there's an error
+        setError("Failed to fetch current NFL week. Using default week 1.");
+      }
+    };
+
+    initializeWeek();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!selectedWeek) return; // Don't fetch if selectedWeek is not set yet
+
       setIsLoading(true);
+      setError(null);
       try {
         const { data, error } = await supabase
           .from("player_weekly_stats")

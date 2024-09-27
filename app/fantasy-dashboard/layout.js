@@ -11,6 +11,9 @@ import {
   Menu,
   ChevronRight,
   X,
+  GitCompare,
+  Trophy,
+  LineChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -107,23 +110,30 @@ function DashboardLayoutContent({ children }) {
               onClick={toggleSidebar}
             />
             <NavItem
-              href={`/fantasy-dashboard/player-comparison?username=${username}`}
-              icon={<BarChart2 className="h-5 w-5" />}
-              text="Player Comparison"
-              isOpen={isSidebarOpen}
-              onClick={toggleSidebar}
-            />
-            <NavItem
-              href={`/fantasy-dashboard/rankings?username=${username}`}
-              icon={<BarChart2 className="h-5 w-5" />}
-              text="Rankings"
-              isOpen={isSidebarOpen}
-              onClick={toggleSidebar}
-            />
-            <NavItem
               href={`/fantasy-dashboard/leagues?username=${username}`}
               icon={<Users className="h-5 w-5" />}
               text="My Leagues"
+              isOpen={isSidebarOpen}
+              onClick={toggleSidebar}
+            />
+            <NavItem
+              href={`/fantasy-dashboard/projections?username=${username}`}
+              icon={<LineChart className="h-5 w-5" />}
+              text="Weekly Projections"
+              isOpen={isSidebarOpen}
+              onClick={toggleSidebar}
+            />
+            <NavItem
+              href={`/fantasy-dashboard/leaderboard?username=${username}`}
+              icon={<Trophy className="h-5 w-5" />}
+              text="Season Leaderboards"
+              isOpen={isSidebarOpen}
+              onClick={toggleSidebar}
+            />
+            <NavItem
+              href={`/fantasy-dashboard/player-comparison?username=${username}`}
+              icon={<GitCompare className="h-5 w-5" />}
+              text="Player Comparison"
               isOpen={isSidebarOpen}
               onClick={toggleSidebar}
             />
@@ -166,6 +176,7 @@ export default function DashboardLayout({ children }) {
 function NavItem({ href, icon, text, isOpen, onClick }) {
   return (
     <Link
+      scroll={true}
       href={href}
       className={`flex items-center py-3 px-4 text-gray-300 hover:bg-[#2c2c2c] hover:text-white transition-colors duration-200 ${
         isOpen ? "justify-start" : "justify-center"

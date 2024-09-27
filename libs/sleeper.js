@@ -47,6 +47,47 @@ export async function fetchMatchups(leagueId, week) {
     throw error;
   }
 }
+export async function fetchPlayerSeasonalStatsOnly() {
+  const { data, error } = await supabase
+    .from("player_seasonal_stats")
+    .select(
+      `
+      player_id,
+      fantasy_points,
+      fantasy_points_ppr,
+      games,
+      nfl_players (
+        sleeper_id,
+        player_name,
+        team,
+        position, 
+        headshot_url
+      )
+    `
+    )
+    .order("fantasy_points_ppr", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching player stats:", error);
+    return [];
+  }
+
+  return data.map((player) => ({
+    id: player.nfl_players.sleeper_id,
+    name: player.nfl_players.player_name,
+    team: player.nfl_players.team,
+    games: player.games,
+    position: player.nfl_players.position,
+    headshot_url: player.nfl_players.headshot_url,
+    totalPointsPPR: player.fantasy_points_ppr,
+    totalPointsStandard: player.fantasy_points,
+    gamesPlayed: player.games,
+    averagePointsPPR:
+      player.games > 0 ? player.fantasy_points_ppr / player.games : 0,
+    averagePointsStandard:
+      player.games > 0 ? player.fantasy_points / player.games : 0,
+  }));
+}
 
 export async function fetchPlayerSeasonalStats(playerIds, leagueSettings) {
   try {
@@ -86,6 +127,8 @@ export async function fetchPlayerSeasonalStats(playerIds, leagueSettings) {
         sack_yards,
         attempts,
         completions,
+        fantasy_points_ppr,
+        fantasy_points,
         yptmpa,
         nfl_players (
           sleeper_id,
@@ -127,6 +170,7 @@ export async function fetchPlayerSeasonalStats(playerIds, leagueSettings) {
             interceptions: stats.interceptions || 0,
             fumblesLost: stats.fumbles_lost || 0,
             twoPointConversions: stats.two_point_conversions || 0,
+            fantasy_points_ppr: stats.fantasy_points_ppr || 0,
 
             // New fields
             targets: stats.targets || 0,
@@ -292,6 +336,46 @@ export async function fetchPlayerNames(playerIds) {
     console.error("Error fetching player names:", error);
     return {};
   }
+}
+export async function fetchNFLSchedule(currentWeek) {
+  try {
+    const schedules = await Promise.all(
+      Array.from({ length: currentWeek }, (_, i) => i + 1).map((week) =>
+        supabase.from("nfl_schedule").select("*").eq("week", week)
+      )
+    );
+
+    return schedules.reduce((acc, weekSchedule, index) => {
+      acc[index + 1] = weekSchedule.data.reduce((weekAcc, game) => {
+        weekAcc[game.home_team] = game.away_team;
+        weekAcc[game.away_team] = game.home_team;
+        return weekAcc;
+      }, {});
+      return acc;
+    }, {});
+  } catch (error) {
+    console.error("Error fetching NFL schedule:", error);
+    return {};
+  }
+}
+export async function getOpponents(week) {
+  const { data, error } = await supabase
+    .from("nfl_schedule")
+    .select("week, home_team, away_team")
+    .eq("week", week);
+
+  if (error) {
+    console.error("Error fetching opponents:", error);
+    return null;
+  }
+
+  const opponentMap = {};
+  data.forEach((game) => {
+    opponentMap[game.home_team] = game.away_team;
+    opponentMap[game.away_team] = game.home_team;
+  });
+
+  return opponentMap;
 }
 export async function fetchPlayerDetails(playerIds) {
   try {
