@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Table,
   TableBody,
@@ -9,6 +10,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const LeagueRankings = ({ league }) => {
+  const userRosterId = league.userRoster?.owner_id;
+
   return (
     <Table>
       <TableHeader>
@@ -27,7 +30,7 @@ const LeagueRankings = ({ league }) => {
             <TableRow
               key={roster.roster_id}
               className={
-                roster.owner_id === league.userRoster.owner_id
+                userRosterId && roster.owner_id === userRosterId
                   ? "font-bold"
                   : ""
               }

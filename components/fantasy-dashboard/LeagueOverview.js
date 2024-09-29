@@ -20,11 +20,13 @@ export default function LeagueOverview({ leaguesData }) {
   // Calculate total unique players across all leagues
   const uniquePlayers = new Set();
   leaguesData.forEach((league) => {
-    const userRoster = league.rosters.find(
-      (roster) => roster.owner_id === league.userRoster.owner_id
-    );
-    if (userRoster && userRoster.players) {
-      userRoster.players.forEach((playerId) => uniquePlayers.add(playerId));
+    if (league.userRoster && league.userRoster.owner_id) {
+      const userRoster = league.rosters.find(
+        (roster) => roster.owner_id === league.userRoster.owner_id
+      );
+      if (userRoster && userRoster.players) {
+        userRoster.players.forEach((playerId) => uniquePlayers.add(playerId));
+      }
     }
   });
   const totalRosters = uniquePlayers.size;
@@ -38,23 +40,25 @@ export default function LeagueOverview({ leaguesData }) {
   let bestLeagueWinRate = 0;
 
   activeLeagues.forEach((league) => {
-    const userRoster = league.rosters.find(
-      (roster) => roster.owner_id === league.userRoster.owner_id
-    );
-    if (userRoster && userRoster.settings) {
-      const wins = userRoster.settings.wins || 0;
-      const losses = userRoster.settings.losses || 0;
-      const ties = userRoster.settings.ties || 0;
-      const games = wins + losses + ties;
-      const winRate = games > 0 ? wins / games : 0;
+    if (league.userRoster && league.userRoster.owner_id) {
+      const userRoster = league.rosters.find(
+        (roster) => roster.owner_id === league.userRoster.owner_id
+      );
+      if (userRoster && userRoster.settings) {
+        const wins = userRoster.settings.wins || 0;
+        const losses = userRoster.settings.losses || 0;
+        const ties = userRoster.settings.ties || 0;
+        const games = wins + losses + ties;
+        const winRate = games > 0 ? wins / games : 0;
 
-      totalWins += wins;
-      totalGames += games;
-      totalPoints += userRoster.settings.fpts || 0;
+        totalWins += wins;
+        totalGames += games;
+        totalPoints += userRoster.settings.fpts || 0;
 
-      if (winRate > bestLeagueWinRate) {
-        bestLeagueWinRate = winRate;
-        bestLeague = league;
+        if (winRate > bestLeagueWinRate) {
+          bestLeagueWinRate = winRate;
+          bestLeague = league;
+        }
       }
     }
   });

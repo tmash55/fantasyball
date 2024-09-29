@@ -2,6 +2,11 @@ import React from "react";
 import { Users, Settings, Trophy, Target, Zap, Clipboard } from "lucide-react";
 
 const LeagueSettings = ({ league }) => {
+  const userRoster = league.userRoster;
+  const userRecord = getUserRecord(league);
+  const currentRank = getCurrentRank(league);
+  const playoffChance = calculatePlayoffChance(league);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -40,33 +45,38 @@ const LeagueSettings = ({ league }) => {
             </div>
           </div>
         </div>
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Your Team</h3>
-          <div className="space-y-2">
-            <div>Record: {getUserRecord(league)}</div>
-            <div>Playoff Chance: {calculatePlayoffChance(league)}%</div>
-            <div>
-              Current Rank: {getCurrentRank(league)} / {league.total_rosters}
-            </div>
-          </div>
-          <div className="mt-4 pt-2 border-t border-primary/20">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <Target className="h-4 w-4 mr-2 text-primary/60" />
-                <span className="text-sm font-medium">Playoff Chance:</span>
+        {userRoster ? (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Your Team</h3>
+            <div className="space-y-2">
+              <div>Record: {userRecord}</div>
+              <div>Playoff Chance: {playoffChance}%</div>
+              <div>
+                Current Rank: {currentRank} / {league.total_rosters}
               </div>
-              <span className="text-sm font-bold">
-                {calculatePlayoffChance(league)}%
-              </span>
             </div>
-            <div className="w-full bg-primary/20 rounded-full h-2 mt-2">
-              <div
-                className="bg-primary h-2 rounded-full"
-                style={{ width: `${calculatePlayoffChance(league)}%` }}
-              />
+            <div className="mt-4 pt-2 border-t border-primary/20">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <Target className="h-4 w-4 mr-2 text-primary/60" />
+                  <span className="text-sm font-medium">Playoff Chance:</span>
+                </div>
+                <span className="text-sm font-bold">{playoffChance}%</span>
+              </div>
+              <div className="w-full bg-primary/20 rounded-full h-2 mt-2">
+                <div
+                  className="bg-primary h-2 rounded-full"
+                  style={{ width: `${playoffChance}%` }}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Your Team</h3>
+            <p>No user roster data available</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -97,6 +107,7 @@ const getUserRecord = (league) => {
 };
 
 const getCurrentRank = (league) => {
+  if (!league.userRoster) return "N/A";
   return (
     league.rosters
       .sort((a, b) => (b.settings?.wins || 0) - (a.settings?.wins || 0))
