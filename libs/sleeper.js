@@ -32,6 +32,54 @@ export const fetchWaiverWirePlayers = async (leagueId) => {
   }
 };
 
+export async function getPlayerInfo(sleeperId) {
+  try {
+    // First, try to fetch from nfl_players table
+    let { data, error } = await supabase
+      .from("nfl_players")
+      .select("player_name, team, position")
+      .eq("sleeper_id", sleeperId);
+
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      return formatPlayerInfo(data[0]);
+    } else {
+      // If not found in nfl_players, try sleeper_players table
+      ({ data, error } = await supabase
+        .from("sleeper_players")
+        .select("first_name, last_name, team, position")
+        .eq("player_id", sleeperId));
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const playerInfo = {
+          player_name: `${data[0].first_name} ${data[0].last_name}`.trim(),
+          team: data[0].team,
+          position: data[0].position,
+        };
+        return formatPlayerInfo(playerInfo);
+      } else {
+        console.warn(
+          `No player found for sleeper_id: ${sleeperId} in either table`
+        );
+        return { player_name: "Unknown Player", team: "N/A", position: "N/A" };
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching player info:", error);
+    return { player_name: "Unknown Player", team: "N/A", position: "N/A" };
+  }
+}
+
+function formatPlayerInfo(playerInfo) {
+  if (playerInfo.position === "DEF") {
+    playerInfo.player_name = `${playerInfo.player_name} D/ST`;
+  }
+  return playerInfo;
+}
+
 export async function getPlayerOpponents(players, currentWeek) {
   const schedule = await fetchNFLSchedule(currentWeek);
 

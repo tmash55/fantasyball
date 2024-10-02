@@ -42,6 +42,16 @@ export default function SeasonLeaderboards() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [nflSchedule, setNFLSchedule] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const fetchCurrentWeekAndPlayers = useCallback(async () => {
     try {
@@ -214,14 +224,14 @@ export default function SeasonLeaderboards() {
 
   const getScoreColor = useCallback((points) => {
     if (points === null || points === undefined)
-      return "bg-base-200 text-gray-400"; // Neutral color for players who haven't played
+      return "bg-base-200 text-gray-400";
     if (points >= 25) return "bg-green-500 text-white";
     if (points >= 20) return "bg-green-400 text-white";
     if (points >= 15) return "bg-green-300 text-black";
     if (points >= 10) return "bg-yellow-300 text-black";
     if (points >= 5) return "bg-orange-200 text-black";
     if (points > 0) return "bg-red-400 text-black";
-    return "bg-red-500 text-white"; // Only use red for negative or zero points
+    return "bg-red-500 text-white";
   }, []);
 
   const getOpponent = useCallback(
@@ -239,6 +249,7 @@ export default function SeasonLeaderboards() {
     },
     [nflSchedule]
   );
+
   useEffect(() => {
     setSortConfig({
       key:
@@ -255,7 +266,7 @@ export default function SeasonLeaderboards() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">
-          Season Leaderboards (Week {currentWeek})
+          Season Leaderboards
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -292,16 +303,19 @@ export default function SeasonLeaderboards() {
             </SelectContent>
           </Select>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[calc(100vh-100px)]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[50px]">
+                <TableHead
+                  className={`w-[50px] ${isMobile ? "px-1 text-xs" : "px-4"}`}
+                >
                   <Button
                     variant="ghost"
                     onClick={() => handleSort("overallRank")}
+                    className={isMobile ? "px-0 text-xs" : ""}
                   >
-                    Overall Rank
+                    {isMobile ? "Rank" : "Overall Rank"}
                     {sortConfig.key === "overallRank" &&
                       (sortConfig.direction === "asc" ? (
                         <ChevronUpIcon className="h-4 w-4 ml-1" />
@@ -310,10 +324,16 @@ export default function SeasonLeaderboards() {
                       ))}
                   </Button>
                 </TableHead>
-                <TableHead>Player</TableHead>
-                <TableHead>
-                  <Button variant="ghost" onClick={() => handleSort("posRank")}>
-                    Pos Rank
+                <TableHead className={isMobile ? "px-1 text-xs" : "px-4"}>
+                  Player
+                </TableHead>
+                <TableHead className={isMobile ? "px-1 text-xs" : "px-4"}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleSort("posRank")}
+                    className={isMobile ? "px-0 text-xs" : ""}
+                  >
+                    {isMobile ? "Pos. Rank" : "Position Rank"}
                     {sortConfig.key === "posRank" &&
                       (sortConfig.direction === "asc" ? (
                         <ChevronUpIcon className="h-4 w-4 ml-1" />
@@ -322,7 +342,7 @@ export default function SeasonLeaderboards() {
                       ))}
                   </Button>
                 </TableHead>
-                <TableHead>
+                <TableHead className={isMobile ? "px-1 text-xs" : "px-4"}>
                   <Button
                     variant="ghost"
                     onClick={() =>
@@ -334,6 +354,7 @@ export default function SeasonLeaderboards() {
                           : "averagePointsStandard"
                       )
                     }
+                    className={isMobile ? "px-0 text-xs" : ""}
                   >
                     PPG{" "}
                     <span className="text-xs text-gray-500 ml-1">(games)</span>
@@ -350,7 +371,7 @@ export default function SeasonLeaderboards() {
                       ))}
                   </Button>
                 </TableHead>
-                <TableHead>
+                <TableHead className={isMobile ? "px-1 text-xs" : "px-4"}>
                   <Button
                     variant="ghost"
                     onClick={() =>
@@ -362,6 +383,7 @@ export default function SeasonLeaderboards() {
                           : "totalPointsStandard"
                       )
                     }
+                    className={isMobile ? "px-0 text-xs" : ""}
                   >
                     Total
                     {sortConfig.key ===
@@ -377,86 +399,107 @@ export default function SeasonLeaderboards() {
                       ))}
                   </Button>
                 </TableHead>
-                {Array.from({ length: currentWeek }, (_, i) => i + 1).map(
-                  (week) => (
-                    <TableHead key={week}>Week {week}</TableHead>
-                  )
-                )}
+                {!isMobile &&
+                  Array.from({ length: currentWeek }, (_, i) => i + 1).map(
+                    (week) => <TableHead key={week}>Week {week}</TableHead>
+                  )}
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5 + currentWeek} className="text-center">
+                  <TableCell
+                    colSpan={5 + (isMobile ? 0 : currentWeek)}
+                    className="text-center"
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredPlayers.map((player) => (
                   <TableRow key={player.id || `${player.name}-${player.team}`}>
-                    <TableCell className="font-medium">
+                    <TableCell
+                      className={`font-medium ${
+                        isMobile ? "px-1 text-xs" : "px-4"
+                      }`}
+                    >
                       {getOverallRank(player)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={isMobile ? "px-1" : "px-4"}>
                       <div className="flex items-center space-x-2">
-                        <div className="relative w-10 h-10 overflow-hidden rounded-full">
-                          <Avatar className="w-full h-full">
-                            <AvatarImage
-                              src={player?.headshot_url || "/placeholder.svg"}
-                              alt={player?.name || "Player"}
-                              className="object-cover"
-                            />
-                            <AvatarFallback>
-                              {player?.name?.charAt(0) || "?"}
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
+                        {!isMobile && (
+                          <div className="relative w-10 h-10 overflow-hidden rounded-full">
+                            <Avatar className="w-full h-full">
+                              <AvatarImage
+                                src={player?.headshot_url || "/placeholder.svg"}
+                                alt={player?.name || "Player"}
+                                className="object-cover"
+                              />
+                              <AvatarFallback>
+                                {player?.name?.charAt(0) || "?"}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                        )}
                         <div>
-                          <div className="font-semibold">{player.name}</div>
-                          <div className="text-sm text-gray-500">
+                          <div
+                            className={`font-semibold ${
+                              isMobile ? "text-xs" : ""
+                            }`}
+                          >
+                            {player.name}
+                          </div>
+                          <div
+                            className={`text-gray-500 ${
+                              isMobile ? "text-xs" : "text-sm"
+                            }`}
+                          >
                             {player.team} ({player.position})
                           </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={isMobile ? "px-1 text-xs" : "px-4"}>
                       {player.position}
                       {getPosRank(player)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={isMobile ? "px-1 text-xs" : "px-4"}>
                       {getAveragePoints(player).toFixed(1)}
                       <span className="text-xs text-gray-500 ml-1">
                         ({player.games})
                       </span>
                     </TableCell>
-                    <TableCell>{getTotalPoints(player).toFixed(1)}</TableCell>
-                    {player.weeklyStats.map((weekStats, index) => {
-                      const points = getWeeklyPoints(weekStats);
-                      const posRank = getWeeklyPosRank(weekStats);
-                      return (
-                        <TableCell
-                          key={index}
-                          className={`${getScoreColor(points)} p-0`}
-                        >
-                          {points !== null && points !== undefined ? (
-                            <div className="p-2">
-                              <div className="font-bold">
-                                {points.toFixed(1)}
+                    <TableCell className={isMobile ? "px-1 text-xs" : "px-4"}>
+                      {getTotalPoints(player).toFixed(1)}
+                    </TableCell>
+                    {!isMobile &&
+                      player.weeklyStats.map((weekStats, index) => {
+                        const points = getWeeklyPoints(weekStats);
+                        const posRank = getWeeklyPosRank(weekStats);
+                        return (
+                          <TableCell
+                            key={index}
+                            className={`${getScoreColor(points)} p-0`}
+                          >
+                            {points !== null && points !== undefined ? (
+                              <div className="p-2">
+                                <div className="font-bold">
+                                  {points.toFixed(1)}
+                                </div>
+                                <div className="text-xs">
+                                  {player.position}
+                                  {posRank || "-"}
+                                </div>
+                                <div className="text-xs">
+                                  {weekStats.opponent}
+                                </div>
                               </div>
-                              <div className="text-xs">
-                                {player.position}
-                                {posRank || "-"}
-                              </div>
-                              <div className="text-xs">
-                                {weekStats.opponent}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="p-2">-</div>
-                          )}
-                        </TableCell>
-                      );
-                    })}
+                            ) : (
+                              <div className="p-2">-</div>
+                            )}
+                          </TableCell>
+                        );
+                      })}
                   </TableRow>
                 ))
               )}

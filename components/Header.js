@@ -131,7 +131,9 @@ const Header = () => {
                 className="w-8 h-8"
                 priority
               />
-              <span className="font-extrabold text-lg">{config.appName}</span>
+              <span className="font-extrabold text-lg text-gray-300">
+                {config.appName}
+              </span>
             </Link>
           </div>
           <div className="hidden md:flex md:items-center md:space-x-6">

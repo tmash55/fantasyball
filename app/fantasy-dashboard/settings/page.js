@@ -88,6 +88,7 @@ export default function SettingsPage() {
                   id="darkMode"
                   checked={darkMode}
                   onCheckedChange={setDarkMode}
+                  className="bg-primary"
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -118,7 +119,9 @@ export default function SettingsPage() {
           <Button variant="outline" onClick={() => router.back()}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} className="text-base-200">
+            Save Changes
+          </Button>
         </CardFooter>
       </Card>
     </div>

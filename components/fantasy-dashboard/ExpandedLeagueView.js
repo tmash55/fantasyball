@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +32,7 @@ const ExpandedLeagueView = ({ league, onBackClick, username }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isMobile, setIsMobile] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(1);
+  const componentRef = useRef(null);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -53,6 +54,14 @@ const ExpandedLeagueView = ({ league, onBackClick, username }) => {
     fetchCurrentWeek();
 
     window.addEventListener("resize", checkIsMobile);
+
+    // Scroll to the top of this component when it mounts
+    if (componentRef.current) {
+      componentRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
 
     return () => {
       window.removeEventListener("resize", checkIsMobile);
@@ -154,7 +163,10 @@ const ExpandedLeagueView = ({ league, onBackClick, username }) => {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div
+      className="container mx-auto py-6 px-4 sm:px-6 lg:px-8"
+      ref={componentRef}
+    >
       <Button onClick={onBackClick} className="mb-4" variant="outline">
         <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Leagues
       </Button>
@@ -200,7 +212,9 @@ const ExpandedLeagueView = ({ league, onBackClick, username }) => {
                       currentUsername={username}
                     />
                   )}
-                  {activeTab === "waiver" && <WaiverWire league={league} />}
+                  {activeTab === "waiver" && (
+                    <WaiverWire leagueId={league.league_id} />
+                  )}
                   {activeTab === "rankings" && (
                     <LeagueRankings league={league} />
                   )}

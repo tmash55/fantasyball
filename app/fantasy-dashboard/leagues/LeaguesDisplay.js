@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Trophy, Target } from "lucide-react";
@@ -53,6 +53,7 @@ const LeaguesDisplay = ({ initialLeagues, username }) => {
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const years = [2024, 2023, 2022, 2021, 2020];
+  const topRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -84,18 +85,29 @@ const LeaguesDisplay = ({ initialLeagues, username }) => {
     fetchLeaguesForYear();
   }, [username, selectedYear, categorizeLeagues]);
 
+  useEffect(() => {
+    if (expandedLeague && topRef.current) {
+      const yOffset = -60; // Adjust this value based on your layout (e.g., fixed header height)
+      const y =
+        topRef.current.getBoundingClientRect().top +
+        window.pageYOffset +
+        yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  }, [expandedLeague]);
+
   const handleYearChange = (year) => {
     setSelectedYear(parseInt(year));
     setExpandedLeague(null);
   };
 
-  const handleLeagueClick = (league) => {
+  const handleLeagueClick = useCallback((league) => {
     setExpandedLeague(league);
-  };
+  }, []);
 
-  const handleBackClick = () => {
+  const handleBackClick = useCallback(() => {
     setExpandedLeague(null);
-  };
+  }, []);
 
   const renderLeagueCards = (leagueList, title) => {
     if (leagueList.length === 0) return null;
@@ -257,7 +269,7 @@ const LeaguesDisplay = ({ initialLeagues, username }) => {
   ].filter((leagueType) => leagues[leagueType.type].length > 0);
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10" ref={topRef}>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-primary">
           Leagues for {username}

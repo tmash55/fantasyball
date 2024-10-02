@@ -16,6 +16,8 @@ import UpcomingMatchups from "@/components/fantasy-dashboard/UpcomingMatchups";
 import TradeAnalyzer from "@/components/fantasy-dashboard/TradeAnalyzer";
 import WaiverWireSuggestions from "@/components/fantasy-dashboard/WaiverWireSuggestions";
 import LeagueOverview from "@/components/fantasy-dashboard/LeagueOverview";
+import WeeklyFantasyProjections from "@/components/playerProjections/WeeklyFantasyProjections";
+import SeasonLeaderboards from "@/components/fantasy-dashboard/SeasonLeaderboards";
 
 export default function FantasyDashboard() {
   const [leagues, setLeagues] = useState([]);
@@ -125,11 +127,7 @@ export default function FantasyDashboard() {
         <Tabs defaultValue="myTeams" className="w-full">
           <TabsList>
             <TabsTrigger value="myTeams">My Teams</TabsTrigger>
-            <TabsTrigger value="playerNews">Player News</TabsTrigger>
-            <TabsTrigger value="upcomingMatchups">
-              Upcoming Matchups
-            </TabsTrigger>
-            <TabsTrigger value="tradeAnalyzer">Trade Analyzer</TabsTrigger>
+
             <TabsTrigger value="waiverWire">Waiver Wire</TabsTrigger>
           </TabsList>
 
@@ -156,7 +154,7 @@ export default function FantasyDashboard() {
                         <motion.tr key={league.league_id} className="hover">
                           <td className="hover:text-primary">
                             <Link
-                              href={`/dashboard/leagues/${league.league_id}?username=${username}`}
+                              href={`/fantasy-dashboard/leagues?username=${username}`}
                             >
                               <span className="">{league.name}</span>
                             </Link>
@@ -264,26 +262,14 @@ export default function FantasyDashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="playerNews">
-            <RecentPlayerNews leagues={leagues} />
-          </TabsContent>
-
-          <TabsContent value="upcomingMatchups">
-            <UpcomingMatchups leagues={leagues} />
-          </TabsContent>
-
-          <TabsContent value="tradeAnalyzer">
-            <TradeAnalyzer leagues={leagues} />
-          </TabsContent>
-
           <TabsContent value="waiverWire">
             <WaiverWireSuggestions leagues={leagues} />
           </TabsContent>
         </Tabs>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <WeeklyProjections />
-          <OptimizedLineup />
+          <WeeklyFantasyProjections />
+          <SeasonLeaderboards />
         </div>
       </motion.div>
     </div>
