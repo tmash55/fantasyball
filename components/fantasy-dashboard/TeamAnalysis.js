@@ -406,7 +406,7 @@ const TeamAnalysis = ({ league, username }) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{username}'s Team Analysis</CardTitle>
+          <CardTitle>{username}&apos;s Team Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <PlayerTable
@@ -427,7 +427,7 @@ const TeamAnalysis = ({ league, username }) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>${username}'s Team Analysis</CardTitle>
+          <CardTitle>${username}&apos;s Team Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-lg text-red-500">{error}</p>
@@ -440,7 +440,7 @@ const TeamAnalysis = ({ league, username }) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{username}'s Team Analysis</CardTitle>
+          <CardTitle>{username}&apos;s Team Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-lg">No lineup available</p>
@@ -453,7 +453,7 @@ const TeamAnalysis = ({ league, username }) => {
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <Card>
         <CardHeader>
-          <CardTitle>{username}'s Team Analysis</CardTitle>
+          <CardTitle>{username}&apos;s Team Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 md:space-y-6 overflow-auto h-full pr-2 md:pr-4">
