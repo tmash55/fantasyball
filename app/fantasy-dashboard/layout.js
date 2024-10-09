@@ -117,6 +117,7 @@ function DashboardLayoutContent({ children }) {
         icon: <GitCompare className="h-5 w-5" />,
         text: "Player Comparison",
       },
+
       {
         href: `/fantasy-dashboard/settings?username=${username}`,
         icon: <Settings className="h-5 w-5" />,

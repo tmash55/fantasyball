@@ -354,10 +354,38 @@ export async function fetchLeagueName(leagueId) {
   const data = await fetchWithRetry(url);
   return data.name;
 }
+export async function fetchLeagueRostersForEachTeam(leagueId) {
+  try {
+    const response = await fetch(
+      `https://api.sleeper.app/v1/league/${leagueId}/rosters`
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching league rosters:", error);
+    throw error;
+  }
+}
 
 export async function fetchLeagueRosters(leagueId) {
   const url = `${BASE_URL}/league/${leagueId}/rosters`;
   return fetchWithRetry(url);
+}
+//Used for league specific waiver wire
+export async function fetchAllLeagueRosters(leagueId) {
+  const url = `${BASE_URL}/league/${leagueId}/rosters`;
+  const rosters = await fetchWithRetry(url);
+
+  // Combine all rostered players into a single Set for efficient lookup
+  const rosteredPlayers = new Set();
+  rosters.forEach((roster) => {
+    roster.players.forEach((playerId) => rosteredPlayers.add(playerId));
+  });
+
+  return rosteredPlayers;
 }
 
 export async function fetchLeagueUsers(leagueId) {
@@ -392,7 +420,7 @@ export async function fetchPlayerNames(playerIds) {
       // Fetch missing players from sleeper_players table
       let { data: sleeperPlayers, error: sleeperError } = await supabase
         .from("sleeper_players")
-        .select("player_id, first_name, last_name")
+        .select("player_id, first_name, last_name, team, position")
         .in("player_id", missingPlayerIds);
 
       if (sleeperError) throw sleeperError;
@@ -580,6 +608,20 @@ export async function fetchUserLeaguesAndDetails(username, season) {
 
   return leaguesWithDetails;
 }
+export async function fetchPlayerStatsAPI() {
+  try {
+    const response = await fetch(
+      "https://api.sleeper.app/v1/stats/nfl/regular/2024?season_type=idp&position=all"
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching player stats:", error);
+    throw error;
+  }
+}
 export async function fetchPlayerStats(
   playerIds,
   leagueSettings,
@@ -589,7 +631,7 @@ export async function fetchPlayerStats(
     // Fetch player details for all players
     const playerDetails = await fetchPlayerDetails(playerIds);
 
-    // Fetch the seasonal stats
+    // Fetch the seasonal stats from your database
     let { data: seasonalStats, error } = await supabase
       .from("player_seasonal_stats")
       .select(
@@ -625,9 +667,21 @@ export async function fetchPlayerStats(
 
     if (error) throw error;
 
+    // Fetch data from Sleeper API
+    const currentYear = new Date().getFullYear();
+    const sleeperResponse = await fetch(
+      `https://api.sleeper.app/v1/stats/nfl/regular/${currentYear}?season_type=regular&position=ALL`
+    );
+
+    if (!sleeperResponse.ok) {
+      throw new Error("Failed to fetch player stats from Sleeper API");
+    }
+
+    const sleeperStats = await sleeperResponse.json();
+
     const playerStats = {};
 
-    // Process seasonal stats
+    // Process seasonal stats and combine with Sleeper data
     seasonalStats.forEach((stats) => {
       if (stats.nfl_players && stats.nfl_players.sleeper_id) {
         const sleeperId = stats.nfl_players.sleeper_id;
@@ -636,6 +690,8 @@ export async function fetchPlayerStats(
           leagueSettings,
           scoringSystem
         );
+        const sleeperPlayerStats = sleeperStats[sleeperId] || {};
+
         playerStats[sleeperId] = {
           ...calculatedStats,
           playerDetails: {
@@ -660,6 +716,9 @@ export async function fetchPlayerStats(
             rushingFumblesLost: stats.rushing_fumbles_lost || 0,
             receivingFumblesLost: stats.receiving_fumbles_lost || 0,
           },
+          pos_rank: sleeperPlayerStats.pos_rank,
+          pos_rank_ppr: sleeperPlayerStats.pos_rank_ppr,
+          pos_rank_half_ppr: sleeperPlayerStats.pos_rank_half_ppr,
         };
       }
     });
@@ -667,6 +726,7 @@ export async function fetchPlayerStats(
     // Add entries for all players, including those with no stats
     playerIds.forEach((id) => {
       if (!playerStats[id]) {
+        const sleeperPlayerStats = sleeperStats[id] || {};
         playerStats[id] = {
           totalPoints: 0,
           averagePoints: 0,
@@ -693,6 +753,9 @@ export async function fetchPlayerStats(
             rushingFumblesLost: 0,
             receivingFumblesLost: 0,
           },
+          pos_rank: sleeperPlayerStats.pos_rank,
+          pos_rank_ppr: sleeperPlayerStats.pos_rank_ppr,
+          pos_rank_half_ppr: sleeperPlayerStats.pos_rank_half_ppr,
         };
       }
     });

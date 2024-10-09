@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  fetchWaiverWirePlayers,
-  fetchPlayerStats,
-  fetchLeagueRosters,
-  getCurrentNFLWeek,
+  fetchAllLeagueRosters,
   getPlayerInfo,
+  getCurrentNFLWeek,
+  fetchLeagueDetails,
 } from "@/libs/sleeper";
 import {
   Table,
@@ -16,358 +15,171 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
+const fetchTrendingPlayers = async () => {
+  const response = await fetch(
+    "https://api.sleeper.app/v1/players/nfl/trending/add?limit=40"
+  );
+  const data = await response.json();
+  return data;
+};
+
+const getPositionColor = (position) => {
+  switch (position) {
+    case "QB":
+      return "bg-red-500";
+    case "RB":
+      return "bg-blue-500";
+    case "WR":
+      return "bg-green-500";
+    case "TE":
+      return "bg-yellow-500";
+    default:
+      return "bg-gray-500";
+  }
+};
 
 const WaiverWire = ({ leagueId }) => {
-  const [players, setPlayers] = useState([]);
-  const [filteredPlayers, setFilteredPlayers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [positionFilter, setPositionFilter] = useState("");
-  const [watchlist, setWatchlist] = useState([]);
-  const [selectedPlayers, setSelectedPlayers] = useState([]);
-  const [rankings, setRankings] = useState({
-    overall: [],
-    QB: [],
-    RB: [],
-    WR: [],
-    TE: [],
-  });
   const [currentWeek, setCurrentWeek] = useState(null);
+  const [rosteredPlayers, setRosteredPlayers] = useState(new Set());
+  const [trendingPlayers, setTrendingPlayers] = useState([]);
+  const [playerInfo, setPlayerInfo] = useState({});
+  const [leagueDetails, setLeagueDetails] = useState(null);
+  const [loading, setLoading] = useState({
+    week: true,
+    rostered: true,
+    trending: true,
+    playerInfo: true,
+    leagueDetails: true,
+  });
 
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      setLoading(true);
-      try {
-        const week = await getCurrentNFLWeek();
-        setCurrentWeek(week);
+  const fetchData = useCallback(async () => {
+    try {
+      const week = await getCurrentNFLWeek();
+      setCurrentWeek(week);
+      setLoading((prev) => ({ ...prev, week: false }));
 
-        const leagueRosters = await fetchLeagueRosters(leagueId);
-        const rosteredPlayerIds = leagueRosters.flatMap(
-          (roster) => roster.players
-        );
-        const allPlayers = await fetchWaiverWirePlayers(leagueId);
-        const availablePlayers = allPlayers.filter(
-          (player) => !rosteredPlayerIds.includes(player.player_id)
-        );
+      const rostered = await fetchAllLeagueRosters(leagueId);
+      setRosteredPlayers(new Set(rostered));
+      setLoading((prev) => ({ ...prev, rostered: false }));
 
-        const playersWithStats = await Promise.all(
-          availablePlayers.map(async (player) => {
-            const stats = await fetchPlayerStats([player.player_id], {}, "PPR");
-            const info = await getPlayerInfo(player.player_id);
-            return { ...player, ...info, stats: stats[player.player_id] };
-          })
-        );
+      const trending = await fetchTrendingPlayers();
+      setTrendingPlayers(trending);
+      setLoading((prev) => ({ ...prev, trending: false }));
 
-        setPlayers(playersWithStats);
-        setFilteredPlayers(playersWithStats);
-
-        // Calculate rankings
-        const overallRankings = [...playersWithStats].sort(
-          (a, b) => b.stats.totalPoints - a.stats.totalPoints
-        );
-        const positionRankings = {
-          QB: [...playersWithStats.filter((p) => p.position === "QB")].sort(
-            (a, b) => b.stats.totalPoints - a.stats.totalPoints
-          ),
-          RB: [...playersWithStats.filter((p) => p.position === "RB")].sort(
-            (a, b) => b.stats.totalPoints - a.stats.totalPoints
-          ),
-          WR: [...playersWithStats.filter((p) => p.position === "WR")].sort(
-            (a, b) => b.stats.totalPoints - a.stats.totalPoints
-          ),
-          TE: [...playersWithStats.filter((p) => p.position === "TE")].sort(
-            (a, b) => b.stats.totalPoints - a.stats.totalPoints
-          ),
-        };
-
-        setRankings({
-          overall: overallRankings.slice(0, 20),
-          ...Object.fromEntries(
-            Object.entries(positionRankings).map(([pos, players]) => [
-              pos,
-              players.slice(0, 10),
-            ])
-          ),
-        });
-      } catch (error) {
-        console.error("Error fetching waiver wire players:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlayers();
+      const details = await fetchLeagueDetails(leagueId);
+      setLeagueDetails(details);
+      setLoading((prev) => ({ ...prev, leagueDetails: false }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   }, [leagueId]);
 
   useEffect(() => {
-    const filtered = players.filter((player) => {
-      const nameMatch = player.player_name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const positionMatch =
-        positionFilter === "" || player.position === positionFilter;
-      return nameMatch && positionMatch;
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    const fetchPlayerData = async () => {
+      if (trendingPlayers.length > 0) {
+        const infoPromises = trendingPlayers.map((player) =>
+          getPlayerInfo(player.player_id)
+        );
+        const infoArray = await Promise.all(infoPromises);
+        const info = infoArray.reduce((acc, playerInfo, index) => {
+          acc[trendingPlayers[index].player_id] = playerInfo;
+          return acc;
+        }, {});
+        setPlayerInfo(info);
+        setLoading((prev) => ({ ...prev, playerInfo: false }));
+      }
+    };
+
+    fetchPlayerData();
+  }, [trendingPlayers]);
+
+  const availableTrending = useMemo(() => {
+    if (!leagueDetails || !trendingPlayers.length) return [];
+
+    const includesDEF = leagueDetails.roster_positions.includes("DEF");
+    const includesK = leagueDetails.roster_positions.includes("K");
+
+    return trendingPlayers.filter((player) => {
+      if (!rosteredPlayers.has(player.player_id)) {
+        const playerPosition = playerInfo[player.player_id]?.position;
+        if (!includesDEF && playerPosition === "DEF") return false;
+        if (!includesK && playerPosition === "K") return false;
+        return true;
+      }
+      return false;
     });
-    setFilteredPlayers(filtered);
-  }, [searchTerm, positionFilter, players]);
+  }, [trendingPlayers, rosteredPlayers, leagueDetails, playerInfo]);
 
-  const toggleWatchlist = (playerId) => {
-    setWatchlist((prev) =>
-      prev.includes(playerId)
-        ? prev.filter((id) => id !== playerId)
-        : [...prev, playerId]
-    );
-  };
+  const isLoading = Object.values(loading).some(Boolean);
 
-  const addToComparison = (player) => {
-    if (selectedPlayers.length < 3) {
-      setSelectedPlayers((prev) => [...prev, player]);
-    }
-  };
-
-  const renderPlayerRow = (player) => (
-    <TableRow key={player.player_id}>
-      <TableCell>
-        <Checkbox
-          checked={watchlist.includes(player.player_id)}
-          onCheckedChange={() => toggleWatchlist(player.player_id)}
-        />
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center space-x-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={`https://sleepercdn.com/content/nfl/players/${player.player_id}.jpg`}
-            />
-            <AvatarFallback>{player.player_name[0]}</AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="font-medium">{player.player_name}</div>
-            <div className="text-sm text-muted-foreground">
-              {player.team} - {player.position}
+  const renderPlayerRow = useCallback(
+    (player) => (
+      <TableRow key={player.player_id}>
+        <TableCell>
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={`https://sleepercdn.com/content/nfl/players/${player.player_id}.jpg`}
+                alt={playerInfo[player.player_id]?.player_name || "Player"}
+              />
+              <AvatarFallback>
+                {(playerInfo[player.player_id]?.player_name || "?").charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="text-base font-semibold">
+                {playerInfo[player.player_id]?.player_name || "Unknown Player"}
+              </div>
+              <div className="flex items-center mt-1">
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${getPositionColor(
+                    playerInfo[player.player_id]?.position
+                  )}`}
+                ></div>
+                <span className="text-sm text-muted-foreground">
+                  {playerInfo[player.player_id]?.team || "N/A"} -{" "}
+                  {playerInfo[player.player_id]?.position || "N/A"}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </TableCell>
-      <TableCell>{player.stats.totalPoints.toFixed(2)}</TableCell>
-      <TableCell>{player.stats.averagePoints.toFixed(2)}</TableCell>
-      <TableCell>{player.stats.gamesPlayed}</TableCell>
-      <TableCell>
-        <Button onClick={() => addToComparison(player)}>Compare</Button>
-      </TableCell>
-    </TableRow>
+        </TableCell>
+        <TableCell className="text-right">{player.count}</TableCell>
+      </TableRow>
+    ),
+    [playerInfo]
   );
 
   return (
-    <div>
-      <Card className="w-full mb-4">
+    <div className="space-y-8">
+      <Card className="w-full">
         <CardHeader>
-          <CardTitle>Waiver Wire - Week {currentWeek}</CardTitle>
+          <CardTitle>Trending Waiver Wire Adds - Week {currentWeek}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex space-x-2 mb-4">
-            <Input
-              placeholder="Search players..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
-            <select
-              value={positionFilter}
-              onChange={(e) => setPositionFilter(e.target.value)}
-              className="border rounded p-2"
-            >
-              <option value="">All Positions</option>
-              <option value="QB">QB</option>
-              <option value="RB">RB</option>
-              <option value="WR">WR</option>
-              <option value="TE">TE</option>
-            </select>
-          </div>
-          {loading ? (
-            <div>Loading waiver wire players...</div>
+          {isLoading ? (
+            <div className="text-center py-4">Loading trending players...</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[50px]">Watch</TableHead>
                   <TableHead>Player</TableHead>
-                  <TableHead>Total Points</TableHead>
-                  <TableHead>Avg Points</TableHead>
-                  <TableHead>Games Played</TableHead>
-                  <TableHead>Compare</TableHead>
+                  <TableHead className="text-right">Add Count</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>{filteredPlayers.map(renderPlayerRow)}</TableBody>
+              <TableBody>{availableTrending.map(renderPlayerRow)}</TableBody>
             </Table>
           )}
         </CardContent>
       </Card>
-
-      <Watchlist playerIds={watchlist} players={players} />
-
-      <Card className="w-full mt-4">
-        <CardHeader>
-          <CardTitle>Player Comparison</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PlayerComparison players={selectedPlayers} />
-        </CardContent>
-      </Card>
-
-      <Card className="w-full mt-4">
-        <CardHeader>
-          <CardTitle>Waiver Wire Rankings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="overall">
-            <TabsList>
-              <TabsTrigger value="overall">Overall</TabsTrigger>
-              <TabsTrigger value="QB">QB</TabsTrigger>
-              <TabsTrigger value="RB">RB</TabsTrigger>
-              <TabsTrigger value="WR">WR</TabsTrigger>
-              <TabsTrigger value="TE">TE</TabsTrigger>
-            </TabsList>
-            <TabsContent value="overall">
-              <RankingTable players={rankings.overall} />
-            </TabsContent>
-            <TabsContent value="QB">
-              <RankingTable players={rankings.QB} />
-            </TabsContent>
-            <TabsContent value="RB">
-              <RankingTable players={rankings.RB} />
-            </TabsContent>
-            <TabsContent value="WR">
-              <RankingTable players={rankings.WR} />
-            </TabsContent>
-            <TabsContent value="TE">
-              <RankingTable players={rankings.TE} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
     </div>
-  );
-};
-
-const TrendAnalysis = ({ playerId }) => {
-  const [trend, setTrend] = useState([]);
-
-  useEffect(() => {
-    const fetchTrend = async () => {
-      // This is where you would fetch the trend data for the player
-      // For now, we'll use dummy data
-      setTrend([10, 15, 12, 18, 20]);
-    };
-
-    fetchTrend();
-  }, [playerId]);
-
-  return (
-    <div className="mt-2">
-      <h4 className="text-sm font-semibold">Points Trend</h4>
-      {trend.map((point, index) => (
-        <div
-          key={index}
-          style={{
-            width: `${point * 5}px`,
-            height: "10px",
-            backgroundColor: "blue",
-            marginBottom: "2px",
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-const PlayerComparison = ({ players }) => {
-  return (
-    <div className="grid grid-cols-3 gap-4">
-      {players.map((player) => (
-        <Card key={player.player_id}>
-          <CardHeader>
-            <CardTitle>{player.player_name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Total Points: {player.stats.totalPoints.toFixed(2)}</p>
-            <p>Avg Points: {player.stats.averagePoints.toFixed(2)}</p>
-            <p>Games Played: {player.stats.gamesPlayed}</p>
-            <TrendAnalysis playerId={player.player_id} />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-};
-
-const Watchlist = ({ playerIds, players }) => {
-  const watchlistPlayers = players.filter((player) =>
-    playerIds.includes(player.player_id)
-  );
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Watchlist</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Player</TableHead>
-              <TableHead>Total Points</TableHead>
-              <TableHead>Avg Points</TableHead>
-              <TableHead>Games Played</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {watchlistPlayers.map((player) => (
-              <TableRow key={player.player_id}>
-                <TableCell>{player.player_name}</TableCell>
-                <TableCell>{player.stats.totalPoints.toFixed(2)}</TableCell>
-                <TableCell>{player.stats.averagePoints.toFixed(2)}</TableCell>
-                <TableCell>{player.stats.gamesPlayed}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-};
-
-const RankingTable = ({ players }) => {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Rank</TableHead>
-          <TableHead>Player</TableHead>
-          <TableHead>Position</TableHead>
-          <TableHead>Team</TableHead>
-          <TableHead>Total Points</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {players.map((player, index) => (
-          <TableRow key={player.player_id}>
-            <TableCell>{index + 1}</TableCell>
-            <TableCell>{player.player_name}</TableCell>
-            <TableCell>{player.position}</TableCell>
-            <TableCell>{player.team}</TableCell>
-            <TableCell>{player.stats.totalPoints.toFixed(2)}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 };
 

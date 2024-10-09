@@ -124,7 +124,7 @@ export default function FantasyDashboard() {
 
         <LeagueOverview leaguesData={leagues} />
 
-        <Tabs defaultValue="myTeams" className="w-full">
+        <Tabs defaultValue="myTeams" className="w-full mt-2">
           <TabsList>
             <TabsTrigger value="myTeams">My Teams</TabsTrigger>
 

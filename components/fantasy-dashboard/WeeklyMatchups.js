@@ -139,9 +139,7 @@ const WeeklyMatchups = ({
         <TableCell className="font-medium">
           {usernames[team1.roster_id]}
           {isCurrentUserTeam(usernames[team1.roster_id]) && (
-            <Badge className="ml-2 bg-primary text-primary-foreground">
-              You
-            </Badge>
+            <Badge className="ml-2 bg-primary text-base-200">You</Badge>
           )}
         </TableCell>
         <TableCell>{team1.points.toFixed(2)}</TableCell>

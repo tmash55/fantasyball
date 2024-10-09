@@ -35,6 +35,14 @@ progress::-webkit-progress-value {
   transition: transform 0.6s;
   transform-style: preserve-3d;
 }
+.custom-tab-trigger[data-state="active"] {
+  border-bottom-color: rgba(
+    255,
+    255,
+    255,
+    0.5
+  ); /* Adjust the opacity as needed */
+}
 
 .flipped .flip-card-inner {
   transform: rotateY(180deg);
